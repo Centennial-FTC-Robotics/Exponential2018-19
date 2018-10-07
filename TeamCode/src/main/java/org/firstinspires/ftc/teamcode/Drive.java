@@ -7,17 +7,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Drive extends ExponentialMethods {
 
-    public void start() {
-        lmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public void loop() {
-        lmotor0.setPower(gamepad1.left_stick_y);
-        lmotor0.setPower(gamepad1.left_stick_y);
-        rmotor0.setPower(gamepad1.right_stick_y);
-        rmotor0.setPower(gamepad1.right_stick_y);
+    public void runOpMode() throws InterruptedException {
+        super.runOpMode();
+        while(opModeIsActive()){
+            lmotor0.setPower(gamepad1.left_stick_y);
+            lmotor0.setPower(gamepad1.left_stick_y);
+            rmotor0.setPower(gamepad1.right_stick_y);
+            rmotor0.setPower(gamepad1.right_stick_y);
+            idle();
+        }
     }
 }
