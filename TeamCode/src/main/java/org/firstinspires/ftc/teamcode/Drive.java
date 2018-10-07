@@ -11,9 +11,9 @@ public class Drive extends ExponentialMethods {
         super.runOpMode();
         while(opModeIsActive()){
             lmotor0.setPower(gamepad1.left_stick_y);
-            lmotor0.setPower(gamepad1.left_stick_y);
+            lmotor1.setPower(gamepad1.left_stick_y);
             rmotor0.setPower(gamepad1.right_stick_y);
-            rmotor0.setPower(gamepad1.right_stick_y);
+            rmotor1.setPower(gamepad1.right_stick_y);
             idle();
         }
     }
