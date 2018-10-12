@@ -27,5 +27,6 @@ public abstract class ExponentialHardware extends LinearOpMode {
         lmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        waitForStart();
     }
 }
