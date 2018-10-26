@@ -17,8 +17,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         lmotor1 = hardwareMap.dcMotor.get("lmotor1");
         rmotor0 = hardwareMap.dcMotor.get("rmotor0");
         rmotor1 = hardwareMap.dcMotor.get("rmotor1");
-        lmotor0.setDirection(DcMotor.Direction.REVERSE);
-        lmotor1.setDirection(DcMotor.Direction.REVERSE);
+        rmotor0.setDirection(DcMotor.Direction.REVERSE);
+        rmotor1.setDirection(DcMotor.Direction.REVERSE);
         lmotor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lmotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rmotor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
