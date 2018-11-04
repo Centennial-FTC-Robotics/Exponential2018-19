@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
@@ -181,5 +180,15 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         //added:
         return goldPosition;
+    }
+
+    public void turn(float angle) {
+
+        float currentAngle = gyro.getHeading();
+
+        while ((int) currentAngle != (int) angle) {
+
+            
+        }
     }
 }

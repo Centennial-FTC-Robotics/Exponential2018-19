@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 
 public abstract class ExponentialHardware extends LinearOpMode {
 
@@ -11,6 +12,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor rmotor0;
     DcMotor rmotor1;
     DcMotor hingeMotor;
+    GyroSensor gyro;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -19,6 +22,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0 = hardwareMap.dcMotor.get("rmotor0");
         rmotor1 = hardwareMap.dcMotor.get("rmotor1");
         hingeMotor = hardwareMap.dcMotor.get("hingeMotor");
+        gyro = hardwareMap.gyroSensor.get("gryoSensor");
+        while (gyro.isCalibrating())
 
         rmotor0.setDirection(DcMotor.Direction.REVERSE);
         rmotor1.setDirection(DcMotor.Direction.REVERSE);
