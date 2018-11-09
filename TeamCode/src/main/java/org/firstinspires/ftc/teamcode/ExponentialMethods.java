@@ -82,6 +82,38 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
+    public void turn(int angle, int speed) {
+
+        while (angle > 360 || angle < 0) {
+            angle += 360;
+        }
+
+        int currentAngle = gyro.getHeading();
+        int referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
+        int distance = 180 - Math.abs(referenceAngle - angle);
+        int direction = ((referenceAngle - angle) == 0) ? 1 : (referenceAngle - angle) / Math.abs(referenceAngle - angle); // -1 is right, 1 is left
+        int turnRate = (distance * speed) / 90;
+
+        while (Math.abs(gyro.getHeading() - angle) > 1) {
+
+            runDriveMotors(-direction * (turnRate), direction * (turnRate));
+            distance = getAngleDist(angle);
+            turnRate = (distance * speed) / 90;
+
+        }
+
+        runDriveMotors(0,0);
+    }
+
+    private int getAngleDist(int angle) {
+
+        int currentAngle = gyro.getHeading();
+        int referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
+        int distance = 180 - Math.abs(referenceAngle - angle);
+
+        return distance;
+    }
+
     private void initVuforia() {
         //create parameter object and pass it to create Vuforia engine
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
