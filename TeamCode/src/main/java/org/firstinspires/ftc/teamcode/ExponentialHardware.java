@@ -1,9 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+// hardware
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.GyroSensor;
+
+// sensors & sensorSetup
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 public abstract class ExponentialHardware extends LinearOpMode {
 
@@ -17,6 +25,12 @@ public abstract class ExponentialHardware extends LinearOpMode {
     GyroSensor gyro;
 
 
+    Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
+    BNO055IMU imu;
+    double initialHeading;
+    double initialPitch;
+    double initialRoll;
+
     @Override
     public void runOpMode() throws InterruptedException {
         lmotor0 = hardwareMap.dcMotor.get("lmotor0");
@@ -24,8 +38,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0 = hardwareMap.dcMotor.get("rmotor0");
         rmotor1 = hardwareMap.dcMotor.get("rmotor1");
         hingeMotor = hardwareMap.dcMotor.get("hingeMotor");
-        gyro = hardwareMap.gyroSensor.get("gryoSensor");
-        while (gyro.isCalibrating())
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         rmotor0.setDirection(DcMotor.Direction.REVERSE);
         rmotor1.setDirection(DcMotor.Direction.REVERSE);
@@ -41,6 +54,10 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        initialHeading = orientation.firstAngle;
+        initialPitch = orientation.secondAngle;
+        initialRoll = orientation.thirdAngle;
 
         waitForStart();
     }
