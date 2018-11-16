@@ -2,11 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
-
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 import java.util.List;
 
@@ -31,6 +38,110 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
 
+    /* -------------- Initialization -------------- */
+
+    private void initVuforia() {
+        //create parameter object and pass it to create Vuforia engine
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    private void initTfod() {
+        //create parameter object and pass it to create Tensor Flow object detector
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    public void autoInit() {
+        initVuforia();
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            initTfod();
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        }
+        //wait for game to start
+        telemetry.addData(">", "Press Play to start tracking");
+        telemetry.update();
+        waitForStart();
+    }
+
+    public void initializeIMU(){
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled      = true;
+        parameters.loggingTag          = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        imu.initialize(parameters);
+    }
+
+    /* -------------- Status Methods -------------- */
+
+    public boolean motorsBusy() {
+        boolean busy = false;
+        for (DcMotor motor : driveMotors) {
+            if (motor.isBusy()) {
+                busy = true;
+            }
+        }
+        return busy;
+    }
+
+    public double getRawZ() {
+
+        return orientation.firstAngle;
+    }
+
+    public double getRawY() {
+
+        return orientation.thirdAngle;
+    }
+
+    public double getRawX() {
+
+        return orientation.secondAngle;
+    }
+
+    public OpenGLMatrix getRotation() {
+
+        return orientation.getRotationMatrix();
+    }
+
+    public double getRotationinDimension(char dimension) {
+
+        switch (Character.toUpperCase(dimension)) {
+            case 'X':
+
+                return AngleUnit.normalizeDegrees(getRawX() - initialPitch);
+            case 'Y':
+
+                return AngleUnit.normalizeDegrees(getRawY() - initialRoll);
+            case 'Z':
+
+                return AngleUnit.normalizeDegrees(getRawZ() - initialHeading);
+        }
+
+        return 0;
+    }
+
+    /* -------------- Processing -------------- */
+
+    private double getAngleDist(double angle, double currentAngle) {
+
+        double referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
+        double distance = 180 - Math.abs(referenceAngle - angle);
+
+        return distance;
+    }
+
+    /* -------------- Movement -------------- */
+
     //movement based on speeds
     public void runDriveMotors(float leftSpeed, float rightSpeed) {
         lmotor0.setPower(Range.clip(leftSpeed, -1, 1));
@@ -46,21 +157,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         hingeMotor.setTargetPosition(position);
         hingeMotor.setPower(1);
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-
-    public void waitForMotors() {
-        while (motorsBusy()) {
-        }
-    }
-
-    public boolean motorsBusy() {
-        boolean busy = false;
-        for (DcMotor motor : driveMotors) {
-            if (motor.isBusy()) {
-                busy = true;
-            }
-        }
-        return busy;
     }
 
     //currently in inches
@@ -82,22 +178,21 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-    public void turn(int angle, int speed) {
+    public void turn(double angle, double speed) {
 
-        while (angle > 360 || angle < 0) {
-            angle += 360;
-        }
+        // normalize the angle
+        angle = AngleUnit.normalizeDegrees(angle);
 
-        int currentAngle = gyro.getHeading();
-        int referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
-        int distance = 180 - Math.abs(referenceAngle - angle);
-        int direction = ((referenceAngle - angle) == 0) ? 1 : (referenceAngle - angle) / Math.abs(referenceAngle - angle); // -1 is right, 1 is left
-        int turnRate = (distance * speed) / 90;
+        double currentAngle = getRotationinDimension('Z');
+        double referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
+        double distance = 180 - Math.abs(referenceAngle - angle);
+        int direction =(int) (((referenceAngle - angle) == 0) ? 1 : (referenceAngle - angle) / Math.abs(referenceAngle - angle)); // -1 is right, 1 is left
+        double turnRate = (distance * speed) / 90;
 
-        while (Math.abs(gyro.getHeading() - angle) > 1) {
+        while (Math.abs(getRotationinDimension('Z') - angle) > 1) {
 
-            runDriveMotors(-direction * (turnRate), direction * (turnRate));
-            distance = getAngleDist(angle);
+            runDriveMotors((float) (-direction * (turnRate)), (float) (direction * (turnRate)));
+            distance = getAngleDist(angle, getRotationinDimension('Z'));
             turnRate = (distance * speed) / 90;
 
         }
@@ -105,49 +200,22 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         runDriveMotors(0,0);
     }
 
-    private int getAngleDist(int angle) {
-
-        int currentAngle = gyro.getHeading();
-        int referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
-        int distance = 180 - Math.abs(referenceAngle - angle);
-
-        return distance;
-    }
-
-    private void initVuforia() {
-        //create parameter object and pass it to create Vuforia engine
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-    }
-
-    private void initTfod() {
-        //create parameter object and pass it to create Tensor Flow object detector
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-    }
+    /* -------------- Procedure -------------- */
 
     public void runAuto() {
         autoInit();
         autoFindGold();
     }
 
-    public void autoInit() {
-        initVuforia();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod();
-        } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+    public void waitForMotors() {
+        while (motorsBusy()) {
         }
-        //wait for game to start
-        telemetry.addData(">", "Press Play to start tracking");
-        telemetry.update();
-        waitForStart();
     }
+
+    public void updateOrientation (){
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES);
+    }
+    /* -------------- Technical Innovation -------------- */
 
     //returns left, right, or center based on position of gold
     public String autoFindGold() {
