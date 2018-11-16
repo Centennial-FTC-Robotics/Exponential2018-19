@@ -12,6 +12,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor rmotor0;
     DcMotor rmotor1;
     DcMotor hingeMotor;
+    DcMotor lSlideMotor;
+    DcMotor rSlideMotor;
     GyroSensor gyro;
 
 

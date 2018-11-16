@@ -38,6 +38,36 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         rmotor1.setPower(Range.clip(rightSpeed, -1, 1));
     }
 
+    public void moveSlides(float power) {
+        lSlideMotor.setPower(Range.clip(power, -1, 1));
+        rSlideMotor.setPower(Range.clip(power, -1, 1));
+    }
+
+    public void moveHinge(int hingePos, float hingeSpeed) {
+        //if at 90 degrees, only move if decreasing angle
+        if (hingePos >= 2240) {
+            if (hingeSpeed < 0) {
+                hingeMotor.setPower(hingeSpeed);
+            }
+            else {
+                hingeMotor.setPower(0);
+            }
+        }
+        //if at 0 degrees, only move if increasing angle
+        else if (hingePos <= 0){
+            if (hingeSpeed > 0) {
+                hingeMotor.setPower(hingeSpeed);
+            }
+            else {
+                hingeMotor.setPower(0);
+            }
+        }
+        //if in between 0 and 90 degrees, move however
+        else {
+            hingeMotor.setPower(hingeSpeed);
+        }
+    }
+
     public void moveHingeTo(float angle) {
         hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
@@ -98,12 +128,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
     }
 
-    public void runAuto() {
-        autoInit();
-        autoFindGold();
-    }
-
-    public void autoInit() {
+    public void initVision() {
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
@@ -113,12 +138,10 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         //wait for game to start
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
-        waitForStart();
     }
 
     //returns left, right, or center based on position of gold
     public String autoFindGold() {
-
         //added:
         String goldPosition = "";
 
@@ -188,7 +211,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         while ((int) currentAngle != (int) angle) {
 
-            
+
         }
     }
 }
