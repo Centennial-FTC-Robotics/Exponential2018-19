@@ -38,6 +38,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
 
+    //distance calculation
+
     /* -------------- Initialization -------------- */
 
     private void initVuforia() {
@@ -91,6 +93,11 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         //wait for game to start
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
+    }
+
+    public void initAutoMotors() {
+
+        moveSlides(1);
     }
     /* -------------- Status Methods -------------- */
 
@@ -151,6 +158,24 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return distance;
     }
 
+    private int convertInchToEncoder(float dist) {
+
+        float wheelRotations = (float)(dist / (wheelDiameterIn * Math.PI));
+        float motorRotations = (22/24) * (wheelRotations);
+        float encoderCounts = 560 * motorRotations;
+        int position = Math.round(encoderCounts);
+
+        return position;
+    }
+
+    private double convertEncoderToInch(int encoders) {
+
+        float motorRotations = encoders / 560;
+        float wheelRotations = motorRotations * (24/22);
+        double distance = wheelRotations * (wheelDiameterIn * Math.PI);
+
+        return distance;
+    }
     /* -------------- Movement -------------- */
 
     //movement based on speeds
@@ -162,6 +187,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
+
         lSlideMotor.setPower(Range.clip(power, -1, 1));
         rSlideMotor.setPower(Range.clip(power, -1, 1));
     }
@@ -204,10 +230,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public void move(float distance) {
         //converting from linear distance -> wheel rotations ->
         // motor rotations -> encoder counts, then round
-        float wheelRotations = (float)(distance / (wheelDiameterIn * Math.PI));
-        float motorRotations = (22/24) * (wheelRotations);
-        float encoderCounts = 560 * motorRotations;
-        int position = Math.round(encoderCounts);
+
+        int position = convertInchToEncoder(distance);
 
         for (DcMotor motor : driveMotors) {
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -242,11 +266,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
     
     /* -------------- Procedure -------------- */
-
-    public void runAuto() {
-        autoInit();
-        autoFindGold();
-    }
 
     public void waitForMotors() {
         while (motorsBusy()) {

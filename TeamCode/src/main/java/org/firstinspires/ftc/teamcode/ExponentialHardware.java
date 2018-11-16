@@ -38,6 +38,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0 = hardwareMap.dcMotor.get("rmotor0");
         rmotor1 = hardwareMap.dcMotor.get("rmotor1");
         hingeMotor = hardwareMap.dcMotor.get("hingeMotor");
+        lSlideMotor = hardwareMap.dcMotor.get("lSlide");
+        rSlideMotor = hardwareMap.dcMotor.get("rSlide");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         rmotor0.setDirection(DcMotor.Direction.REVERSE);
@@ -58,7 +60,5 @@ public abstract class ExponentialHardware extends LinearOpMode {
         initialHeading = orientation.firstAngle;
         initialPitch = orientation.secondAngle;
         initialRoll = orientation.thirdAngle;
-
-        waitForStart();
     }
 }

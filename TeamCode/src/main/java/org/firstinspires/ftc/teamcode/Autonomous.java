@@ -11,10 +11,15 @@ public class Autonomous extends ExponentialMethods {
         super.runOpMode();
         initVision();
         waitForStart();
+        // write code to get down from hanging
+
+        //while () {}
+        // finding and displacing mineral
         String goldPos = autoFindGold();
 
         //team marker?
         move(50); //yeet forward into crater
+
 
     }
 }
