@@ -55,6 +55,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
 
     public void autoInit() {
         initVuforia();
@@ -249,7 +250,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public void waitForMotors() {
         while (motorsBusy()) {
-
+        }
+    }
     public void updateOrientation (){
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES);
     }
@@ -318,15 +320,5 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         //added:
         return goldPosition;
-    }
-
-    public void turn(float angle) {
-
-        float currentAngle = gyro.getHeading();
-
-        while ((int) currentAngle != (int) angle) {
-
-
-        }
     }
 }
