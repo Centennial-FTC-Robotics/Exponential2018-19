@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // hardware
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 
 // sensors & sensorSetup
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -19,6 +20,10 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor rmotor0;
     DcMotor rmotor1;
     DcMotor hingeMotor;
+    DcMotor lSlideMotor;
+    DcMotor rSlideMotor;
+    GyroSensor gyro;
+
 
     Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
     BNO055IMU imu;

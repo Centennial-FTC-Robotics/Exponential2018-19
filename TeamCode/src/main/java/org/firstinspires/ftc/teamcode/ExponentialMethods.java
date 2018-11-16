@@ -47,7 +47,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
-
+  
     private void initTfod() {
         //create parameter object and pass it to create Tensor Flow object detector
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -55,7 +55,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-    }
 
     public void autoInit() {
         initVuforia();
@@ -80,7 +79,18 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
     }
-
+      
+    public void initVision() {
+        initVuforia();
+        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
+            initTfod();
+        } else {
+            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
+        }
+        //wait for game to start
+        telemetry.addData(">", "Press Play to start tracking");
+        telemetry.update();
+    }
     /* -------------- Status Methods -------------- */
 
     public boolean motorsBusy() {
@@ -150,6 +160,36 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         rmotor1.setPower(Range.clip(rightSpeed, -1, 1));
     }
 
+    public void moveSlides(float power) {
+        lSlideMotor.setPower(Range.clip(power, -1, 1));
+        rSlideMotor.setPower(Range.clip(power, -1, 1));
+    }
+
+    public void moveHinge(int hingePos, float hingeSpeed) {
+        //if at 90 degrees, only move if decreasing angle
+        if (hingePos >= 2240) {
+            if (hingeSpeed < 0) {
+                hingeMotor.setPower(hingeSpeed);
+            }
+            else {
+                hingeMotor.setPower(0);
+            }
+        }
+        //if at 0 degrees, only move if increasing angle
+        else if (hingePos <= 0){
+            if (hingeSpeed > 0) {
+                hingeMotor.setPower(hingeSpeed);
+            }
+            else {
+                hingeMotor.setPower(0);
+            }
+        }
+        //if in between 0 and 90 degrees, move however
+        else {
+            hingeMotor.setPower(hingeSpeed);
+        }
+    }
+
     public void moveHingeTo(float angle) {
         hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
@@ -199,7 +239,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         runDriveMotors(0,0);
     }
-
+    
     /* -------------- Procedure -------------- */
 
     public void runAuto() {
@@ -209,8 +249,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public void waitForMotors() {
         while (motorsBusy()) {
-        }
-    }
 
     public void updateOrientation (){
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES);
@@ -219,7 +257,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     //returns left, right, or center based on position of gold
     public String autoFindGold() {
-
         //added:
         String goldPosition = "";
 
@@ -281,5 +318,15 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         //added:
         return goldPosition;
+    }
+
+    public void turn(float angle) {
+
+        float currentAngle = gyro.getHeading();
+
+        while ((int) currentAngle != (int) angle) {
+
+
+        }
     }
 }
