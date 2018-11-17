@@ -38,6 +38,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
 
+    public static final int RIGHT = 1;
+    public static final int LEFT = -1;
+
     //distance calculation
 
     /* -------------- Initialization -------------- */
@@ -150,12 +153,16 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     /* -------------- Processing -------------- */
 
-    private double getAngleDist(double angle, double currentAngle) {
+    private double getAngleDist(double targetAngle, double currentAngle) {
 
-        double referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
-        double distance = 180 - Math.abs(referenceAngle - angle);
+        double angleDifference = currentAngle - targetAngle;
+        if (Math.abs(angleDifference) > 180) {
+            angleDifference = 360 - Math.abs(angleDifference);
+        } else {
+            angleDifference = Math.abs(angleDifference);
+        }
 
-        return distance;
+        return angleDifference;
     }
 
     private int convertInchToEncoder(float dist) {
@@ -243,26 +250,36 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-    public void turn(double angle, double speed) {
-
-        // normalize the angle
-        angle = AngleUnit.normalizeDegrees(angle);
-
+    public void turn (double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
-        double referenceAngle = (currentAngle + 180 > 360) ? (currentAngle - 180) : (currentAngle + 180);
-        double distance = 180 - Math.abs(referenceAngle - angle);
-        int direction =(int) (((referenceAngle - angle) == 0) ? 1 : (referenceAngle - angle) / Math.abs(referenceAngle - angle)); // -1 is right, 1 is left
-        double turnRate = (distance * speed) / 90;
+        int direction;
+        if (targetAngle != currentAngle) {
+            double angleDifference = currentAngle - targetAngle;
+            direction = (int) (angleDifference / Math.abs(angleDifference));
+            if (Math.abs(angleDifference) > 180) {
+                direction *= -1;
+                angleDifference = 360 - Math.abs(angleDifference);
+            } else {
+                angleDifference = Math.abs(angleDifference);
+            }
 
-        while (Math.abs(getRotationinDimension('Z') - angle) > 1) {
-
-            runDriveMotors((float) (-direction * (turnRate)), (float) (direction * (turnRate)));
-            distance = getAngleDist(angle, getRotationinDimension('Z'));
-            turnRate = (distance * speed) / 90;
-
+            double turnRate = (angleDifference * speed) / 90;
+            while (angleDifference > 1) {
+                runDriveMotors((float) (-(turnRate)), (float) (turnRate));
+                angleDifference = getAngleDist(targetAngle, getRotationinDimension('Z'));
+                turnRate = (angleDifference * speed) / 90;
+            }
+            runDriveMotors(0,0);
         }
+    }
 
-        runDriveMotors(0,0);
+    public void shift() {
+        if (shifterServo.getPosition() == speed) {
+            shifterServo.setPosition(stronk);
+        }
+        else if (shifterServo.getPosition() == stronk) {
+            shifterServo.setPosition(speed);
+        }
     }
     
     /* -------------- Procedure -------------- */

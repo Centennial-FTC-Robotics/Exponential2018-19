@@ -27,6 +27,10 @@ public class Drive extends ExponentialMethods {
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
             moveSlides(slideSpeed);
 
+            //shift
+            if (gamepad2.a) {
+                shift();
+            }
             idle();
         }
     }

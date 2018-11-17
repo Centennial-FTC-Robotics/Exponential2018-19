@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // hardware
@@ -8,6 +9,8 @@ import com.qualcomm.robotcore.hardware.GyroSensor;
 
 // sensors & sensorSetup
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -23,13 +26,16 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor lSlideMotor;
     DcMotor rSlideMotor;
     GyroSensor gyro;
-
+    Servo shifterServo;
 
     Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
     BNO055IMU imu;
     double initialHeading;
     double initialPitch;
     double initialRoll;
+
+    public static final int stronk = 0;
+    public static final int speed = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,6 +46,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         hingeMotor = hardwareMap.dcMotor.get("hingeMotor");
         lSlideMotor = hardwareMap.dcMotor.get("lSlide");
         rSlideMotor = hardwareMap.dcMotor.get("rSlide");
+        shifterServo = hardwareMap.servo.get("shifterServo");
+
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         rmotor0.setDirection(DcMotor.Direction.REVERSE);
@@ -56,6 +64,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        shifterServo.setPosition(stronk);
 
         initialHeading = orientation.firstAngle;
         initialPitch = orientation.secondAngle;
