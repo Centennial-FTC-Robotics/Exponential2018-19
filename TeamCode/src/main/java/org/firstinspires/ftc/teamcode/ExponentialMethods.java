@@ -22,7 +22,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     //motors
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
     private final DcMotor[] rightDriveMotors = {rmotor0, rmotor1};
-    private final DcMotor[] driveMotors = {lmotor0, lmotor1, rmotor0, rmotor1};
 
     //for reference
     private final int driveTicksPerRev = 560;
@@ -106,8 +105,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public boolean motorsBusy() {
         boolean busy = false;
-        for (DcMotor motor : driveMotors) {
-            if (motor.isBusy()) {
+        for (int i=0; i<4; i++) {
+            if (driveMotors[i].isBusy()) {
                 busy = true;
             }
         }
@@ -240,13 +239,14 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         int position = convertInchToEncoder(distance);
 
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setTargetPosition(position);
+        for (int i=0; i<driveMotors.length; i++) {
+            driveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            driveMotors[i].setTargetPosition(/*position*/5000);
+            driveMotors[i].setPower(.5);
         }
         waitForMotors();
-        for (DcMotor motor : driveMotors) {
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        for (int i=0; i<driveMotors.length; i++) {
+            driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 
@@ -285,7 +285,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     /* -------------- Procedure -------------- */
 
     public void waitForMotors() {
-        while (motorsBusy()) {
+        while (opModeIsActive()&&motorsBusy()) {
         }
     }
     public void updateOrientation (){

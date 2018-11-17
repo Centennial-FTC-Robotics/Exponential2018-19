@@ -11,6 +11,7 @@ public class Drive extends ExponentialMethods {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        waitForStart();
         while(opModeIsActive()){
 
             //drive with joysticks

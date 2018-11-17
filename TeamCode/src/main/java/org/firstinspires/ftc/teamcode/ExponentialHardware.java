@@ -25,7 +25,6 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor hingeMotor;
     DcMotor lSlideMotor;
     DcMotor rSlideMotor;
-    GyroSensor gyro;
     Servo shifterServo;
 
     Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
@@ -37,6 +36,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
     public static final int stronk = 0;
     public static final int speed = 1;
 
+    DcMotor[] driveMotors=new DcMotor[4];
     @Override
     public void runOpMode() throws InterruptedException {
         lmotor0 = hardwareMap.dcMotor.get("lmotor0");
@@ -70,5 +70,11 @@ public abstract class ExponentialHardware extends LinearOpMode {
         initialHeading = orientation.firstAngle;
         initialPitch = orientation.secondAngle;
         initialRoll = orientation.thirdAngle;
+        driveMotors[0] = lmotor0;
+        driveMotors[1] = lmotor1;
+        driveMotors[2] = rmotor0;
+        driveMotors[3] = rmotor1;
+
+
     }
 }
