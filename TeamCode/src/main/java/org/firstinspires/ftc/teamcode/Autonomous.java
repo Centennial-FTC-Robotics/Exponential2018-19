@@ -19,7 +19,7 @@ public class Autonomous extends ExponentialMethods {
         String goldPos = autoFindGold();
 
         //team marker?
-        move(50); //yeet forward into crater
+        //move(50); //yeet forward into crater
 
 
     }

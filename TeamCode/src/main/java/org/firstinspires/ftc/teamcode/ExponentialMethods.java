@@ -252,7 +252,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     //currently in inches
-    public void move(float distance, double speed) {
+    public void move(float distance, float speed) {
         //converting from linear distance -> wheel rotations ->
         // motor rotations -> encoder counts, then round
         for (int i = 0; i < driveMotors.length; i++) {
@@ -260,7 +260,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
 
         while (this.motorsBusy());
-
 
         int position = convertInchToEncoder(distance);
 
