@@ -11,7 +11,7 @@ public class Drive extends ExponentialMethods {
 
     public static float scale = 1;
     public static float fastScale = 1;
-    public static float slowScale = (float) 0.4;
+    public static float slowScale = (float) 0.2;
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -23,9 +23,9 @@ public class Drive extends ExponentialMethods {
             float turnSpeed = Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
             float leftSpeed;
             float rightSpeed;
-            if (moveSpeed > 0) {
-                leftSpeed = moveSpeed - (turnSpeed * moveSpeed);
-                rightSpeed = moveSpeed + (turnSpeed * moveSpeed);
+            if (moveSpeed != 0) {
+                leftSpeed = moveSpeed + (turnSpeed * moveSpeed);
+                rightSpeed = moveSpeed - (turnSpeed * moveSpeed);
             }
             else {
                 leftSpeed = -turnSpeed;
@@ -36,11 +36,11 @@ public class Drive extends ExponentialMethods {
             //move hinge with joystick
             int hingePos = hingeMotor.getCurrentPosition();
             float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
-            moveHinge(hingePos, scale * hingeSpeed);
+            moveHinge(hingePos, hingeSpeed);
 
             //move slides with joystick
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
-            moveSlides(scale *slideSpeed);
+            moveSlides(slideSpeed);
 
             //shift
             if (gamepad2.a) {
