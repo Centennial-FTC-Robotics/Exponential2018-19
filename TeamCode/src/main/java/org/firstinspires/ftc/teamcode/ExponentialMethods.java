@@ -41,7 +41,16 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public static final int LEFT = -1;
 
     //distance calculation
-
+    @Override
+    public void runOpMode() throws InterruptedException {
+        super.runOpMode();
+        initializeIMU();
+        Thread.sleep(1000);
+        updateOrientation();
+        initialHeading = orientation.firstAngle;
+         initialRoll = orientation.secondAngle;
+        initialPitch = orientation.thirdAngle;
+    }
     /* -------------- Initialization -------------- */
 
     private void initVuforia() {
@@ -114,22 +123,22 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public double getRawZ() {
-
+        updateOrientation();
         return orientation.firstAngle;
     }
 
     public double getRawY() {
-
+        updateOrientation();
         return orientation.thirdAngle;
     }
 
     public double getRawX() {
-
+        updateOrientation();
         return orientation.secondAngle;
     }
 
     public OpenGLMatrix getRotation() {
-
+        updateOrientation();
         return orientation.getRotationMatrix();
     }
 
@@ -152,7 +161,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     /* -------------- Processing -------------- */
 
-    private double getAngleDist(double targetAngle, double currentAngle) {
+    public double getAngleDist(double targetAngle, double currentAngle) {
 
         double angleDifference = currentAngle - targetAngle;
         if (Math.abs(angleDifference) > 180) {
@@ -164,20 +173,30 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return angleDifference;
     }
 
-    private int convertInchToEncoder(float dist) {
+    public int getAngleDir(double targetAngle, double currentAngle) {
+
+        double angleDifference = currentAngle - targetAngle;
+        int angleDir = (int) (angleDifference / Math.abs(angleDifference));
+        if (Math.abs(angleDifference) > 180) {
+            angleDir *= -1;
+        }
+        return angleDir;
+    }
+
+    public int convertInchToEncoder(float dist) {
 
         float wheelRotations = (float)(dist / (wheelDiameterIn * Math.PI));
-        float motorRotations = (22/24) * (wheelRotations);
+        float motorRotations = (float) ((22.0 / 24.0) * (wheelRotations));
         float encoderCounts = 560 * motorRotations;
         int position = Math.round(encoderCounts);
 
         return position;
     }
 
-    private double convertEncoderToInch(int encoders) {
+    public double convertEncoderToInch(int encoders) {
 
         float motorRotations = encoders / 560;
-        float wheelRotations = motorRotations * (24/22);
+        double wheelRotations = motorRotations * (24.0 / 22.0);
         double distance = wheelRotations * (wheelDiameterIn * Math.PI);
 
         return distance;
@@ -233,44 +252,63 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     //currently in inches
-    public void move(float distance) {
+    public void move(float distance, double speed) {
         //converting from linear distance -> wheel rotations ->
         // motor rotations -> encoder counts, then round
+        for (int i = 0; i < driveMotors.length; i++) {
+            driveMotors[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+
+        while (this.motorsBusy());
+
 
         int position = convertInchToEncoder(distance);
 
-        for (int i=0; i<driveMotors.length; i++) {
+        for (int i=0; i< driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            driveMotors[i].setTargetPosition(/*position*/5000);
-            driveMotors[i].setPower(.5);
+            driveMotors[i].setTargetPosition(-position);
+            driveMotors[i].setPower(speed);
         }
         waitForMotors();
+        runDriveMotors(0, 0);
         for (int i=0; i<driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 
-    public void turn (double targetAngle, double speed) {
+    public void turnRelative(double targetChange, double speed) {
+
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetChange), speed);
+    }
+
+    public void turnAbsolute (double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
         int direction;
         if (targetAngle != currentAngle) {
-            double angleDifference = currentAngle - targetAngle;
-            direction = (int) (angleDifference / Math.abs(angleDifference));
-            if (Math.abs(angleDifference) > 180) {
-                direction *= -1;
-                angleDifference = 360 - Math.abs(angleDifference);
-            } else {
-                angleDifference = Math.abs(angleDifference);
-            }
+
+            double angleDifference = getAngleDist(targetAngle, currentAngle);
+            direction = getAngleDir(targetAngle, currentAngle);
 
             double turnRate = (angleDifference * speed) / 90;
-            while (angleDifference > 1) {
-                runDriveMotors((float) (-(turnRate)), (float) (turnRate));
+
+            while (opModeIsActive() && angleDifference > 1) {
+                runDriveMotors((float) -(turnRate * direction), (float) (turnRate * direction));
                 angleDifference = getAngleDist(targetAngle, getRotationinDimension('Z'));
+                direction = getAngleDir(targetAngle, getRotationinDimension(('Z')));
                 turnRate = (angleDifference * speed) / 90;
+                telemetry.addData("angleDifference: ", angleDifference);
+                telemetry.addData("currentAngle: ", getRotationinDimension('Z'));
+                telemetry.update();
             }
+
             runDriveMotors(0,0);
         }
+    }
+
+    public void turn2 (double targetAngle, double speed) {
+        double currentAngle = getRotationinDimension('Z');
+        double angleDifference = currentAngle - targetAngle;
+
     }
 
     public void shift() {
@@ -289,7 +327,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
     public void updateOrientation (){
-        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES);
+        orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
     /* -------------- Technical Innovation -------------- */
 

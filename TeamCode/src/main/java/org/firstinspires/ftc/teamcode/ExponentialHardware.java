@@ -27,7 +27,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor rSlideMotor;
     Servo shifterServo;
 
-    Orientation orientation = new Orientation(AxesReference.EXTRINSIC, AxesOrder.ZXY, AngleUnit.DEGREES,0,0,0,0);
+    Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES,0,0,0,0);
     BNO055IMU imu;
     double initialHeading;
     double initialPitch;
@@ -67,14 +67,10 @@ public abstract class ExponentialHardware extends LinearOpMode {
 
         shifterServo.setPosition(stronk);
 
-        initialHeading = orientation.firstAngle;
-        initialPitch = orientation.secondAngle;
-        initialRoll = orientation.thirdAngle;
         driveMotors[0] = lmotor0;
         driveMotors[1] = lmotor1;
         driveMotors[2] = rmotor0;
         driveMotors[3] = rmotor1;
-
 
     }
 }
