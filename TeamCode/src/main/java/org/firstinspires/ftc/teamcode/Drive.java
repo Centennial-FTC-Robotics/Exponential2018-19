@@ -9,28 +9,52 @@ import com.qualcomm.robotcore.util.Range;
 //l means left, r means right
 public class Drive extends ExponentialMethods {
 
+    public static float scale = 1;
+    public static float fastScale = 1;
+    public static float slowScale = (float) 0.4;
+
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
         while(opModeIsActive()){
 
             //drive with joysticks
-            float leftSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y-Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
-            float rightSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y+Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
-            runDriveMotors(leftSpeed, rightSpeed);
+            float moveSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y;
+            float turnSpeed = Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
+            float leftSpeed;
+            float rightSpeed;
+            if (moveSpeed > 0) {
+                leftSpeed = moveSpeed - (turnSpeed * moveSpeed);
+                rightSpeed = moveSpeed + (turnSpeed * moveSpeed);
+            }
+            else {
+                leftSpeed = -turnSpeed;
+                rightSpeed = turnSpeed;
+            }
+            runDriveMotors(scale * leftSpeed, scale * rightSpeed);
 
             //move hinge with joystick
             int hingePos = hingeMotor.getCurrentPosition();
             float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
-            moveHinge(hingePos, hingeSpeed);
+            moveHinge(hingePos, scale * hingeSpeed);
 
             //move slides with joystick
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
-            moveSlides(slideSpeed);
+            moveSlides(scale *slideSpeed);
 
             //shift
             if (gamepad2.a) {
                 shift();
+            }
+
+            //slow mode
+            if (gamepad1.left_bumper) {
+                scale = (float) slowScale;
+            }
+
+            //fast mode
+            if (gamepad1.right_bumper) {
+                scale = (float) fastScale;
             }
             idle();
         }
