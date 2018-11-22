@@ -23,11 +23,15 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
     private final DcMotor[] rightDriveMotors = {rmotor0, rmotor1};
 
-    //for reference
+    // motor movement
     private final int driveTicksPerRev = 560;
     private final int driveSprocket = 24;
     private final int wheelSprocket = 22;
     private final int wheelDiameterIn = 4;
+
+    // turn
+    public static final int RIGHT = 1;
+    public static final int LEFT = -1;
 
     //tensor flow and vuforia stuff
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
@@ -36,9 +40,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
-
-    public static final int RIGHT = 1;
-    public static final int LEFT = -1;
 
     //distance calculation
     @Override
@@ -259,7 +260,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
             driveMotors[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         }
 
-        while (this.motorsBusy());
+        waitForMotors();
 
         int position = convertInchToEncoder(distance);
 
@@ -329,6 +330,17 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         while (opModeIsActive()&&motorsBusy()) {
         }
     }
+
+    public void waitTime(int time){
+        try {
+
+            Thread.sleep(time);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateOrientation (){
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }

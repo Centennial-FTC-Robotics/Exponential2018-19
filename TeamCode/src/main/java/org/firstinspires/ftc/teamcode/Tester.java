@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Tester", group="Autonomous")
 
@@ -38,6 +39,18 @@ public class Tester extends ExponentialMethods {
         }
     }
 
+    public void servoPosTesting(Servo testServo) {
+
+
+        while (opModeIsActive()) {
+
+            testServo.setPosition((gamepad1.right_stick_y + 1) / 2);
+            telemetry.addData("Current Servo Pos: ", testServo.getPosition());
+            telemetry.update();
+
+        }
+    }
+
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
@@ -49,6 +62,8 @@ public class Tester extends ExponentialMethods {
 //        }
 
         //relativeTurnDriver();
-        linearMoveTest();
+        //linearMoveTest();
+
+        servoPosTesting(shifterServo);
     }
 }

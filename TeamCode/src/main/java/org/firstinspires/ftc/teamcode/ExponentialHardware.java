@@ -33,8 +33,9 @@ public abstract class ExponentialHardware extends LinearOpMode {
     double initialPitch;
     double initialRoll;
 
-    public static final int stronk = 0;
-    public static final int speed = 1;
+    // slide shifting
+    public static final double stronk = 0.0;
+    public static final double speed = 0.4;
 
     DcMotor[] driveMotors=new DcMotor[4];
     @Override
