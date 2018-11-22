@@ -9,13 +9,14 @@ public class Autonomous extends ExponentialMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-
+        initAutoMotors();
         initVision();
         waitForStart();
         // write code to get down from hanging
         shift(); //switch to speed
         //while () {}
         // finding and displacing mineral
+
         String goldPos = autoFindGold();
 
         //team marker?
