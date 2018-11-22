@@ -213,8 +213,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public void moveSlides(float power) {
 
-        lSlideMotor.setPower(Range.clip(power, -1, 1));
-        rSlideMotor.setPower(Range.clip(power, -1, 1));
+        lSlideMotor.setPower(-Range.clip(power, -1, 1));
+        rSlideMotor.setPower(-Range.clip(power, -1, 1));
     }
 
     public void moveHinge(int hingePos, float hingeSpeed) {
@@ -308,6 +308,10 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         double currentAngle = getRotationinDimension('Z');
         double angleDifference = currentAngle - targetAngle;
 
+    }
+
+    public void shiftTo(int mode) {
+        shifterServo.setPosition(mode);
     }
 
     public void shift() {
