@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -49,7 +51,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         Thread.sleep(1000);
         updateOrientation();
         initialHeading = orientation.firstAngle;
-         initialRoll = orientation.secondAngle;
+        initialRoll = orientation.secondAngle;
         initialPitch = orientation.thirdAngle;
     }
     /* -------------- Initialization -------------- */
@@ -58,10 +60,10 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         //create parameter object and pass it to create Vuforia engine
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.FRONT;
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
     }
-  
+
     private void initTfod() {
         //create parameter object and pass it to create Tensor Flow object detector
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -84,17 +86,17 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         waitForStart();
     }
 
-    public void initializeIMU(){
+    public void initializeIMU() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "AdafruitIMUCalibration.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
     }
-      
+
     public void initVision() {
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
@@ -115,7 +117,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public boolean motorsBusy() {
         boolean busy = false;
-        for (int i=0; i<4; i++) {
+        for (int i = 0; i < 4; i++) {
             if (driveMotors[i].isBusy()) {
                 busy = true;
             }
@@ -186,7 +188,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public int convertInchToEncoder(float dist) {
 
-        float wheelRotations = (float)(dist / (wheelDiameterIn * Math.PI));
+        float wheelRotations = (float) (dist / (wheelDiameterIn * Math.PI));
         float motorRotations = (float) ((22.0 / 24.0) * (wheelRotations));
         float encoderCounts = 560 * motorRotations;
         int position = Math.round(encoderCounts);
@@ -223,17 +225,15 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         if (hingePos >= 2240) {
             if (hingeSpeed < 0) {
                 hingeMotor.setPower(hingeSpeed);
-            }
-            else {
+            } else {
                 hingeMotor.setPower(0);
             }
         }
         //if at 0 degrees, only move if increasing angle
-        else if (hingePos <= 0){
+        else if (hingePos <= 0) {
             if (hingeSpeed > 0) {
                 hingeMotor.setPower(hingeSpeed);
-            }
-            else {
+            } else {
                 hingeMotor.setPower(0);
             }
         }
@@ -246,7 +246,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public void moveHingeTo(float angle) {
         hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
-        int position = (int)(angle * (2240/90));
+        int position = (int) (angle * (2240 / 90));
         hingeMotor.setTargetPosition(position);
         hingeMotor.setPower(1);
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -264,14 +264,14 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         int position = convertInchToEncoder(distance);
 
-        for (int i=0; i< driveMotors.length; i++) {
+        for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
             driveMotors[i].setTargetPosition(-position);
             driveMotors[i].setPower(speed);
         }
         waitForMotors();
         runDriveMotors(0, 0);
-        for (int i=0; i<driveMotors.length; i++) {
+        for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
@@ -281,7 +281,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetChange), speed);
     }
 
-    public void turnAbsolute (double targetAngle, double speed) {
+    public void turnAbsolute(double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
         int direction;
         if (targetAngle != currentAngle) {
@@ -301,47 +301,46 @@ public abstract class ExponentialMethods extends ExponentialHardware {
                 telemetry.update();
             }
 
-            runDriveMotors(0,0);
+            runDriveMotors(0, 0);
         }
     }
 
-    public void turn2 (double targetAngle, double speed) {
+    public void turn2(double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
         double angleDifference = currentAngle - targetAngle;
 
     }
 
-    public void shiftTo(int mode) {
+
+    public void shiftTo(double mode) {
         shifterServo.setPosition(mode);
     }
 
     public void shift() {
         if (shifterServo.getPosition() == speed) {
             shifterServo.setPosition(stronk);
-        }
-        else if (shifterServo.getPosition() == stronk) {
+        } else if (shifterServo.getPosition() == stronk) {
             shifterServo.setPosition(speed);
         }
     }
-    
+
     /* -------------- Procedure -------------- */
 
     public void waitForMotors() {
-        while (opModeIsActive()&&motorsBusy()) {
+        while (opModeIsActive() && motorsBusy()) {
         }
     }
 
-    public void waitTime(int time){
+    public void waitTime(int time) {
         try {
 
             Thread.sleep(time);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public void updateOrientation (){
+    public void updateOrientation() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
     /* -------------- Technical Innovation -------------- */
@@ -349,56 +348,53 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     //returns left, right, or center based on position of gold
     public String autoFindGold() {
         //added:
-        String goldPosition = "";
+        String goldPosition = "bad";
 
         if (opModeIsActive()) {
             if (tfod != null) {
                 tfod.activate();
             }
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    if (updatedRecognitions.size() == 3) {
+                        int goldMineralX = -1;
+                        int silverMineral1X = -1;
+                        int silverMineral2X = -1;
 
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
-                        if (updatedRecognitions.size() == 3) {
-                            int goldMineralX = -1;
-                            int silverMineral1X = -1;
-                            int silverMineral2X = -1;
-
-                            //gets x positions for each mineral detected
-                            for (Recognition recognition : updatedRecognitions) {
-                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                    goldMineralX = (int) recognition.getLeft();
-                                } else if (silverMineral1X == -1) {
-                                    silverMineral1X = (int) recognition.getLeft();
-                                } else {
-                                    silverMineral2X = (int) recognition.getLeft();
-                                }
-                            }
-
-                            //determines position of gold mineral
-                            if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                                if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Left");
-                                    //added:
-                                    goldPosition = "Left";
-
-                                } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                    telemetry.addData("Gold Mineral Position", "Right");
-                                    //added:
-                                    goldPosition = "Right";
-                                } else {
-                                    telemetry.addData("Gold Mineral Position", "Center");
-                                    //added:
-                                    goldPosition = "Center";
-                                }
+                        //gets x positions for each mineral detected
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                goldMineralX = (int) recognition.getLeft();
+                            } else if (silverMineral1X == -1) {
+                                silverMineral1X = (int) recognition.getLeft();
+                            } else {
+                                silverMineral2X = (int) recognition.getLeft();
                             }
                         }
-                        telemetry.update();
+
+                        //determines position of gold mineral
+                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                                telemetry.addData("Gold Mineral Position", "Left");
+                                //added:
+                                goldPosition = "Left";
+
+                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                                telemetry.addData("Gold Mineral Position", "Right");
+                                //added:
+                                goldPosition = "Right";
+                            } else {
+                                telemetry.addData("Gold Mineral Position", "Center");
+                                //added:
+                                goldPosition = "Center";
+                            }
+                        }
                     }
+                    telemetry.update();
                 }
             }
         }
