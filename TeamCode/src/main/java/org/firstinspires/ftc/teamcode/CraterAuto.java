@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Auto1", group="TeleOp")
 
-public class Autonomous extends ExponentialMethods {
+public class CraterAuto extends ExponentialMethods {
 
     @Override
     public void runOpMode() throws InterruptedException {

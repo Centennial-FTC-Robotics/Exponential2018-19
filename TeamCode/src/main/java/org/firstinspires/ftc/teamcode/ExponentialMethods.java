@@ -5,8 +5,12 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
@@ -17,9 +21,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
+import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
+
 public abstract class ExponentialMethods extends ExponentialHardware {
+    // simple conversion
+    private static final float mmPerInch        = 25.4f;
+    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmTargetHeight   = (6) * mmPerInch;
 
     //motors
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
@@ -36,12 +49,21 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public static final int LEFT = -1;
 
     //tensor flow and vuforia stuff
-    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
-    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
-    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
+    private int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+
+    private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
+    private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
+    private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
+
+    private VuforiaTrackables targetsRoverRuckus;
+    private VuforiaLocalizer.Parameters parameters;
+    private OpenGLMatrix lastLocation = null;
+    private boolean targetVisible = false;
+    private List<VuforiaTrackable> allTrackables;
+
 
     //distance calculation
     @Override
@@ -71,6 +93,16 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+    }
+
+    private void navTargetInit() {
+
+        targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
+        parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+        parameters.useExtendedTracking = true;
+        allTrackables = new ArrayList<VuforiaTrackable>();
+        allTrackables.addAll(targetsRoverRuckus);
+        targetsRoverRuckus.activate();
     }
 
     public void autoInit() {
@@ -104,6 +136,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         } else {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
+        //navTargetInit();
         //wait for game to start
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
@@ -316,14 +349,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         shifterServo.setPosition(mode);
     }
 
-    public void shift() {
-        if (shifterServo.getPosition() == speed) {
-            shifterServo.setPosition(stronk);
-        } else if (shifterServo.getPosition() == stronk) {
-            shifterServo.setPosition(speed);
-        }
-    }
-
     /* -------------- Procedure -------------- */
 
     public void waitForMotors() {
@@ -343,7 +368,21 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public void updateOrientation() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
     }
-    /* -------------- Technical Innovation -------------- */
+
+    public void shift() {
+        if (shifterServo.getPosition() == speed) {
+            shifterServo.setPosition(stronk);
+        } else if (shifterServo.getPosition() == stronk) {
+            shifterServo.setPosition(speed);
+        }
+    }
+
+    public void ejectTeamMarker() {
+
+        
+    }
+
+    /* -------------- Computer Vision -------------- */
 
     //returns left, right, or center based on position of gold
     public String autoFindGold() {
@@ -368,11 +407,11 @@ public abstract class ExponentialMethods extends ExponentialHardware {
                         //gets x positions for each mineral detected
                         for (Recognition recognition : updatedRecognitions) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
+                                goldMineralX = (int) recognition.getBottom();
                             } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getLeft();
+                                silverMineral1X = (int) recognition.getBottom();
                             } else {
-                                silverMineral2X = (int) recognition.getLeft();
+                                silverMineral2X = (int) recognition.getBottom();
                             }
                         }
 
@@ -405,5 +444,40 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         //added:
         return goldPosition;
+    }
+
+    public void updateNavTargets() {
+
+        // check all the trackable target to see which one (if any) is visible.
+        targetVisible = false;
+        for (VuforiaTrackable trackable : allTrackables) {
+            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+                telemetry.addData("Visible Target", trackable.getName());
+                targetVisible = true;
+
+                // getUpdatedRobotLocation() will return null if no new information is available since
+                // the last time that call was made, or if the trackable is not currently visible.
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                if (robotLocationTransform != null) {
+                    lastLocation = robotLocationTransform;
+                }
+                break;
+            }
+        }
+
+        // Provide feedback as to where the robot is located (if we know).
+        if (targetVisible) {
+            // express position (translation) of robot in inches.
+            VectorF translation = lastLocation.getTranslation();
+            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+
+            // express the rotation of the robot in degrees.
+            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+        } else {
+            telemetry.addData("Visible Target", "none");
+        }
+        telemetry.update();
     }
 }

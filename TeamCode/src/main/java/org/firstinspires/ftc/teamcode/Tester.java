@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Autonomous(name="Tester", group="Autonomous")
+@Autonomous(name="Tester", group="CraterAuto")
 
 public class Tester extends ExponentialMethods {
 
