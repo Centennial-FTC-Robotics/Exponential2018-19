@@ -60,6 +60,10 @@ public class Drive extends ExponentialMethods {
             if (gamepad1.right_bumper) {
                 scale = (float) fastScale;
             }
+
+            telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
+            telemetry.addData("right Slide motor encoder: ", rSlideMotor.getCurrentPosition());
+            telemetry.update();
             idle();
         }
     }

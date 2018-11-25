@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="Auto1", group="TeleOp")
+@TeleOp(name="CraterAuto", group="TeleOp")
 
 public class CraterAuto extends ExponentialMethods {
 

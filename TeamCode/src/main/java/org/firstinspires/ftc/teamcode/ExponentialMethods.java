@@ -44,6 +44,13 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private final int wheelSprocket = 22;
     private final int wheelDiameterIn = 4;
 
+    // slides
+    private int encodersMovedStronk;
+    private int encodersMovedSpeed;
+    private double inchesPerEncoderStronk = (Math.PI * 1.5) / 840;
+    private double inchesPerEncoderSpeed = (Math.PI * 1.5) / 280;
+    private double slideInchPerStrInch = 1.0; // replace w/ actual value
+
     // turn
     public static final int RIGHT = 1;
     public static final int LEFT = -1;
@@ -52,7 +59,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
-    private int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+    private int cameraMonitorViewId;
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -75,6 +82,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
         initialPitch = orientation.thirdAngle;
+        encodersMovedSpeed = 0;
+        encodersMovedSpeed = 0;
     }
     /* -------------- Initialization -------------- */
 
@@ -97,6 +106,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     private void navTargetInit() {
 
+        cameraMonitorViewId =  hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.useExtendedTracking = true;
@@ -195,6 +205,18 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return 0;
     }
 
+    public int getHingeAngle() {
+
+        return hingeMotor.getCurrentPosition() * (2240 / 90);
+    }
+
+    public double getSlideExtendInch() {
+
+        double strInches = (encodersMovedSpeed * inchesPerEncoderSpeed) + (encodersMovedStronk * inchesPerEncoderStronk);
+
+        return (strInches * slideInchPerStrInch);
+    }
+
     /* -------------- Processing -------------- */
 
     public double getAngleDist(double targetAngle, double currentAngle) {
@@ -249,8 +271,71 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public void moveSlides(float power) {
 
-        lSlideMotor.setPower(-Range.clip(power, -1, 1));
-        rSlideMotor.setPower(-Range.clip(power, -1, 1));
+        int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
+
+        if (currentPos <= 1400 && currentPos >= 0) {
+            lSlideMotor.setPower(-Range.clip(power, -1, 1));
+            rSlideMotor.setPower(-Range.clip(power, -1, 1));
+        } else if (currentPos > 1400) {
+
+            if (power > 0) {
+
+                lSlideMotor.setPower(-Range.clip(power, -1, 1));
+                rSlideMotor.setPower(-Range.clip(power, -1, 1));
+            } else {
+
+                slidesBrake();
+                //moveSlidesAbsolute(1400, 0.2);
+            }
+        } else if (currentPos < 0) {
+
+            if (power < 0) {
+
+                lSlideMotor.setPower(-Range.clip(power, -1, 1));
+                rSlideMotor.setPower(-Range.clip(power, -1, 1));
+            } else {
+
+                slidesBrake();
+                // investigate why move slides doesn't work
+                //moveSlidesAbsolute(0, 0.2);
+            }
+        }
+    }
+
+    public void moveSlidesInchRelative(double targetChange, double speed) {
+
+        moveSlidesInchAbsolute(getSlideExtendInch() + targetChange, speed);
+    }
+
+    public void moveSlidesInchAbsolute(double targetInch, double speed) {
+
+        int targetPos = (int) (targetInch * (1 / slideInchPerStrInch) * (1 / inchesPerEncoderStronk));
+
+        if (targetPos > 1400) {
+
+            targetPos = 1400;
+        }
+
+        moveSlidesAbsolute(targetPos, speed);
+    }
+
+    public void moveSlidesAbsolute(int targetPos, double speed) {
+
+        int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
+
+        lSlideMotor.setTargetPosition(targetPos);
+        rSlideMotor.setTargetPosition(targetPos);
+        lSlideMotor.setPower(Range.clip(speed, -1, 1));
+        rSlideMotor.setPower(Range.clip(speed, -1, 1));
+
+        // recording encoders moved
+        if (shifterServo.getPosition() == stronk) {
+
+            encodersMovedStronk += (currentPos - targetPos);
+        } else if (shifterServo.getPosition() == speed) {
+
+            encodersMovedSpeed += (currentPos - targetPos);
+        }
     }
 
     public void moveHinge(int hingePos, float hingeSpeed) {
@@ -280,6 +365,17 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
         int position = (int) (angle * (2240 / 90));
+
+        if (angle > 25 && getHingeAngle() < angle) {
+
+            moveSlidesInchAbsolute(1, 0.1);
+        }
+
+        if (angle < 25 && getHingeAngle() > angle) {
+
+            moveSlidesInchAbsolute(1, 0.1);
+        }
+
         hingeMotor.setTargetPosition(position);
         hingeMotor.setPower(1);
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -338,14 +434,16 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-    public void turn2(double targetAngle, double speed) {
-        double currentAngle = getRotationinDimension('Z');
-        double angleDifference = currentAngle - targetAngle;
-
-    }
+//    public void turn2(vdouble targetAngle, double speed) {
+//        double currentAngle = getRotationinDimension('Z');
+//        double angleDifference = currentAngle - targetAngle;
+//
+//    }
 
 
     public void shiftTo(double mode) {
+
+        moveSlidesAbsolute(0, 0.1);
         shifterServo.setPosition(mode);
     }
 
@@ -380,6 +478,18 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public void ejectTeamMarker() {
 
         
+    }
+
+    private void hang() {
+
+        moveHingeTo(90);
+
+    }
+
+    public void slidesBrake() {
+
+        lSlideMotor.setPower(0);
+        rSlideMotor.setPower(0);
     }
 
     /* -------------- Computer Vision -------------- */

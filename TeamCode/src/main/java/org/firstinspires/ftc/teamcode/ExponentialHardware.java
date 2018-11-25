@@ -59,6 +59,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rmotor0.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rmotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hingeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         lmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

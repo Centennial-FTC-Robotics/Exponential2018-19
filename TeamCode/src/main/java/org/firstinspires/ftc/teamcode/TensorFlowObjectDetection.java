@@ -98,15 +98,18 @@ public class TensorFlowObjectDetection extends LinearOpMode {
                         //gets x positions for each mineral detected
                         for (Recognition recognition : updatedRecognitions) {
                           if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getLeft();
+                            goldMineralX = (int) recognition.getBottom();
                           } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getLeft();
+                            silverMineral1X = (int) recognition.getBottom();
                           } else {
-                            silverMineral2X = (int) recognition.getLeft();
+                            silverMineral2X = (int) recognition.getBottom();
                           }
                         }
+                          telemetry.addData("G Mineral Position", goldMineralX);
+                          telemetry.addData("S1 Mineral Position", silverMineral1X);
+                          telemetry.addData("S2 Mineral Position", silverMineral2X);
 
-                        //determines position of gold mineral
+                          //determines position of gold mineral
                         if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
                           if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
                             telemetry.addData("Gold Mineral Position", "Left");
