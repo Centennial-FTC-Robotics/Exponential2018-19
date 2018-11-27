@@ -38,18 +38,21 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
     private final DcMotor[] rightDriveMotors = {rmotor0, rmotor1};
 
+    // hinge
+    private int hingeTargetPos;
+
     // motor movement
-    private final int driveTicksPerRev = 560;
-    private final int driveSprocket = 24;
-    private final int wheelSprocket = 22;
-    private final int wheelDiameterIn = 4;
+    public final int driveTicksPerRev = 560;
+    public final int driveSprocket = 24;
+    public final int wheelSprocket = 22;
+    public final int wheelDiameterIn = 4;
 
     // slides
     private int encodersMovedStronk;
     private int encodersMovedSpeed;
-    private double inchesPerEncoderStronk = (Math.PI * 1.5) / 840;
-    private double inchesPerEncoderSpeed = (Math.PI * 1.5) / 280;
-    private double slideInchPerStrInch = 1.0; // replace w/ actual value
+    public double inchesPerEncoderStronk = (Math.PI * 1.5) / (28 * 10 * 3);
+    public double inchesPerEncoderSpeed = (Math.PI * 1.5) / (28 * 10);
+    public double slideInchPerStrInch = 1.0; // replace w/ actual value
 
     // turn
     public static final int RIGHT = 1;
@@ -84,6 +87,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         initialPitch = orientation.thirdAngle;
         encodersMovedSpeed = 0;
         encodersMovedSpeed = 0;
+        hingeTargetPos = hingeMotor.getCurrentPosition();
     }
     /* -------------- Initialization -------------- */
 
@@ -166,6 +170,11 @@ public abstract class ExponentialMethods extends ExponentialHardware {
             }
         }
         return busy;
+    }
+
+    public int getHingeTargetPos() {
+
+        return hingeTargetPos;
     }
 
     public double getRawZ() {
@@ -302,14 +311,22 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-    public void moveSlidesInchRelative(double targetChange, double speed) {
+    public void moveSlidesInchRelative(double targetΔ, double speed) {
 
-        moveSlidesInchAbsolute(getSlideExtendInch() + targetChange, speed);
+        moveSlidesInchAbsolute(getSlideExtendInch() + targetΔ, speed);
     }
 
     public void moveSlidesInchAbsolute(double targetInch, double speed) {
 
-        int targetPos = (int) (targetInch * (1 / slideInchPerStrInch) * (1 / inchesPerEncoderStronk));
+        int targetPos = (int) (targetInch * (1 / slideInchPerStrInch));
+
+        if (shifterServo.getPosition() == stronk) {
+
+            targetPos /= inchesPerEncoderStronk;
+        } else if (shifterServo.getPosition() == speed) {
+
+            targetPos /= inchesPerEncoderSpeed;
+        }
 
         if (targetPos > 1400) {
 
@@ -317,6 +334,13 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
 
         moveSlidesAbsolute(targetPos, speed);
+    }
+
+    public void moveSlidesRelative(int targetΔ, double speed) {
+
+        int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
+
+        moveSlidesAbsolute(currentPos + targetΔ, speed);
     }
 
     public void moveSlidesAbsolute(int targetPos, double speed) {
@@ -343,6 +367,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         if (hingePos >= 2240) {
             if (hingeSpeed < 0) {
                 hingeMotor.setPower(hingeSpeed);
+                hingeTargetPos = hingePos;
             } else {
                 hingeMotor.setPower(0);
             }
@@ -351,6 +376,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         else if (hingePos <= 0) {
             if (hingeSpeed > 0) {
                 hingeMotor.setPower(hingeSpeed);
+                hingeTargetPos = hingePos;
             } else {
                 hingeMotor.setPower(0);
             }
@@ -358,6 +384,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         //if in between 0 and 90 degrees, move however
         else {
             hingeMotor.setPower(hingeSpeed);
+            hingeTargetPos = hingePos;
         }
     }
 
@@ -365,6 +392,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
         int position = (int) (angle * (2240 / 90));
+
 
         if (angle > 25 && getHingeAngle() < angle) {
 
@@ -378,6 +406,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
         hingeMotor.setTargetPosition(position);
         hingeMotor.setPower(1);
+        hingeTargetPos = position;
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
@@ -405,9 +434,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-    public void turnRelative(double targetChange, double speed) {
+    public void turnRelative(double targetΔ, double speed) {
 
-        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetChange), speed);
+        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetΔ), speed);
     }
 
     public void turnAbsolute(double targetAngle, double speed) {
@@ -468,6 +497,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void shift() {
+
+        moveSlidesAbsolute(0, 0.1);
+
         if (shifterServo.getPosition() == speed) {
             shifterServo.setPosition(stronk);
         } else if (shifterServo.getPosition() == stronk) {
@@ -483,7 +515,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     private void hang() {
 
         moveHingeTo(90);
-
+        // move sloides
     }
 
     public void slidesBrake() {

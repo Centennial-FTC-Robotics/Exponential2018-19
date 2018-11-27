@@ -61,6 +61,8 @@ public class Drive extends ExponentialMethods {
                 scale = (float) fastScale;
             }
 
+            moveHinge(getHingeTargetPos(), 0.1f);
+
             telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
             telemetry.addData("right Slide motor encoder: ", rSlideMotor.getCurrentPosition());
             telemetry.update();
