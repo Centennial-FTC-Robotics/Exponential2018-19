@@ -10,41 +10,66 @@ public class CraterAuto extends ExponentialMethods {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        //initAutoMotors(); //keep motors running for hang
+        //hanging:
+        // initAutoMotors(); //keep motors running for hang
+        //moveHinge(0);
         //add code to drop down
+        initializeIMU();
         initVision();
+        while(!isStarted()){
+            moveHingeTo(45);
+        }
         waitForStart();
         //shift(); //switch to speed
         ElapsedTime timer = new ElapsedTime();
 
+        int lookAngle = 10;
+        int turnAngle = 27;
+        double turnSpeed = 0.3;
+        float moveSpeed = 0.4f;
         String goldPos = "bad";
+
+        //move to corner
+        turnRelative(-45, turnSpeed);
+        //move()
+
+        //turn right to look at 2 minerals
+        turnRelative(-lookAngle, turnSpeed);
+
+        //figure out gold position
         while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
             telemetry.addData("Timer: " , timer.seconds());
             telemetry.update();
-            goldPos = autoFindGold();
+            goldPos = autoFindGold2();
         }
+        closeTfod();
+
+        //turn back to starting position
+        turnRelative(lookAngle, turnSpeed);
+
+        //default to left if can't detect anything rip
         if (goldPos.equals("bad")) {
             goldPos = "Left";
         }
 
+        //turn and move to hit
         if (goldPos.equals("Left")) {
-            turnRelative(27, 0.1);
-            move(-37,0.2f);
-            turnRelative(-27,0.1);
-            move(-6,0.2f);
+            turnRelative(turnAngle, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(-turnAngle, turnSpeed);
+            move(-6, moveSpeed);
         }
         else if (goldPos.equals("Center")) {
-            move(-40, 0.2f);
+            move(-40, moveSpeed);
         }
         else if (goldPos.equals("Right")) {
-            turnRelative(-27, 0.1);
-            move(-37,0.2f);
-            turnRelative(27,0.1);
-            move(-6,0.2f);
+            turnRelative(-turnAngle, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(turnAngle, turnSpeed);
+            move(-6, moveSpeed);
         }
+
         //team marker?
         //move(50); //yeet forward into crater
-
-
     }
 }

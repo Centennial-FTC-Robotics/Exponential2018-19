@@ -82,45 +82,38 @@ public class TensorFlowObjectDetection extends LinearOpMode {
             if (tfod != null) {
                 tfod.activate();
             }
-
             while (opModeIsActive()) {
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
-                      telemetry.addData("# Object Detected", updatedRecognitions.size());
-                      if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
+                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+                        if (updatedRecognitions.size() == 2) {
+                            int goldMineralX = -1;
+                            int silverMineral1X = -1;
+                            int silverMineral2X = -1;
+                            //gets x positions for each mineral detected
+                            for (Recognition recognition : updatedRecognitions) {
+                                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                    goldMineralX = (int) recognition.getBottom();
+                                } else if (silverMineral1X == -1) {
+                                    silverMineral1X = (int) recognition.getBottom();
+                                } else {
+                                    silverMineral2X = (int) recognition.getBottom();
+                                }
+                            }
 
-                        //gets x positions for each mineral detected
-                        for (Recognition recognition : updatedRecognitions) {
-                          if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                            goldMineralX = (int) recognition.getBottom();
-                          } else if (silverMineral1X == -1) {
-                            silverMineral1X = (int) recognition.getBottom();
-                          } else {
-                            silverMineral2X = (int) recognition.getBottom();
-                          }
+                            //determines position of gold mineral
+                            if (goldMineralX == -1) {
+                                telemetry.addData("Gold Mineral Position", "Left");
+                            } else if (goldMineralX > silverMineral1X) {
+                                telemetry.addData("Gold Mineral Position", "Center");
+                            } else if (goldMineralX < silverMineral1X) {
+                                telemetry.addData("Gold Mineral Position", "Right");
+                            }
                         }
-                          telemetry.addData("G Mineral Position", goldMineralX);
-                          telemetry.addData("S1 Mineral Position", silverMineral1X);
-                          telemetry.addData("S2 Mineral Position", silverMineral2X);
-
-                          //determines position of gold mineral
-                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                          if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Left");
-                          } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                            telemetry.addData("Gold Mineral Position", "Right");
-                          } else {
-                            telemetry.addData("Gold Mineral Position", "Center");
-                          }
-                        }
-                      }
-                      telemetry.update();
+                        telemetry.update();
                     }
                 }
             }

@@ -31,7 +31,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 public abstract class ExponentialMethods extends ExponentialHardware {
     // simple conversion
     private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;       // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;   // the width of the FTC field (from the center point to the outer panels)
     private static final float mmTargetHeight   = (6) * mmPerInch;
 
     //motors
@@ -79,12 +79,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        initializeIMU();
-        Thread.sleep(1000);
-        updateOrientation();
-        initialHeading = orientation.firstAngle;
-        initialRoll = orientation.secondAngle;
-        initialPitch = orientation.thirdAngle;
+
         encodersMovedSpeed = 0;
         encodersMovedSpeed = 0;
         hingeTargetPos = hingeMotor.getCurrentPosition();
@@ -141,6 +136,11 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
+        while (opModeIsActive()&&!imu.isGyroCalibrated());
+        updateOrientation();
+        initialHeading = orientation.firstAngle;
+        initialRoll = orientation.secondAngle;
+        initialPitch = orientation.thirdAngle;
     }
 
     public void initVision() {
@@ -226,6 +226,18 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return (strInches * slideInchPerStrInch);
     }
 
+    /* -------------- Correction -------------- */
+
+    public void setSlideZero() {
+
+        encodersMovedSpeed = 0;
+        encodersMovedStronk = 0;
+    }
+
+    public void setOrientation(Orientation newO) {
+
+
+    }
     /* -------------- Processing -------------- */
 
     public double getAngleDist(double targetAngle, double currentAngle) {
@@ -279,7 +291,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
-
+        lSlideMotor.setPower(-Range.clip(power, -1, 1));
+        rSlideMotor.setPower(-Range.clip(power, -1, 1));
+/*
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
         if (currentPos <= 1400 && currentPos >= 0) {
@@ -309,6 +323,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
                 //moveSlidesAbsolute(0, 0.2);
             }
         }
+        */
     }
 
     public void moveSlidesInchRelative(double targetΔ, double speed) {
@@ -363,6 +378,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void moveHinge(int hingePos, float hingeSpeed) {
+        hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //if at 90 degrees, only move if decreasing angle
         if (hingePos >= 2240) {
             if (hingeSpeed < 0) {
@@ -394,7 +410,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         int position = (int) (angle * (2240 / 90));
 
 
-        if (angle > 25 && getHingeAngle() < angle) {
+/*        if (angle > 25 && getHingeAngle() < angle) {
 
             moveSlidesInchAbsolute(1, 0.1);
         }
@@ -402,12 +418,12 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         if (angle < 25 && getHingeAngle() > angle) {
 
             moveSlidesInchAbsolute(1, 0.1);
-        }
+        }*/
 
         hingeMotor.setTargetPosition(position);
         hingeMotor.setPower(1);
         hingeTargetPos = position;
-        hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     //currently in inches
@@ -588,6 +604,60 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return goldPosition;
     }
 
+    public String autoFindGold2() {
+        //outputs gold position from 2 sensed objects
+        String goldPosition = "bad";
+
+        if (opModeIsActive()) {
+            if (tfod != null) {
+                tfod.activate();
+            }
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
+                    if (updatedRecognitions.size() == 2) {
+                        int goldMineralX = -1;
+                        int silverMineral1X = -1;
+                        int silverMineral2X = -1;
+                        //gets x positions for each mineral detected
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                goldMineralX = (int) recognition.getBottom();
+                            } else if (silverMineral1X == -1) {
+                                silverMineral1X = (int) recognition.getBottom();
+                            } else {
+                                silverMineral2X = (int) recognition.getBottom();
+                            }
+                        }
+
+                        //determines position of gold mineral
+                        if(goldMineralX==-1){
+                            goldPosition = "Left";
+                        }
+                        else if (goldMineralX>silverMineral1X){
+                            goldPosition = "Right";
+                        }
+                        else if (goldMineralX<silverMineral1X){
+                            goldPosition = "Center";
+                        }
+                    }
+                    telemetry.update();
+                }
+            }
+        }
+
+        //added:
+        return goldPosition;
+    }
+    public void closeTfod(){
+        if (tfod != null) {
+            tfod.shutdown();
+        }
+    }
     public void updateNavTargets() {
 
         // check all the trackable target to see which one (if any) is visible.
