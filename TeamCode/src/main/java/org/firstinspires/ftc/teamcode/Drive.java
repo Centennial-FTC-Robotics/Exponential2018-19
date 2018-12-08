@@ -47,9 +47,9 @@ public class Drive extends ExponentialMethods {
                 shiftTo(stronk);
             }
 
-            if (gamepad2.b) {
+/*            if (gamepad2.b) {
                 shiftTo(speed);
-            }
+            }*/
 
             //slow mode
             if (gamepad1.left_bumper) {

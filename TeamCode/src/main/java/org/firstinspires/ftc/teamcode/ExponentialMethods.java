@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -57,6 +58,14 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     // turn
     public static final int RIGHT = 1;
     public static final int LEFT = -1;
+
+    // autonomous variables
+    ElapsedTime timer;
+    int lookAngle = 10;
+    int turnAngle = 27;
+    double turnSpeed = 0.3;
+    float moveSpeed = 0.4f;
+    String goldPos = "bad";
 
     //tensor flow and vuforia stuff
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
@@ -291,8 +300,8 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
-        lSlideMotor.setPower(-Range.clip(power, -1, 1));
-        rSlideMotor.setPower(-Range.clip(power, -1, 1));
+        lSlideMotor.setPower(Range.clip(power, -1, 1));
+        rSlideMotor.setPower(Range.clip(power, -1, 1));
 /*
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
@@ -479,19 +488,60 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         }
     }
 
-//    public void turn2(vdouble targetAngle, double speed) {
-//        double currentAngle = getRotationinDimension('Z');
-//        double angleDifference = currentAngle - targetAngle;
-//
-//    }
-
-
     public void shiftTo(double mode) {
 
         moveSlidesAbsolute(0, 0.1);
         shifterServo.setPosition(mode);
     }
 
+    public void dropDown() {
+        moveHingeTo(90);
+        //[add code to extend slides]
+        //[add code to retract slides]
+    }
+
+    public void craterAutoMoveToCrater() {
+        if (goldPos.equals("left") || goldPos.equals("right")) {
+            move(-6, moveSpeed);
+        }
+        else if (goldPos.equals("center")) {
+            move(-40, moveSpeed);
+        }
+    }
+
+    public void hitGold() {
+        //turn right to look at 2 minerals
+        turnRelative(-lookAngle, turnSpeed);
+
+        //figure out gold position
+        timer = new ElapsedTime();
+        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
+            telemetry.addData("Timer: ", timer.seconds());
+            telemetry.update();
+            goldPos = autoFindGold2();
+        }
+        closeTfod();
+
+        //turn back to starting position
+        turnRelative(lookAngle, turnSpeed);
+
+        //default to left if can't detect anything rip
+        if (goldPos.equals("bad")) {
+            goldPos = "Left";
+        }
+
+        //turn and move to hit
+        if (goldPos.equals("Left")) {
+            turnRelative(turnAngle, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(-turnAngle, turnSpeed);
+
+        } else if (goldPos.equals("Right")) {
+            turnRelative(-turnAngle, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(turnAngle, turnSpeed);
+        }
+    }
     /* -------------- Procedure -------------- */
 
     public void waitForMotors() {
