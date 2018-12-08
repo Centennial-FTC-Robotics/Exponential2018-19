@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="CraterAuto", group="TeleOp")
+@TeleOp(name="CraterAutoWithTM", group="TeleOp")
 
-public class CraterAutoWithTM extends ExponentialMethods {
+public class CraterAutoWithTM extends ExponentialFunctions {
 
     @Override
 
@@ -21,7 +20,7 @@ public class CraterAutoWithTM extends ExponentialMethods {
         }
         waitForStart();
 
-        dropDown(); //UNFINISHED METHOD
+        dropDown(); //UNFINISHED METHOD // not anymore
 
         //move to depot corner
         turnRelative(-45, turnSpeed);
@@ -29,12 +28,8 @@ public class CraterAutoWithTM extends ExponentialMethods {
         turnRelative(90, turnSpeed);
         move(-48, moveSpeed);
 
-        //uhhhh wiggle and shake team marker off???
-        moveHingeTo(20);
-        for (int i = 0; i < 3; i++) {
-            turnRelative(5, 2*turnSpeed);
-            turnRelative(-5, 2*turnSpeed);
-        }
+        //uhhhh wiggle and shake team marker off??? haha hyes
+        ejectTeamMarker(); // wiggle wiggle
 
         //move back to in front of crater
         move(48, moveSpeed);

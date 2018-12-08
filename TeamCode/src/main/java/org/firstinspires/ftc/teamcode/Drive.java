@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="TeleOp", group="TeleOp")
 //0 is front, 1 is back
 //l means left, r means right
-public class Drive extends ExponentialMethods {
+public class Drive extends ExponentialFunctions {
 
     public static float scale = 1;
     public static float fastScale = 1;
@@ -46,10 +45,14 @@ public class Drive extends ExponentialMethods {
             if (gamepad2.a) {
                 shiftTo(stronk);
             }
+//            if (gamepad2.b) {
+//                shiftTo(speed);
+//            }
 
-/*            if (gamepad2.b) {
-                shiftTo(speed);
-            }*/
+            if (gamepad2.y) {
+
+                moveHingeTo(0);
+            }
 
             //slow mode
             if (gamepad1.left_bumper) {

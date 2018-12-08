@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Tester", group="CraterAuto")
 
-public class Tester extends ExponentialMethods {
+public class Tester extends ExponentialFunctions {
 
     public void relativeTurnDriver() {
 

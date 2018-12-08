@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="CraterAuto", group="TeleOp")
 
-public class CraterAuto extends ExponentialMethods {
+public class CraterAuto extends ExponentialFunctions {
 
     @Override
     public void runOpMode() throws InterruptedException {

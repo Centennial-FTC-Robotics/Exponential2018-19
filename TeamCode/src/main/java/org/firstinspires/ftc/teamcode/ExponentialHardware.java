@@ -26,6 +26,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
     DcMotor lSlideMotor;
     DcMotor rSlideMotor;
     Servo shifterServo;
+    Servo lIntakeServo;
+    Servo rIntakeServo;
 
     Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES,0,0,0,0);
     BNO055IMU imu;
@@ -37,7 +39,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
     public static final double stronk = 0.03;
     public static final double speed = 0.45;
 
-    DcMotor[] driveMotors=new DcMotor[4];
+    DcMotor[] driveMotors;
+    Servo[] intakeServos;
     @Override
     public void runOpMode() throws InterruptedException {
         lmotor0 = hardwareMap.dcMotor.get("lmotor0");
@@ -48,6 +51,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         lSlideMotor = hardwareMap.dcMotor.get("lSlide");
         rSlideMotor = hardwareMap.dcMotor.get("rSlide");
         shifterServo = hardwareMap.servo.get("shifterServo");
+        lIntakeServo = hardwareMap.servo.get("lInServo");
+        rIntakeServo = hardwareMap.servo.get("rInServo");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
@@ -69,11 +74,9 @@ public abstract class ExponentialHardware extends LinearOpMode {
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         shifterServo.setPosition(stronk);
+        intakeServos = new Servo[] {lIntakeServo, rIntakeServo};
 
-        driveMotors[0] = lmotor0;
-        driveMotors[1] = lmotor1;
-        driveMotors[2] = rmotor0;
-        driveMotors[3] = rmotor1;
+        driveMotors = new DcMotor[] {lmotor0, lmotor1, rmotor0, rmotor1};
 
     }
 }

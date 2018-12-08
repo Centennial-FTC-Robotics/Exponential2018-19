@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="DepotAuto", group="TeleOp")
 
-public class DepotAuto extends ExponentialMethods {
+public class DepotAuto extends ExponentialFunctions {
 
     @Override
     public void runOpMode() throws InterruptedException {

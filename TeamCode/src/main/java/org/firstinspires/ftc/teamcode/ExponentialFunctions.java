@@ -29,7 +29,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGR
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 
-public abstract class ExponentialMethods extends ExponentialHardware {
+public abstract class ExponentialFunctions extends ExponentialHardware {
     // simple conversion
     private static final float mmPerInch        = 25.4f;
     private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;   // the width of the FTC field (from the center point to the outer panels)
@@ -51,8 +51,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     // slides
     private int encodersMovedStronk;
     private int encodersMovedSpeed;
-    public double inchesPerEncoderStronk = (Math.PI * 1.5) / (28 * 10 * 3);
-    public double inchesPerEncoderSpeed = (Math.PI * 1.5) / (28 * 10);
+    private double slideSpoolInnerDiameter = 0.8;
+    public double inchesPerEncoderStronk = (Math.PI * slideSpoolInnerDiameter) / (28 * 10 * 3);
+    public double inchesPerEncoderSpeed = (Math.PI * slideSpoolInnerDiameter) / (28 * 10);
     public double slideInchPerStrInch = 1.0; // replace w/ actual value
 
     // turn
@@ -300,15 +301,15 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
-        lSlideMotor.setPower(Range.clip(power, -1, 1));
-        rSlideMotor.setPower(Range.clip(power, -1, 1));
-/*
+//        lSlideMotor.setPower(-Range.clip(power, -1, 1));
+//        rSlideMotor.setPower(-Range.clip(power, -1, 1));
+
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
-        if (currentPos <= 1400 && currentPos >= 0) {
+        if (currentPos <= 2500 && currentPos >= -20) {
             lSlideMotor.setPower(-Range.clip(power, -1, 1));
             rSlideMotor.setPower(-Range.clip(power, -1, 1));
-        } else if (currentPos > 1400) {
+        } else if (currentPos > 2500) {
 
             if (power > 0) {
 
@@ -319,7 +320,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
                 slidesBrake();
                 //moveSlidesAbsolute(1400, 0.2);
             }
-        } else if (currentPos < 0) {
+        } else if (currentPos < -20) {
 
             if (power < 0) {
 
@@ -332,7 +333,6 @@ public abstract class ExponentialMethods extends ExponentialHardware {
                 //moveSlidesAbsolute(0, 0.2);
             }
         }
-        */
     }
 
     public void moveSlidesInchRelative(double targetΔ, double speed) {
@@ -497,7 +497,9 @@ public abstract class ExponentialMethods extends ExponentialHardware {
     public void dropDown() {
         moveHingeTo(90);
         //[add code to extend slides]
+        moveSlidesInchRelative(5, 0.2);
         //[add code to retract slides]
+        moveSlidesAbsolute(0, 0.2);
     }
 
     public void craterAutoMoveToCrater() {
@@ -518,7 +520,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
             telemetry.addData("Timer: ", timer.seconds());
             telemetry.update();
-            goldPos = autoFindGold2();
+            goldPos = autoFindGoldFOV();
         }
         closeTfod();
 
@@ -540,6 +542,18 @@ public abstract class ExponentialMethods extends ExponentialHardware {
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(turnAngle, turnSpeed);
+        }
+    }
+
+    public void dumpIntake() {
+
+        //moveIntake();
+    }
+
+    public void moveIntake(int newPos) {
+
+        for (int IServo = 0; IServo < intakeServos.length; IServo++) {
+            intakeServos[IServo].setPosition(newPos);
         }
     }
     /* -------------- Procedure -------------- */
@@ -575,7 +589,12 @@ public abstract class ExponentialMethods extends ExponentialHardware {
 
     public void ejectTeamMarker() {
 
-        
+        moveSlidesAbsolute(1400, 0.2);
+        moveHingeTo(20);
+        for (int i = 0; i < 3; i++) {
+            turnRelative(5, 2*turnSpeed);
+            turnRelative(-5, 2*turnSpeed);
+        }
     }
 
     private void hang() {
@@ -654,7 +673,7 @@ public abstract class ExponentialMethods extends ExponentialHardware {
         return goldPosition;
     }
 
-    public String autoFindGold2() {
+    public String autoFindGoldFOV() {
         //outputs gold position from 2 sensed objects
         String goldPosition = "bad";
 
