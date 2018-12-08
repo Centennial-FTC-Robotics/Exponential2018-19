@@ -38,6 +38,6 @@ public class CraterAutoWithTM extends ExponentialFunctions {
         turnRelative(45, turnSpeed);
 
         hitGold();
-        craterAutoMoveToCrater();
+        //craterAutoMoveToCrater();
     }
 }

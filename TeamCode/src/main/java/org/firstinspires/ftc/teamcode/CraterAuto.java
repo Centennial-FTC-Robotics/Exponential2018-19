@@ -14,12 +14,11 @@ public class CraterAuto extends ExponentialFunctions {
         //add code to drop down
         initializeIMU();
         initVision();
-        while(!isStarted()){
+        /*while(!isStarted()){
             moveHingeTo(45);
         }
         waitForStart();
-        dropDown();
+        dropDown();*/
         hitGold();
-        craterAutoMoveToCrater();
     }
 }

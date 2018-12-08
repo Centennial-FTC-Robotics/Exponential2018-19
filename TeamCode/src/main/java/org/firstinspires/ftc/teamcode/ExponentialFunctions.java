@@ -502,14 +502,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         moveSlidesAbsolute(0, 0.2);
     }
 
-    public void craterAutoMoveToCrater() {
-        if (goldPos.equals("left") || goldPos.equals("right")) {
-            move(-6, moveSpeed);
+/*    public void craterAutoMoveToCrater() {
+        if (goldPos.equals("Left") || goldPos.equals("Right")) {
+
         }
-        else if (goldPos.equals("center")) {
-            move(-40, moveSpeed);
+        else if (goldPos.equals("Center")) {
+
         }
-    }
+    }*/
 
     public void hitGold() {
         //turn right to look at 2 minerals
@@ -537,11 +537,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             turnRelative(turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-turnAngle, turnSpeed);
+            move(-6, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(turnAngle, turnSpeed);
+            move(-6, moveSpeed);
+        } else if (goldPos.equals("Center")) {
+            move(-40, moveSpeed);
         }
     }
 
@@ -708,10 +712,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
                             goldPosition = "Left";
                         }
                         else if (goldMineralX>silverMineral1X){
-                            goldPosition = "Right";
+                            goldPosition = "Center";
                         }
                         else if (goldMineralX<silverMineral1X){
-                            goldPosition = "Center";
+                            goldPosition = "Right";
                         }
                     }
                     telemetry.update();
