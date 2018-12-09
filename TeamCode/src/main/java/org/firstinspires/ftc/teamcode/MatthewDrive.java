@@ -35,10 +35,10 @@ public class MatthewDrive extends ExponentialFunctions {
             //move hinge with dpad
             int hingePos = hingeMotor.getCurrentPosition();
             if (gamepad1.dpad_up) {
-                moveHinge(hingePos, 0.5f);
+                moveHinge(hingePos, -0.5f);
             }
             else if (gamepad1.dpad_down) {
-                moveHinge(hingePos, -0.5f);
+                moveHinge(hingePos, 0.5f);
             }
             else{
                 moveHinge(hingePos, 0);
