@@ -9,16 +9,18 @@ public class CraterAuto extends ExponentialFunctions {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        //hanging:
-        // initAutoMotors(); //keep motors running for hang
-        //add code to drop down
-        initializeIMU();
         initVision();
-        /*while(!isStarted()){
-            moveHingeTo(45);
-        }
         waitForStart();
-        dropDown();*/
+
+         //come off of lander
+        dropDown();
+        initializeIMU();
+
+        //move so centered and facing crater
+        move(9, moveSpeed);
+        turnRelative(-90, turnSpeed);
+
+        //identify+hit gold and move into crater
         hitGold();
     }
 }

@@ -63,7 +63,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     // autonomous variables
     ElapsedTime timer;
     int lookAngle = 10;
-    int turnAngle = 27;
+    int turnAngle = 30;
     double turnSpeed = 0.3;
     float moveSpeed = 0.4f;
     String goldPos = "bad";
@@ -147,6 +147,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (opModeIsActive()&&!imu.isGyroCalibrated());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            telemetry.addData("oof", "oof");
+            telemetry.update();
+        }
         updateOrientation();
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
@@ -293,6 +299,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     /* -------------- Movement -------------- */
 
     //movement based on speeds
+
+    public void runRightMotors(float speed) {
+        rmotor0.setPower(Range.clip(speed, -1, 1));
+        rmotor1.setPower(Range.clip(speed, -1, 1));
+    }
     public void runDriveMotors(float leftSpeed, float rightSpeed) {
         lmotor0.setPower(Range.clip(leftSpeed, -1, 1));
         lmotor1.setPower(Range.clip(leftSpeed, -1, 1));
@@ -306,10 +317,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
-        if (currentPos <= 2500 && currentPos >= -20) {
+        if (currentPos <= 2650 && currentPos >= -20) {
             lSlideMotor.setPower(-Range.clip(power, -1, 1));
             rSlideMotor.setPower(-Range.clip(power, -1, 1));
-        } else if (currentPos > 2500) {
+        } else if (currentPos > 2650) {
 
             if (power > 0) {
 
@@ -386,6 +397,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
+
     public void moveHinge(int hingePos, float hingeSpeed) {
         hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //if at 90 degrees, only move if decreasing angle
@@ -430,11 +442,26 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }*/
 
         hingeMotor.setTargetPosition(position);
-        hingeMotor.setPower(1);
+        hingeMotor.setPower(0.5);
         hingeTargetPos = position;
         //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void moveSlidesEncoderAbsolute(int pos, float speed) {
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        lSlideMotor.setTargetPosition(pos);
+        rSlideMotor.setTargetPosition(pos);
+        lSlideMotor.setPower(speed);
+        rSlideMotor.setPower(speed);
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lSlideMotor.setPower(0);
+        rSlideMotor.setPower(0);
+
+    }
     //currently in inches
     public void move(float distance, float speed) {
         //converting from linear distance -> wheel rotations ->
@@ -488,28 +515,44 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
+    public void turnAroundLeftAbsolute(double targetAngle, double speed) {
+        double currentAngle = getRotationinDimension('Z');
+        int direction;
+        if (targetAngle != currentAngle) {
+
+            double angleDifference = getAngleDist(targetAngle, currentAngle);
+            direction = getAngleDir(targetAngle, currentAngle);
+
+            double turnRate = (angleDifference * speed) / 90;
+
+            while (opModeIsActive() && angleDifference > 1) {
+
+                runRightMotors((float) (turnRate * direction));
+                angleDifference = getAngleDist(targetAngle, getRotationinDimension('Z'));
+                direction = getAngleDir(targetAngle, getRotationinDimension(('Z')));
+                turnRate = (angleDifference * speed) / 90;
+                telemetry.addData("angleDifference: ", angleDifference);
+                telemetry.addData("currentAngle: ", getRotationinDimension('Z'));
+                telemetry.update();
+            }
+
+            runRightMotors(0);
+        }
+    }
+
     public void shiftTo(double mode) {
 
-        moveSlidesAbsolute(0, 0.1);
+        //moveSlidesAbsolute(0, 0.1);
         shifterServo.setPosition(mode);
     }
 
     public void dropDown() {
-        moveHingeTo(90);
-        //[add code to extend slides]
-        moveSlidesInchRelative(5, 0.2);
-        //[add code to retract slides]
-        moveSlidesAbsolute(0, 0.2);
+        moveHingeTo(0);
+        while (hingeMotor.isBusy()) {};
+        moveSlidesEncoderAbsolute(2100, 0.2f);
+        //moveSlidesInchRelative(5, 0.2);
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
     }
-
-/*    public void craterAutoMoveToCrater() {
-        if (goldPos.equals("Left") || goldPos.equals("Right")) {
-
-        }
-        else if (goldPos.equals("Center")) {
-
-        }
-    }*/
 
     public void hitGold() {
         //turn right to look at 2 minerals
@@ -537,15 +580,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             turnRelative(turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-turnAngle, turnSpeed);
-            move(-6, moveSpeed);
+            move(-10, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(turnAngle, turnSpeed);
-            move(-6, moveSpeed);
+            move(-10, moveSpeed);
         } else if (goldPos.equals("Center")) {
-            move(-40, moveSpeed);
+            move(-44, moveSpeed);
         }
     }
 
