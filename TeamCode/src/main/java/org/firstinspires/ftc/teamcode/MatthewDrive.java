@@ -10,7 +10,7 @@ public class MatthewDrive extends ExponentialFunctions {
 
     public static float scale = 1;
     public static float fastScale = 1;
-    public static float slowScale = (float) 0.2;
+    public static float slowScale = (float) 0.3;
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();

@@ -44,7 +44,7 @@ public class DepotAuto extends ExponentialFunctions {
         if (goldPos.equals("Left")) {
             turnRelative(27, turnSpeed);
             move(-37, moveSpeed);
-            turnRelative(-54,turnSpeed);
+            turnRelative(-54, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(27, turnSpeed);
         }

@@ -242,6 +242,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return (strInches * slideInchPerStrInch);
     }
 
+    public void resetMotorEncoder(DcMotor motor) {
+
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     /* -------------- Correction -------------- */
 
     public void setSlideZero() {
@@ -252,7 +258,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void setOrientation(Orientation newO) {
 
-
+        orientation = newO;
     }
     /* -------------- Processing -------------- */
 
@@ -304,6 +310,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         rmotor0.setPower(Range.clip(speed, -1, 1));
         rmotor1.setPower(Range.clip(speed, -1, 1));
     }
+
+    public void runLeftMotors(float speed) {
+        lmotor0.setPower(Range.clip(speed, -1, 1));
+        lmotor1.setPower(Range.clip(speed, -1, 1));
+    }
+
     public void runDriveMotors(float leftSpeed, float rightSpeed) {
         lmotor0.setPower(Range.clip(leftSpeed, -1, 1));
         lmotor1.setPower(Range.clip(leftSpeed, -1, 1));
@@ -379,6 +391,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveSlidesAbsolute(int targetPos, double speed) {
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
@@ -395,6 +409,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
             encodersMovedSpeed += (currentPos - targetPos);
         }
+
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slidesBrake();
     }
 
 
@@ -562,8 +581,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         timer = new ElapsedTime();
         while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
             telemetry.addData("Timer: ", timer.seconds());
-            telemetry.update();
+
             goldPos = autoFindGoldFOV();
+            telemetry.addData("Gold: ", goldPos);
+            telemetry.update();
+
         }
         closeTfod();
 
@@ -580,15 +602,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             turnRelative(turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-turnAngle, turnSpeed);
-            move(-10, moveSpeed);
+            move(-8, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(turnAngle, turnSpeed);
-            move(-10, moveSpeed);
+            move(-8, moveSpeed);
         } else if (goldPos.equals("Center")) {
-            move(-44, moveSpeed);
+            move(-42, moveSpeed);
         }
     }
 

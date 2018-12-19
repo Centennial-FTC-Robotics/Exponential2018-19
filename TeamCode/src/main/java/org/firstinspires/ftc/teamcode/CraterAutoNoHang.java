@@ -9,6 +9,7 @@ public class CraterAutoNoHang extends ExponentialFunctions {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+
         initVision();
         initializeIMU();
         waitForStart();

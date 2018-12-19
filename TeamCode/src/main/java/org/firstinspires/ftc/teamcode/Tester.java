@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import java.util.Arrays;
 
 @Autonomous(name="Tester", group="CraterAuto")
 
@@ -50,6 +53,37 @@ public class Tester extends ExponentialFunctions {
         }
     }
 
+    public void motorVelTesting(int intervalCount) {
+
+        double[][] velocities = new double[1 / intervalCount][2];
+        ElapsedTime timer = new ElapsedTime();
+
+        for (double i = (1 / intervalCount); i <= 1; i += (1 / intervalCount)) {
+            // reset the equations
+            timer.reset();
+            resetMotorEncoder(hingeMotor);
+
+            hingeMotor.setPower(i);
+            double avg = 0;
+            int added = 0;
+
+            while (timer.nanoseconds() - timer.startTimeNanoseconds() < 1000) {
+
+                if ((((int) (timer.nanoseconds() - timer.startTimeNanoseconds()) % 100) / 10) == 0) {
+
+                    avg += (hingeMotor.getCurrentPosition()) / (timer.nanoseconds() - timer.startTimeNanoseconds());
+                    added++;
+                }
+            }
+
+            avg /= added;
+
+            velocities[(int) (i * intervalCount)] = new double[] {(1 / intervalCount), avg};
+        }
+
+        telemetry.addData("Velocities: ", Arrays.toString(velocities));
+    }
+
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
@@ -63,6 +97,7 @@ public class Tester extends ExponentialFunctions {
         //relativeTurnDriver();
         //linearMoveTest();
 
-        servoPosTesting(shifterServo);
+        //servoPosTesting(shifterServo);
+        motorVelTesting(10);
     }
 }
