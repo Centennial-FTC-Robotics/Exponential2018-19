@@ -13,6 +13,6 @@ public class CraterAutoNoHang extends ExponentialFunctions {
         initVision();
         initializeIMU();
         waitForStart();
-        hitGold();
+        hitGoldCrater();
     }
 }

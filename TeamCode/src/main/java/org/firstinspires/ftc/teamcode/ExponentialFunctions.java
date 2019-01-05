@@ -64,8 +64,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     ElapsedTime timer;
     int lookAngle = 10;
     int turnAngle = 30;
-    double turnSpeed = 0.3;
-    float moveSpeed = 0.4f;
+    double turnSpeed = 0.5;
+    float moveSpeed = 0.5f;
     String goldPos = "bad";
 
     //tensor flow and vuforia stuff
@@ -324,20 +324,23 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
+
+        double limit = 4600; //2650*1.5
+        double direction = -1;
 //        lSlideMotor.setPower(-Range.clip(power, -1, 1));
 //        rSlideMotor.setPower(-Range.clip(power, -1, 1));
 
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
-        if (currentPos <= 2650 && currentPos >= -20) {
-            lSlideMotor.setPower(-Range.clip(power, -1, 1));
-            rSlideMotor.setPower(-Range.clip(power, -1, 1));
-        } else if (currentPos > 2650) {
+        if (currentPos <= limit && currentPos >= -20) {
+            lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+            rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+        } else if (currentPos > limit) {
 
             if (power > 0) {
 
-                lSlideMotor.setPower(-Range.clip(power, -1, 1));
-                rSlideMotor.setPower(-Range.clip(power, -1, 1));
+                lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+                rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
             } else {
 
                 slidesBrake();
@@ -347,8 +350,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
             if (power < 0) {
 
-                lSlideMotor.setPower(-Range.clip(power, -1, 1));
-                rSlideMotor.setPower(-Range.clip(power, -1, 1));
+                lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+                rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
             } else {
 
                 slidesBrake();
@@ -573,7 +576,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
     }
 
-    public void hitGold() {
+    public void hitGoldCrater() {
         //turn right to look at 2 minerals
         turnRelative(-lookAngle, turnSpeed);
 
@@ -602,18 +605,63 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             turnRelative(turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-turnAngle, turnSpeed);
-            move(-8, moveSpeed);
+            move(-14, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
-            turnRelative(turnAngle, turnSpeed);
-            move(-8, moveSpeed);
+            /*turnRelative(turnAngle, turnSpeed);
+            move(-8, moveSpeed);*/
         } else if (goldPos.equals("Center")) {
             move(-42, moveSpeed);
         }
     }
 
+    public void hitGoldDepot() {
+        //turn right to look at 2 minerals
+        turnRelative(-lookAngle, turnSpeed);
+
+        //figure out gold position
+        timer = new ElapsedTime();
+        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
+            telemetry.addData("Timer: ", timer.seconds());
+
+            goldPos = autoFindGoldFOV();
+            telemetry.addData("Gold: ", goldPos);
+            telemetry.update();
+
+        }
+        closeTfod();
+
+        //turn back to starting position
+        turnRelative(lookAngle, turnSpeed);
+
+        //default to left if can't detect anything rip
+        if (goldPos.equals("bad")) {
+            goldPos = "Left";
+        }
+
+        if (goldPos.equals("Left")) {
+            turnRelative(27, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(-54, turnSpeed);
+            move(-37, moveSpeed);
+            turnRelative(27, turnSpeed);
+        }
+        else if (goldPos.equals("Center")) {
+            move(-40, moveSpeed);
+        }
+        else if (goldPos.equals("Right")) {
+            turnRelative(-27, turnSpeed);
+            move(-37,moveSpeed);
+            turnRelative(54,turnSpeed);
+            move(-37,moveSpeed);
+            turnRelative(-27, turnSpeed);
+        }
+
+        turnRelative(-135, 0.1);
+        move((-10 * 12), 0.2f);
+    }
     public void dumpIntake() {
 
         //moveIntake();

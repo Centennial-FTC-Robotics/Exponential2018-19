@@ -32,26 +32,26 @@ public class Drive extends ExponentialFunctions {
             }
             runDriveMotors(scale * leftSpeed, scale * rightSpeed);
 
-            //move hinge with joystick
-            int hingePos = hingeMotor.getCurrentPosition();
-            float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
-            moveHinge(hingePos, hingeSpeed);
-
             //move slides with joystick
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
             moveSlides(slideSpeed);
 
             //shift
-            if (gamepad2.a) {
+            if (gamepad2.x) {
                 shiftTo(stronk);
             }
-//            if (gamepad2.b) {
-//                shiftTo(speed);
-//            }
-
             if (gamepad2.y) {
+                shiftTo(speed);
+            }
 
+            if (gamepad2.left_bumper) {
                 moveHingeTo(0);
+            }
+            else {
+                //move hinge with joystick
+                int hingePos = hingeMotor.getCurrentPosition();
+                float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
+                moveHinge(hingePos, hingeSpeed);
             }
 
             //slow mode

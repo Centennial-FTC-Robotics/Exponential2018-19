@@ -10,17 +10,24 @@ public class CraterAutoWithTM extends ExponentialFunctions {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        //hanging:
-        // initAutoMotors(); //keep motors running for hang
-        //add code to drop down
         initializeIMU();
         initVision();
         while(!isStarted()){
             moveHingeTo(45);
+            moveSlidesEncoderAbsolute(20, 0.5f);
         }
         waitForStart();
 
-        dropDown(); //UNFINISHED METHOD // not anymore
+        //come off of lander
+        moveHingeTo(0);
+        while (hingeMotor.isBusy()) {};
+        moveSlidesEncoderAbsolute(4200, 0.8f);
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+
+        //retract slides
+        move(-5, 0.5f);
+        moveSlidesEncoderAbsolute(50, 0.8f);
+        move(3, 0.5f);
 
         //move to depot corner
         turnRelative(-45, turnSpeed);
@@ -37,7 +44,6 @@ public class CraterAutoWithTM extends ExponentialFunctions {
         move(48, moveSpeed);
         turnRelative(45, turnSpeed);
 
-        hitGold();
-        //craterAutoMoveToCrater();
+        hitGoldCrater();
     }
 }
