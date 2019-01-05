@@ -664,14 +664,20 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
     public void dumpIntake() {
 
-        //moveIntake();
+        //moveIntakeArm();
     }
 
-    public void moveIntake(int newPos) {
+    public void moveIntakeArm(int newPos) {
 
         for (int IServo = 0; IServo < intakeServos.length; IServo++) {
             intakeServos[IServo].setPosition(newPos);
         }
+    }
+
+    public void moveIntake(double power) {
+
+        lIntakeServo.setPower(power);
+        rIntakeServo.setPower(power);
     }
     /* -------------- Procedure -------------- */
 

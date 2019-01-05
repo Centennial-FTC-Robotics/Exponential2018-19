@@ -64,6 +64,15 @@ public class Drive extends ExponentialFunctions {
                 scale = (float) fastScale;
             }
 
+            if (gamepad2.dpad_up) {
+
+                moveIntake(-1);
+            }
+
+            if (gamepad2.dpad_down) {
+
+                moveIntake(1);
+            }
             //moveHinge(getHingeTargetPos(), 0.1f);
 
             telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
