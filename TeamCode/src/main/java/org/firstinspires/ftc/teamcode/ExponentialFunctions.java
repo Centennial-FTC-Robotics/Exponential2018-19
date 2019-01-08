@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -684,6 +686,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public void waitForMotors() {
         while (opModeIsActive() && motorsBusy()) {
         }
+    }
+
+    public void blinker() {
+
+        LEDStrip.setConstant(Color.BLUE);
     }
 
     public void waitTime(int time) {

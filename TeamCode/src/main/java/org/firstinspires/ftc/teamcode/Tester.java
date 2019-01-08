@@ -98,6 +98,7 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         //servoPosTesting(shifterServo);
-        motorVelTesting(10);
+        //motorVelTesting(10);
+        blinker();
     }
 }

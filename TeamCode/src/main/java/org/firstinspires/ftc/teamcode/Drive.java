@@ -11,6 +11,7 @@ public class Drive extends ExponentialFunctions {
     public static float scale = 1;
     public static float fastScale = 1;
     public static float slowScale = (float) 0.2;
+    public double currentIntakePower = 0;
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -66,13 +67,15 @@ public class Drive extends ExponentialFunctions {
 
             if (gamepad2.dpad_up) {
 
-                moveIntake(-1);
+                currentIntakePower -= 1;
             }
 
             if (gamepad2.dpad_down) {
 
-                moveIntake(1);
+                currentIntakePower += 1;
             }
+
+            moveIntake(Range.clip(currentIntakePower, -1, 1));
             //moveHinge(getHingeTargetPos(), 0.1f);
 
             telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());

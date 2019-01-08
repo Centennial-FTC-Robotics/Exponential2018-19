@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // hardware
+import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 // sensors & sensorSetup
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PWMOutput;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -30,6 +32,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
     Servo shifterServo;
     Servo lIntakeArmServo;
     Servo rIntakeArmServo;
+    Blinker LEDStrip;
     CRServo lIntakeServo;
     CRServo rIntakeServo;
 
@@ -58,6 +61,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
         shifterServo = hardwareMap.servo.get("shifterServo");
         lIntakeArmServo = hardwareMap.servo.get("lInArm");
         rIntakeArmServo = hardwareMap.servo.get("rInArm");
+        LEDStrip = hardwareMap.get(Blinker.class, "StripAddressable");
         lIntakeServo = hardwareMap.crservo.get("lIntake");
         rIntakeServo = hardwareMap.crservo.get("rIntake");
 
