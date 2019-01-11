@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Color;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -665,11 +667,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         move((-10 * 12), 0.2f);
     }
     public void dumpIntake() {
-
         //moveIntakeArm();
     }
 
-    public void moveIntakeArm(int newPos) {
+    public void moveIntakeArm(double newPos) {
 
         for (int IServo = 0; IServo < intakeServos.length; IServo++) {
             intakeServos[IServo].setPosition(newPos);
@@ -680,6 +681,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         lIntakeServo.setPower(power);
         rIntakeServo.setPower(power);
+
     }
     /* -------------- Procedure -------------- */
 
@@ -690,7 +692,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void blinker() {
 
-        LEDStrip.setConstant(Color.BLUE);
+        LEDStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
     }
 
     public void waitTime(int time) {

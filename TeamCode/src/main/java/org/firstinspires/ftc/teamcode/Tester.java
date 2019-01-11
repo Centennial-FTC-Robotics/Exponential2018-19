@@ -55,10 +55,10 @@ public class Tester extends ExponentialFunctions {
 
     public void motorVelTesting(int intervalCount) {
 
-        double[][] velocities = new double[1 / intervalCount][2];
+        double[][] velocities = new double[intervalCount][2];
         ElapsedTime timer = new ElapsedTime();
 
-        for (double i = (1 / intervalCount); i <= 1; i += (1 / intervalCount)) {
+        for (double i = (1.0 / intervalCount); i <= 1; i += (1.0 / intervalCount)) {
             // reset the equations
             timer.reset();
             resetMotorEncoder(hingeMotor);
@@ -67,9 +67,9 @@ public class Tester extends ExponentialFunctions {
             double avg = 0;
             int added = 0;
 
-            while (timer.nanoseconds() - timer.startTimeNanoseconds() < 1000) {
+            while (timer.nanoseconds() - timer.startTimeNanoseconds() < 200) {
 
-                if ((((int) (timer.nanoseconds() - timer.startTimeNanoseconds()) % 100) / 10) == 0) {
+                if ((int) ((timer.nanoseconds() - timer.startTimeNanoseconds() / 10) % 100) == 0) {
 
                     avg += (hingeMotor.getCurrentPosition()) / (timer.nanoseconds() - timer.startTimeNanoseconds());
                     added++;

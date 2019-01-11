@@ -75,7 +75,11 @@ public class Drive extends ExponentialFunctions {
                 currentIntakePower += 1;
             }
 
-            moveIntake(Range.clip(currentIntakePower, -1, 1));
+            if (gamepad2.left_bumper) {
+                moveIntakeArm(Range.clip(currentIntakePower, -1, 1));
+            } else {
+                moveIntake(Range.clip(currentIntakePower, -1, 1));
+            }
             //moveHinge(getHingeTargetPos(), 0.1f);
 
             telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
