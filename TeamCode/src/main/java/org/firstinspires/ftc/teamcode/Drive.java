@@ -76,7 +76,7 @@ public class Drive extends ExponentialFunctions {
             }
 
             if (gamepad2.left_bumper) {
-                moveIntakeArm(Range.clip(currentIntakePower, -1, 1));
+                moveIntakeArm(Range.clip((currentIntakePower+1)/2, 0, 1));
             } else {
                 moveIntake(Range.clip(currentIntakePower, -1, 1));
             }

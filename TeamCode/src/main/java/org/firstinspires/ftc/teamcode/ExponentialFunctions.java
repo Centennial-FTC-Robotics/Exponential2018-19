@@ -671,7 +671,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveIntakeArm(double newPos) {
-
         for (int IServo = 0; IServo < intakeServos.length; IServo++) {
             intakeServos[IServo].setPosition(newPos);
         }
