@@ -46,7 +46,7 @@ public class Drive extends ExponentialFunctions {
             }
 
             if (gamepad2.left_bumper) {
-                moveHingeTo(0);
+                //moveHingeTo(0);
             }
             else {
                 //move hinge with joystick
@@ -56,29 +56,39 @@ public class Drive extends ExponentialFunctions {
             }
 
             //slow mode
-            if (gamepad1.left_bumper) {
+            if (gamepad1.right_bumper) {
                 scale = (float) slowScale;
             }
 
             //fast mode
-            if (gamepad1.right_bumper) {
+            if (gamepad1.left_bumper) {
                 scale = (float) fastScale;
             }
 
             if (gamepad2.dpad_up) {
 
-                currentIntakePower -= 1;
+                //currentIntakePower -= 1;
+                moveIntakeArm(Range.clip(1, 0, 1));
+
             }
 
-            if (gamepad2.dpad_down) {
+            else if (gamepad2.dpad_down) {
 
-                currentIntakePower += 1;
+                //currentIntakePower += 1;
+                moveIntakeArm(Range.clip(0, 0, 1));
+
+            }
+            else{
+                moveIntakeArm(Range.clip(.5, 0, 1));
+
             }
 
             if (gamepad2.left_bumper) {
-                moveIntakeArm(Range.clip((currentIntakePower+1)/2, 0, 1));
-            } else {
-                moveIntake(Range.clip(currentIntakePower, -1, 1));
+                moveIntake(Range.clip(-1, -1, 1));
+            } else if(gamepad2.right_bumper){
+                moveIntake(Range.clip(1, -1, 1));
+
+                //moveIntake(Range.clip(currentIntakePower, -1, 1));
             }
             //moveHinge(getHingeTargetPos(), 0.1f);
 

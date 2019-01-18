@@ -11,6 +11,7 @@ public class MatthewDrive extends ExponentialFunctions {
     public static float scale = 1;
     public static float fastScale = 1;
     public static float slowScale = (float) 0.3;
+    private boolean mode = true;
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
@@ -33,45 +34,81 @@ public class MatthewDrive extends ExponentialFunctions {
             runDriveMotors(scale * leftSpeed, scale * rightSpeed);
 
             //move hinge with dpad
-            int hingePos = hingeMotor.getCurrentPosition();
-            if (gamepad1.dpad_up) {
-                moveHinge(hingePos, -0.5f);
-            }
-            else if (gamepad1.dpad_down) {
-                moveHinge(hingePos, 0.5f);
-            }
-            else{
-                moveHinge(hingePos, 0);
+
+            if (gamepad1.guide) {
+
+                mode = !mode;
             }
 
-            //move slides with joystick
-            if (gamepad1.left_trigger != 0) {
-                moveSlides(gamepad1.left_trigger);
-            }
-            else {
-                moveSlides(-gamepad1.right_trigger);
-            }
+            if (mode) {
+                int hingePos = hingeMotor.getCurrentPosition();
+                if (gamepad1.dpad_up) {
+                    moveHinge(hingePos, -0.5f);
+                }
+                else if (gamepad1.dpad_down) {
+                    moveHinge(hingePos, 0.5f);
+                }
+                else{
+                    moveHinge(hingePos, 0);
+                }
 
-            //shift
-            if (gamepad1.a) {
-                shiftTo(stronk);
-            }
+                //move slides with joystick
+                if (gamepad1.left_trigger != 0) {
+                    moveSlides(gamepad1.left_trigger);
+                }
+                else {
+                    moveSlides(-gamepad1.right_trigger);
+                }
+
+                //shift
+                if (gamepad1.a) {
+                    shiftTo(stronk);
+                }
 //            if (gamepad1.b) {
 //                shiftTo(speed);
 //            }
 
-            if (gamepad1.y) {
-                moveHingeTo(0);
-            }
+                if (gamepad1.y) {
+                    moveHingeTo(0);
+                }
 
-            //slow mode
-            if (gamepad1.left_bumper) {
-                scale = (float) slowScale;
-            }
+                //slow mode
+                if (gamepad1.left_bumper) {
+                    scale = (float) slowScale;
+                }
 
-            //fast mode
-            if (gamepad1.right_bumper) {
-                scale = (float) fastScale;
+                //fast mode
+                if (gamepad1.right_bumper) {
+                    scale = (float) fastScale;
+                }
+            } else {
+                // intake code
+
+                if (gamepad1.dpad_up) {
+
+                    //currentIntakePower -= 1;
+                    moveIntakeArm(Range.clip(1, 0, 1));
+
+                }
+
+                else if (gamepad1.dpad_down) {
+
+                    //currentIntakePower += 1;
+                    moveIntakeArm(Range.clip(0, 0, 1));
+
+                }
+                else{
+                    moveIntakeArm(Range.clip(.5, 0, 1));
+
+                }
+
+                if (gamepad1.left_stick_y > 0) {
+                    moveIntake(Range.clip(-1, -1, 1));
+                } else if(gamepad1.left_stick_y < 0){
+                    moveIntake(Range.clip(1, -1, 1));
+
+                    //moveIntake(Range.clip(currentIntakePower, -1, 1));
+                }
             }
 
             //moveHinge(getHingeTargetPos(), 0.1f);
