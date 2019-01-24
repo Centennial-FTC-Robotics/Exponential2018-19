@@ -96,7 +96,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         encodersMovedSpeed = 0;
         encodersMovedSpeed = 0;
-        hingeTargetPos = hingeMotor.getCurrentPosition();
+        hingeTargetPos = lHingeMotor.getCurrentPosition();
     }
     /* -------------- Initialization -------------- */
 
@@ -236,7 +236,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public int getHingeAngle() {
 
-        return hingeMotor.getCurrentPosition() * (2240 / 90);
+        return lHingeMotor.getCurrentPosition() * (2240 / 90);
     }
 
     public double getSlideExtendInch() {
@@ -425,34 +425,41 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
 
     public void moveHinge(int hingePos, float hingeSpeed) {
-        hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //if at 90 degrees, only move if decreasing angle
         if (hingePos >= 2240) {
             if (hingeSpeed < 0) {
-                hingeMotor.setPower(hingeSpeed);
+                lHingeMotor.setPower(hingeSpeed);
+                rHingeMotor.setPower(hingeSpeed);
                 hingeTargetPos = hingePos;
             } else {
-                hingeMotor.setPower(0);
+                lHingeMotor.setPower(0);
+                rHingeMotor.setPower(0);
             }
         }
         //if at 0 degrees, only move if increasing angle
         else if (hingePos <= 0) {
             if (hingeSpeed > 0) {
-                hingeMotor.setPower(hingeSpeed);
+                lHingeMotor.setPower(hingeSpeed);
+                rHingeMotor.setPower(hingeSpeed);
                 hingeTargetPos = hingePos;
             } else {
-                hingeMotor.setPower(0);
+                lHingeMotor.setPower(0);
+                rHingeMotor.setPower(0);
             }
         }
         //if in between 0 and 90 degrees, move however
         else {
-            hingeMotor.setPower(hingeSpeed);
+            lHingeMotor.setPower(hingeSpeed);
+            rHingeMotor.setPower(hingeSpeed);
             hingeTargetPos = hingePos;
         }
     }
 
     public void moveHingeTo(float angle) {
-        hingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        lHingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rHingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         angle = Range.clip(angle, 0, 90);
         int position = (int) (angle * (2240 / 90));
 
@@ -467,8 +474,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             moveSlidesInchAbsolute(1, 0.1);
         }*/
 
-        hingeMotor.setTargetPosition(position);
-        hingeMotor.setPower(0.5);
+        lHingeMotor.setTargetPosition(position);
+        rHingeMotor.setTargetPosition(position);
+        lHingeMotor.setPower(0.5);
+        rHingeMotor.setPower(0.5);
         hingeTargetPos = position;
         //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
@@ -574,7 +583,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void dropDown() {
         moveHingeTo(0);
-        while (hingeMotor.isBusy()) {};
+        while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
         moveSlidesEncoderAbsolute(2100, 0.2f);
         //moveSlidesInchRelative(5, 0.2);
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};

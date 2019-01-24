@@ -21,7 +21,7 @@ public class DepotAuto extends ExponentialFunctions {
 
         //come off of lander
         moveHingeTo(0);
-        while (hingeMotor.isBusy()) {};
+        while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
         moveSlidesEncoderAbsolute(4200, 0.8f);
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
 

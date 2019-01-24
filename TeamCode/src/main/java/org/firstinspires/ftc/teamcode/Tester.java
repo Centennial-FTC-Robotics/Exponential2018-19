@@ -61,9 +61,11 @@ public class Tester extends ExponentialFunctions {
         for (double i = (1.0 / intervalCount); i <= 1; i += (1.0 / intervalCount)) {
             // reset the equations
             timer.reset();
-            resetMotorEncoder(hingeMotor);
+            resetMotorEncoder(lHingeMotor);
+            resetMotorEncoder(rHingeMotor);
 
-            hingeMotor.setPower(i);
+            lHingeMotor.setPower(i);
+            rHingeMotor.setPower(i);
             double avg = 0;
             int added = 0;
 
@@ -71,7 +73,7 @@ public class Tester extends ExponentialFunctions {
 
                 if ((int) ((timer.nanoseconds() - timer.startTimeNanoseconds() / 10) % 100) == 0) {
 
-                    avg += (hingeMotor.getCurrentPosition()) / (timer.nanoseconds() - timer.startTimeNanoseconds());
+                    avg += (lHingeMotor.getCurrentPosition()) / (timer.nanoseconds() - timer.startTimeNanoseconds());
                     added++;
                 }
             }

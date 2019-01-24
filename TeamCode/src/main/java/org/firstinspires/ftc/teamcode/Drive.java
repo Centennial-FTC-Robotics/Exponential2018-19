@@ -50,7 +50,7 @@ public class Drive extends ExponentialFunctions {
             }
             else {
                 //move hinge with joystick
-                int hingePos = hingeMotor.getCurrentPosition();
+                int hingePos = lHingeMotor.getCurrentPosition();
                 float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
                 moveHinge(hingePos, hingeSpeed);
             }
