@@ -428,6 +428,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //if at 90 degrees, only move if decreasing angle
+        hingeSpeed = (float) (hingeSpeed * 0.7);
         if (hingePos >= 2240) {
             if (hingeSpeed < 0) {
                 lHingeMotor.setPower(hingeSpeed);

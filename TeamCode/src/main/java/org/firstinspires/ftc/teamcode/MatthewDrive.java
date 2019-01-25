@@ -35,7 +35,7 @@ public class MatthewDrive extends ExponentialFunctions {
 
             //move hinge with dpad
 
-            if (gamepad1.guide) {
+            if (gamepad1.dpad_up && gamepad1.a) {
 
                 mode = !mode;
             }
