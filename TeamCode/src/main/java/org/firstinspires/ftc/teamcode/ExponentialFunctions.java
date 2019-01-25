@@ -246,6 +246,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return (strInches * slideInchPerStrInch);
     }
 
+    public double getSlideMode() {
+
+        return shifterServo.getPosition();
+    }
+
     public void resetMotorEncoder(DcMotor motor) {
 
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -726,6 +731,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         } else if (shifterServo.getPosition() == stronk) {
             shifterServo.setPosition(speed);
         }
+    }
+
+    public void yeet() {
+
+        moveHingeTo(0);
+        moveIntakeArm(1);
+        moveIntake(-1);
     }
 
     public void ejectTeamMarker() {

@@ -38,10 +38,11 @@ public class Drive extends ExponentialFunctions {
             moveSlides(slideSpeed);
 
             //shift
-            if (gamepad2.x) {
+            if (gamepad2.a) {
+
                 shiftTo(stronk);
             }
-            if (gamepad2.y) {
+            if (gamepad2.b) {
                 shiftTo(speed);
             }
 
@@ -57,12 +58,12 @@ public class Drive extends ExponentialFunctions {
 
             //slow mode
             if (gamepad1.right_bumper) {
-                scale = (float) slowScale;
+                scale = (float) fastScale;
             }
 
             //fast mode
             if (gamepad1.left_bumper) {
-                scale = (float) fastScale;
+                scale = (float) slowScale;
             }
 
             if (gamepad2.dpad_up) {
@@ -70,9 +71,7 @@ public class Drive extends ExponentialFunctions {
                 //currentIntakePower -= 1;
                 moveIntakeArm(Range.clip(1, 0, 1));
 
-            }
-
-            else if (gamepad2.dpad_down) {
+            } else if (gamepad2.dpad_down) {
 
                 //currentIntakePower += 1;
                 moveIntakeArm(Range.clip(0, 0, 1));
@@ -83,12 +82,20 @@ public class Drive extends ExponentialFunctions {
 
             }
 
+            if (gamepad2.y) {
+
+                yeet();
+            }
+
             if (gamepad2.left_bumper) {
-                moveIntake(Range.clip(-1, -1, 1));
+                moveIntake(-1);
             } else if(gamepad2.right_bumper){
-                moveIntake(Range.clip(1, -1, 1));
+                moveIntake(1);
 
                 //moveIntake(Range.clip(currentIntakePower, -1, 1));
+            } else {
+
+                moveIntake(0);
             }
             //moveHinge(getHingeTargetPos(), 0.1f);
 

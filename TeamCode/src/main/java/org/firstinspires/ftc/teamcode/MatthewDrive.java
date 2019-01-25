@@ -35,9 +35,10 @@ public class MatthewDrive extends ExponentialFunctions {
 
             //move hinge with dpad
 
-            if (gamepad1.dpad_up && gamepad1.a) {
+            if (gamepad1.dpad_up && gamepad1.y) {
 
                 mode = !mode;
+                while (gamepad1.dpad_up && gamepad1.y) {}
             }
 
             if (mode) {
@@ -84,31 +85,14 @@ public class MatthewDrive extends ExponentialFunctions {
             } else {
                 // intake code
 
-                if (gamepad1.dpad_up) {
+                moveIntakeArm(Range.clip(gamepad1.right_trigger, -1, 1));
 
-                    //currentIntakePower -= 1;
-                    moveIntakeArm(Range.clip(1, 0, 1));
+                if (gamepad1.x) {
 
+                    yeet();
                 }
 
-                else if (gamepad1.dpad_down) {
-
-                    //currentIntakePower += 1;
-                    moveIntakeArm(Range.clip(0, 0, 1));
-
-                }
-                else{
-                    moveIntakeArm(Range.clip(.5, 0, 1));
-
-                }
-
-                if (gamepad1.left_stick_y > 0) {
-                    moveIntake(Range.clip(-1, -1, 1));
-                } else if(gamepad1.left_stick_y < 0){
-                    moveIntake(Range.clip(1, -1, 1));
-
-                    //moveIntake(Range.clip(currentIntakePower, -1, 1));
-                }
+                moveIntake(-gamepad1.left_stick_y);
             }
 
             //moveHinge(getHingeTargetPos(), 0.1f);
