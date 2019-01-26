@@ -14,7 +14,7 @@ public class DepotAuto extends ExponentialFunctions {
         initVision();
 
         while(!isStarted()){
-            moveHingeTo(45);
+            moveHingeTo(10);
             moveSlidesEncoderAbsolute(20, 0.5f);
         }
         waitForStart();

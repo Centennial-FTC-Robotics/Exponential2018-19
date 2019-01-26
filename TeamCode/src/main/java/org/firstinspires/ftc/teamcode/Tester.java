@@ -53,37 +53,29 @@ public class Tester extends ExponentialFunctions {
         }
     }
 
-    public void motorVelTesting(int intervalCount) {
+    public double[][] motorVelTesting(int intervalCount) {
 
         double[][] velocities = new double[intervalCount][2];
-        ElapsedTime timer = new ElapsedTime();
 
         for (double i = (1.0 / intervalCount); i <= 1; i += (1.0 / intervalCount)) {
-            // reset the equations
-            timer.reset();
-            resetMotorEncoder(lHingeMotor);
-            resetMotorEncoder(rHingeMotor);
 
+            // reset
+            moveHingeTo(0);
+            while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
+
+            // actual movement and measurement
             lHingeMotor.setPower(i);
             rHingeMotor.setPower(i);
-            double avg = 0;
-            int added = 0;
 
-            while (timer.nanoseconds() - timer.startTimeNanoseconds() < 200) {
+            velocities[(int) (i * intervalCount)] = new double[] {(1 / intervalCount),(int) ((lHingeMotor.getVelocity() + rHingeMotor.getVelocity()) / 2.0)};
 
-                if ((int) ((timer.nanoseconds() - timer.startTimeNanoseconds() / 10) % 100) == 0) {
-
-                    avg += (lHingeMotor.getCurrentPosition()) / (timer.nanoseconds() - timer.startTimeNanoseconds());
-                    added++;
-                }
-            }
-
-            avg /= added;
-
-            velocities[(int) (i * intervalCount)] = new double[] {(1 / intervalCount), avg};
+            lHingeMotor.setPower(0);
+            rHingeMotor.setPower(0);
         }
 
         telemetry.addData("Velocities: ", Arrays.toString(velocities));
+
+        return velocities;
     }
 
     public void runOpMode() throws InterruptedException {
@@ -100,7 +92,8 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         //servoPosTesting(shifterServo);
-        //motorVelTesting(10);
-        blinker();
+        //double[][] motorVelocities = motorVelTesting(10);
+        //telemetry.addData("Velocities: ", Arrays.toString(motorVelocities));
+        //blinker();
     }
 }

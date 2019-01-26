@@ -13,15 +13,16 @@ public class CraterAuto extends ExponentialFunctions {
         initializeIMU();
         initVision();
         while(!isStarted()){
-            moveHingeTo(45);
-            moveSlidesEncoderAbsolute(20, 0.5f);
+            moveHingeTo(35);
+            moveSlidesEncoderAbsolute(5, 0.5f);
         }
         waitForStart();
 
          //come off of lander
-        moveHingeTo(0);
+        moveHingeTo(10);
         while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
-        moveSlidesEncoderAbsolute(4200, 0.8f);
+        moveIntakeArm(0.5f);
+        moveSlidesEncoderAbsolute(4600, 0.8f);
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
 
         //retract slides

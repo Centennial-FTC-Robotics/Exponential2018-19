@@ -76,6 +76,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rHingeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         rIntakeArmServo.setDirection(Servo.Direction.REVERSE);
         rIntakeServo.setDirection(CRServo.Direction.REVERSE);
+        lSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        rSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         lmotor0.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         lmotor1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);

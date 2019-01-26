@@ -8,29 +8,29 @@ import com.qualcomm.robotcore.util.Range;
 //l means left, r means right
 public class MatthewDrive extends ExponentialFunctions {
 
-    public static float scale = 1;
-    public static float fastScale = 1;
-    public static float slowScale = (float) 0.3;
+    private static float scale = 1;
+    private static float fastScale = 1;
+    private static float slowScale = (float) 0.3;
     private boolean mode = true;
 
     public void runOpMode() throws InterruptedException {
+
         super.runOpMode();
         waitForStart();
+
         while(opModeIsActive()){
 
             //drive with joysticks
             float moveSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y;
             float turnSpeed = Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
-            float leftSpeed;
-            float rightSpeed;
+            float leftSpeed = -turnSpeed;
+            float rightSpeed = turnSpeed;
+
             if (moveSpeed != 0) {
                 leftSpeed = moveSpeed + (turnSpeed * moveSpeed);
                 rightSpeed = moveSpeed - (turnSpeed * moveSpeed);
             }
-            else {
-                leftSpeed = -turnSpeed;
-                rightSpeed = turnSpeed;
-            }
+
             runDriveMotors(scale * leftSpeed, scale * rightSpeed);
 
             //move hinge with dpad
@@ -62,12 +62,12 @@ public class MatthewDrive extends ExponentialFunctions {
                 }
 
                 //shift
-                if (gamepad1.a) {
+                if (gamepad1.x) {
                     shiftTo(stronk);
                 }
-//            if (gamepad1.b) {
-//                shiftTo(speed);
-//            }
+                if (gamepad1.y) {
+                    shiftTo(speed);
+                }
 
                 if (gamepad1.y) {
                     moveHingeTo(0);
@@ -86,12 +86,6 @@ public class MatthewDrive extends ExponentialFunctions {
                 // intake code
 
                 moveIntakeArm(Range.clip(gamepad1.right_trigger, -1, 1));
-
-                if (gamepad1.x) {
-
-                    yeet();
-                }
-
                 moveIntake(-gamepad1.left_stick_y);
             }
 

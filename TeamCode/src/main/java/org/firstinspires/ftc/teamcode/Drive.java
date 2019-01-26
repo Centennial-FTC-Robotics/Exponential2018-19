@@ -21,41 +21,30 @@ public class Drive extends ExponentialFunctions {
             //drive with joysticks
             float moveSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y;
             float turnSpeed = Math.abs(gamepad1.right_stick_x)*gamepad1.right_stick_x;
-            float leftSpeed;
-            float rightSpeed;
+            float leftSpeed = -turnSpeed;
+            float rightSpeed = turnSpeed;
+
             if (moveSpeed != 0) {
                 leftSpeed = moveSpeed + (turnSpeed * moveSpeed);
                 rightSpeed = moveSpeed - (turnSpeed * moveSpeed);
             }
-            else {
-                leftSpeed = -turnSpeed;
-                rightSpeed = turnSpeed;
-            }
+
             runDriveMotors(scale * leftSpeed, scale * rightSpeed);
 
             //move slides with joystick
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
             moveSlides(slideSpeed);
 
-            //shift
-            if (gamepad2.a) {
-
-                shiftTo(stronk);
-            }
-            if (gamepad2.b) {
-                shiftTo(speed);
-            }
-
             if (gamepad2.left_bumper) {
                 //moveHingeTo(0);
-            }
-            else {
+            } else {
                 //move hinge with joystick
                 int hingePos = lHingeMotor.getCurrentPosition();
                 float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
                 moveHinge(hingePos, hingeSpeed);
             }
 
+            // Speed Scaling
             //slow mode
             if (gamepad1.right_bumper) {
                 scale = (float) fastScale;
@@ -66,41 +55,37 @@ public class Drive extends ExponentialFunctions {
                 scale = (float) slowScale;
             }
 
-            if (gamepad2.dpad_up) {
+            //shifting mechanism
+            if (gamepad2.x) {
 
-                //currentIntakePower -= 1;
-                moveIntakeArm(Range.clip(1, 0, 1));
-
-            } else if (gamepad2.dpad_down) {
-
-                //currentIntakePower += 1;
-                moveIntakeArm(Range.clip(0, 0, 1));
-
-            }
-            else{
-                moveIntakeArm(Range.clip(.5, 0, 1));
-
+                shiftTo(stronk);
             }
 
             if (gamepad2.y) {
-
-                yeet();
+                shiftTo(speed);
             }
 
+            //Intake Arms
+            if (gamepad2.dpad_up) {
+                moveIntakeArm(0.5);
+
+            } else if (gamepad2.dpad_down) {
+                moveIntakeArm(-0.5);
+            }
+
+            //Intake
             if (gamepad2.left_bumper) {
                 moveIntake(-1);
             } else if(gamepad2.right_bumper){
                 moveIntake(1);
-
-                //moveIntake(Range.clip(currentIntakePower, -1, 1));
             } else {
-
                 moveIntake(0);
             }
             //moveHinge(getHingeTargetPos(), 0.1f);
 
             telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
             telemetry.addData("right Slide motor encoder: ", rSlideMotor.getCurrentPosition());
+            telemetry.addData("Hinge Encoder: ", lHingeMotor.getCurrentPosition());
             telemetry.update();
             idle();
         }
