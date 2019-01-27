@@ -9,6 +9,8 @@ public class CraterAutoWithTM extends ExponentialFunctions {
     @Override
 
     public void runOpMode() throws InterruptedException {
+
+        // initialize sensors and position
         super.runOpMode();
         initializeIMU();
         initVision();

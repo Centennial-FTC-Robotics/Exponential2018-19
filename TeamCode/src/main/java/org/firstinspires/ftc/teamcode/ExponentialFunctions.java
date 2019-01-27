@@ -59,7 +59,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     ElapsedTime timer;
     int lookAngle = 10;
     int turnAngle = 30;
-    double turnSpeed = 0.5;
+    double turnSpeed = 0.4f;
     float moveSpeed = 0.5f;
     String goldPos = "bad";
 
@@ -184,6 +184,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public int getHingeTargetPos() {
 
         return hingeTargetPos;
+    }
+
+    public int getCurrentHingePos() {
+
+        return (int) ((lHingeMotor.getCurrentPosition() + rHingeMotor.getCurrentPosition()) / 2.0);
     }
 
     public double getRawZ() {
@@ -418,12 +423,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
 
-    public void moveHinge(int hingePos, float hingeSpeed) {
+    public void moveHinge(float hingeSpeed) {
         lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //if at 90 degrees, only move if decreasing angle
-        hingeSpeed = (float) (hingeSpeed * 0.7);
-        if (hingePos >= 2240) {
+        int hingePos = getCurrentHingePos();
+
+        if (hingePos >= 2200) {
             if (hingeSpeed < 0) {
                 lHingeMotor.setPower(hingeSpeed);
                 rHingeMotor.setPower(hingeSpeed);
@@ -601,7 +607,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         closeTfod();
 
         //turn back to starting position
-        turnRelative(lookAngle, turnSpeed);
+        turnRelative(lookAngle - 5, turnSpeed);
 
         //default to left if can't detect anything rip
         if (goldPos.equals("bad")) {

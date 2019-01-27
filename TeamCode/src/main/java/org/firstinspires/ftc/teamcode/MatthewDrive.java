@@ -44,13 +44,13 @@ public class MatthewDrive extends ExponentialFunctions {
             if (mode) {
                 int hingePos = lHingeMotor.getCurrentPosition();
                 if (gamepad1.dpad_up) {
-                    moveHinge(hingePos, -0.5f);
+                    moveHinge(-0.5f);
                 }
                 else if (gamepad1.dpad_down) {
-                    moveHinge(hingePos, 0.5f);
+                    moveHinge(0.5f);
                 }
                 else{
-                    moveHinge(hingePos, 0);
+                    moveHinge(0);
                 }
 
                 //move slides with joystick
@@ -91,9 +91,10 @@ public class MatthewDrive extends ExponentialFunctions {
 
             //moveHinge(getHingeTargetPos(), 0.1f);
 
-            /*telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
+            telemetry.addData("left Slide motor encoder: ", lSlideMotor.getCurrentPosition());
             telemetry.addData("right Slide motor encoder: ", rSlideMotor.getCurrentPosition());
-            telemetry.update();*/
+            telemetry.addData("Hinge Encoder: ", lHingeMotor.getCurrentPosition());
+            telemetry.update();
             idle();
         }
     }

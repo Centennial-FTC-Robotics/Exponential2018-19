@@ -39,9 +39,9 @@ public class Drive extends ExponentialFunctions {
                 //moveHingeTo(0);
             } else {
                 //move hinge with joystick
-                int hingePos = lHingeMotor.getCurrentPosition();
+                //int hingePos = lHingeMotor.getCurrentPosition();
                 float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
-                moveHinge(hingePos, hingeSpeed);
+                moveHinge(hingeSpeed);
             }
 
             // Speed Scaling
@@ -67,10 +67,14 @@ public class Drive extends ExponentialFunctions {
 
             //Intake Arms
             if (gamepad2.dpad_up) {
-                moveIntakeArm(0.5);
+                moveIntakeArm(1);
 
             } else if (gamepad2.dpad_down) {
-                moveIntakeArm(-0.5);
+                moveIntakeArm(0);
+            }
+            else{
+                moveIntakeArm(.5);
+
             }
 
             //Intake

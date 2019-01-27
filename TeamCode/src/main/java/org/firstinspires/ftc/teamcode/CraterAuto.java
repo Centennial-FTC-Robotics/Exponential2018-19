@@ -9,6 +9,8 @@ public class CraterAuto extends ExponentialFunctions {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        // initialize sensors and position
         super.runOpMode();
         initializeIMU();
         initVision();
@@ -28,7 +30,7 @@ public class CraterAuto extends ExponentialFunctions {
         //retract slides
         move(-5, 0.5f);
         moveSlidesEncoderAbsolute(50, 0.8f);
-        move(3, 0.5f);
+        move(3, 0.3f);
 
         //identify+hit gold and move into crater
         hitGoldCrater();
