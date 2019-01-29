@@ -92,7 +92,9 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         //servoPosTesting(shifterServo);
-        //double[][] motorVelocities = motorVelTesting(10);
+        double[][] motorVelocities = motorVelTesting(10);
+        telemetry.addData("Velocities", Arrays.toString(motorVelocities));
+        while(!gamepad1.a) {}
         //telemetry.addData("Velocities: ", Arrays.toString(motorVelocities));
         //blinker();
     }

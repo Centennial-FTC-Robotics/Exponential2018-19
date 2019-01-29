@@ -16,7 +16,7 @@ public class conceptOPMODE extends ExponentialFunctions {
         super.runOpMode();
         waitForStart();
 
-        while(!isStopRequested()) {
+        while(isStopRequested()) {
 
             // collect the pressed buttons
             byte[] pressedByte = new byte[buttons.values().length];
@@ -54,42 +54,45 @@ public class conceptOPMODE extends ExponentialFunctions {
 
             pressed = Arrays.copyOfRange(pressed, 0, index);
 
+            telemetry.addData("Buttons Pressed: ", Arrays.toString(pressed));
+            telemetry.update();
+
             // actions based on buttons pressed
-            for (int button = 0; button < pressed.length; button++) {
-
-                buttons currentPressed = buttons.values()[pressed[button]];
-
-                switch (currentPressed) {
-                    case a:
-                        break;
-                    case b:
-                        break;
-                    case x:
-                        break;
-                    case y:
-                        break;
-                    case start:
-                        break;
-                    case back:
-                        break;
-                    case dpad_up:
-                        break;
-                    case dpad_down:
-                        break;
-                    case dpad_left:
-                        break;
-                    case dpad_right:
-                        break;
-                    case left_bumper:
-                        break;
-                    case right_bumper:
-                        break;
-                    case left_stick_button:
-                        break;
-                    case right_stick_button:
-                        break;
-                }
-            }
+//            for (int button = 0; button < pressed.length; button++) {
+//
+//                buttons currentPressed = buttons.values()[pressed[button]];
+//
+//                switch (currentPressed) {
+//                    case a:
+//                        break;
+//                    case b:
+//                        break;
+//                    case x:
+//                        break;
+//                    case y:
+//                        break;
+//                    case start:
+//                        break;
+//                    case back:
+//                        break;
+//                    case dpad_up:
+//                        break;
+//                    case dpad_down:
+//                        break;
+//                    case dpad_left:
+//                        break;
+//                    case dpad_right:
+//                        break;
+//                    case left_bumper:
+//                        break;
+//                    case right_bumper:
+//                        break;
+//                    case left_stick_button:
+//                        break;
+//                    case right_stick_button:
+//                        break;
+//                }
+//            }
         }
     }
 
@@ -108,9 +111,7 @@ public class conceptOPMODE extends ExponentialFunctions {
         return gamepad;
     }
 
-
-
-    public static void main(String[] args) {
+    public static void buttonSorter() {
 
         int[] pressed = {0, 0, 0, 0, 0, 1, 0, 0, 0, 1};
 
@@ -138,6 +139,12 @@ public class conceptOPMODE extends ExponentialFunctions {
         pressed = Arrays.copyOfRange(pressed, 0, index);
 
         System.out.println(Arrays.toString(pressed));
+    }
+
+
+
+    public static void main(String[] args) {
+
 
     }
 }
