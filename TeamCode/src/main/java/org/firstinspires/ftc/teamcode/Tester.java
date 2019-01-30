@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.Arrays;
 
-@Autonomous(name="Tester", group="CraterAuto")
+@Autonomous(name="Tester", group="TeleOP")
 
 public class Tester extends ExponentialFunctions {
 
@@ -57,23 +57,32 @@ public class Tester extends ExponentialFunctions {
 
         double[][] velocities = new double[intervalCount][2];
 
-        for (double i = (1.0 / intervalCount); i <= 1; i += (1.0 / intervalCount)) {
+        // initial reset
+        moveHingeTo(0);
+        while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
 
-            // reset
-            moveHingeTo(0);
-            while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
+        for (int i = 1; i <= intervalCount; i++) {
+
+            // initial position
+            int x0 = lHingeMotor.getCurrentPosition();
 
             // actual movement and measurement
-            lHingeMotor.setPower(i);
-            rHingeMotor.setPower(i);
+            moveHinge((float) (i / ((double) intervalCount)));
+            moveIntakeArm(1);
 
-            velocities[(int) (i * intervalCount)] = new double[] {(1 / intervalCount),(int) ((lHingeMotor.getVelocity() + rHingeMotor.getVelocity()) / 2.0)};
+            waitTime(1000);
 
-            lHingeMotor.setPower(0);
-            rHingeMotor.setPower(0);
+            int x1 = lHingeMotor.getCurrentPosition();
+
+            // store velocity
+
+            velocities[i - 1] = new double[] {(i / ((double) intervalCount)), (x1 - x0)};
+
+            // reset
+            moveHinge(0);
+            moveHingeTo(0);
+            while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
         }
-
-        telemetry.addData("Velocities: ", Arrays.toString(velocities));
 
         return velocities;
     }
@@ -93,9 +102,13 @@ public class Tester extends ExponentialFunctions {
 
         //servoPosTesting(shifterServo);
         double[][] motorVelocities = motorVelTesting(10);
-        telemetry.addData("Velocities", Arrays.toString(motorVelocities));
-        while(!gamepad1.a) {}
-        //telemetry.addData("Velocities: ", Arrays.toString(motorVelocities));
+
+        for (int v = 0; v < motorVelocities.length; v++) {
+            telemetry.addData("Velocities", Arrays.toString(motorVelocities[v]));
+        }
+
+        telemetry.update();
+        while (!gamepad1.a) {};
         //blinker();
     }
 }

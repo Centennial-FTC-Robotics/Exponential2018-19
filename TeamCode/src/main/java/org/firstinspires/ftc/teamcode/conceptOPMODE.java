@@ -16,45 +16,18 @@ public class conceptOPMODE extends ExponentialFunctions {
         super.runOpMode();
         waitForStart();
 
-        while(isStopRequested()) {
+        while(opModeIsActive()) {
 
             // collect the pressed buttons
-            byte[] pressedByte = new byte[buttons.values().length];
+            String gamepadState = gamepad1.toString();
 
-            try {
 
-                pressedByte = gamepad1.toByteArray();
-            } catch(Exception e) {
 
-                e.printStackTrace();
-            }
+            /* user, left_x, left_y, right_x, right_y, left_trigger, right_trigger, dpad_up, dpad_down, dpad_left, dpad_up,
+               a, b, x, y, start, left_bumper, right_bumper, left stick button, right stick button
+            */
 
-            pressed = new int[pressedByte.length];
-
-            int minPointer = 0;
-            // map button values to pressed
-            for (int buttonByte = 0; buttonByte < pressed.length; buttonByte++) {
-
-                if (pressedByte[buttonByte] > 0)  {
-
-                    pressed[minPointer] = buttonByte;
-                    minPointer++;
-                } else {
-
-                    pressed[buttonByte] = -1;
-                }
-            }
-
-            int index = 0;
-
-            while (pressed[index] >= 0) {
-
-                index++;
-            }
-
-            pressed = Arrays.copyOfRange(pressed, 0, index);
-
-            telemetry.addData("Buttons Pressed: ", Arrays.toString(pressed));
+            telemetry.addData("Gamepad ", gamepad1.toString());
             telemetry.update();
 
             // actions based on buttons pressed
