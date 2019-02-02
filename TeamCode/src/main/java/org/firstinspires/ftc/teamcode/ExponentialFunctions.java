@@ -61,7 +61,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     int turnAngle = 30;
     double turnSpeed = 0.4f;
     float moveSpeed = 0.5f;
-    String goldPos = "bad";
 
     //tensor flow and vuforia stuff
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
@@ -156,6 +155,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         initVuforia();
         if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
             initTfod();
+
+            if (tfod != null) {
+
+                tfod.activate();
+            }
+
         } else {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
@@ -591,6 +596,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void hitGoldCrater() {
+
+        String goldPos = "bad";
+
         //turn right to look at 2 minerals
         turnRelative(-lookAngle, turnSpeed);
 
@@ -599,11 +607,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
             telemetry.addData("Timer: ", timer.seconds());
 
-            goldPos = autoFindGoldFOV();
+            goldPos = autoFindGold();
             telemetry.addData("Gold: ", goldPos);
             telemetry.update();
 
         }
+
         closeTfod();
 
         //turn back to starting position
@@ -616,22 +625,28 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         //turn and move to hit
         if (goldPos.equals("Left")) {
+
             turnRelative(turnAngle, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-turnAngle, turnSpeed);
             move(-14, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
+
             turnRelative(-turnAngle, turnSpeed);
             move(-37, moveSpeed);
             /*turnRelative(turnAngle, turnSpeed);
             move(-8, moveSpeed);*/
         } else if (goldPos.equals("Center")) {
+
             move(-42, moveSpeed);
         }
     }
 
     public void hitGoldDepot() {
+
+        String goldPos = "bad";
+
         //turn right to look at 2 minerals
         turnRelative(-lookAngle, turnSpeed);
 
@@ -640,11 +655,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
             telemetry.addData("Timer: ", timer.seconds());
 
-            goldPos = autoFindGoldFOV();
+            goldPos = autoFindGold();
             telemetry.addData("Gold: ", goldPos);
             telemetry.update();
 
         }
+
         closeTfod();
 
         //turn back to starting position
@@ -656,26 +672,119 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
 
         if (goldPos.equals("Left")) {
+
             turnRelative(27, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(-54, turnSpeed);
             move(-37, moveSpeed);
             turnRelative(27, turnSpeed);
-        }
-        else if (goldPos.equals("Center")) {
-            move(-40, moveSpeed);
-        }
-        else if (goldPos.equals("Right")) {
+        } else if (goldPos.equals("Right")) {
+
             turnRelative(-27, turnSpeed);
             move(-37,moveSpeed);
             turnRelative(54,turnSpeed);
             move(-37,moveSpeed);
             turnRelative(-27, turnSpeed);
+        } else if (goldPos.equals("Center")) {
+
+            move(-40, moveSpeed);
+        }
+    }
+
+    public void hitGold() {
+
+        String goldPos = "bad";
+
+        //turn right to look at 2 minerals
+        turnRelative(-lookAngle, turnSpeed);
+
+        //figure out gold position
+        timer = new ElapsedTime();
+        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
+            telemetry.addData("Timer: ", timer.seconds());
+
+            goldPos = autoFindGold();
+
+            telemetry.addData("Gold: ", goldPos);
+            telemetry.update();
+
         }
 
-        turnRelative(-135, 0.1);
-        move((-10 * 12), 0.2f);
+        closeTfod();
+
+        //turn back to starting position
+        turnRelative(lookAngle, turnSpeed);
+
+        //default to left if can't detect anything rip
+        if (goldPos.equals("bad")) {
+            goldPos = "Left";
+        }
+
+        if (goldPos.equals("Left")) {
+
+
+        } else if (goldPos.equals("Right")) {
+
+
+        } else if (goldPos.equals("Center")) {
+
+
+        }
     }
+
+    public void hitGold(int evaluator) {
+
+        String goldPos = "bad";
+
+        //turn right to look at 2 minerals
+        turnRelative(-lookAngle, turnSpeed);
+
+        //figure out gold position
+        timer = new ElapsedTime();
+        int direction = 1;
+        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
+            telemetry.addData("Timer: ", timer.seconds());
+
+            goldPos = autoFindGold(evaluator);
+
+            if (evaluator == 3) {
+
+                turnRelative(lookAngle * 2 * direction, turnSpeed);
+                waitForMotors();
+                direction *= -1;
+            }
+
+            telemetry.addData("Gold: ", goldPos);
+            telemetry.update();
+
+        }
+
+        closeTfod();
+
+        if (evaluator == 3) {
+
+            turnRelative(lookAngle * direction * -1, turnSpeed);
+        } else {
+
+            turnRelative(lookAngle, turnSpeed);
+        }
+
+        if (goldPos.equals("bad")) {
+            goldPos = "Left";
+        }
+
+        if (goldPos.equals("Left")) {
+
+
+        } else if (goldPos.equals("Right")) {
+
+
+        } else if (goldPos.equals("Center")) {
+
+
+        }
+    }
+
 
     public void dumpIntake() {
         //moveIntakeArm();
@@ -761,109 +870,51 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     /* -------------- Computer Vision -------------- */
 
     //returns left, right, or center based on position of gold
+
     public String autoFindGold() {
-        //added:
-        String goldPosition = "bad";
-
-        if (opModeIsActive()) {
-            if (tfod != null) {
-                tfod.activate();
-            }
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    if (updatedRecognitions.size() == 3) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-
-                        //gets x positions for each mineral detected
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getBottom();
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getBottom();
-                            } else {
-                                silverMineral2X = (int) recognition.getBottom();
-                            }
-                        }
-
-                        //determines position of gold mineral
-                        if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
-                            if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Left");
-                                //added:
-                                goldPosition = "Left";
-
-                            } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
-                                telemetry.addData("Gold Mineral Position", "Right");
-                                //added:
-                                goldPosition = "Right";
-                            } else {
-                                telemetry.addData("Gold Mineral Position", "Center");
-                                //added:
-                                goldPosition = "Center";
-                            }
-                        }
-                    }
-                    telemetry.update();
-                }
-            }
-        }
-
-        if (tfod != null) {
-            tfod.shutdown();
-        }
-
-        //added:
-        return goldPosition;
-    }
-
-    public String autoFindGoldFOV() {
         //outputs gold position from 2 sensed objects
         String goldPosition = "bad";
 
         if (opModeIsActive()) {
-            if (tfod != null) {
-                tfod.activate();
-            }
+
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
 
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    if (updatedRecognitions.size() == 2) {
-                        int goldMineralX = -1;
-                        int silverMineral1X = -1;
-                        int silverMineral2X = -1;
-                        //gets x positions for each mineral detected
-                        for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getBottom();
-                            } else if (silverMineral1X == -1) {
-                                silverMineral1X = (int) recognition.getBottom();
-                            } else {
-                                silverMineral2X = (int) recognition.getBottom();
-                            }
-                        }
+                // goldPosition = evaluateRecognitions(updatedRecognitions);
+                goldPosition = evaluateRecognitionsFOV(updatedRecognitions);
+            }
+        }
 
-                        //determines position of gold mineral
-                        if(goldMineralX==-1){
-                            goldPosition = "Left";
-                        }
-                        else if (goldMineralX>silverMineral1X){
-                            goldPosition = "Center";
-                        }
-                        else if (goldMineralX<silverMineral1X){
-                            goldPosition = "Right";
-                        }
-                    }
-                    telemetry.update();
+        //added:
+        return goldPosition;
+    }
+
+    public String autoFindGold(int evaluator) {
+        //outputs gold position from 2 sensed objects
+        String goldPosition = "bad";
+
+        if (opModeIsActive()) {
+
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+
+                switch (evaluator) {
+                    case 1:
+
+                        goldPosition = evaluateRecognitions(updatedRecognitions);
+                        break;
+                    case 2:
+
+                        goldPosition = evaluateRecognitionsFOV(updatedRecognitions);
+                        break;
+                    case 3:
+
+                        goldPosition = evaluateRecognitionsV3(updatedRecognitions);
+                        break;
                 }
             }
         }
@@ -871,11 +922,158 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         //added:
         return goldPosition;
     }
+
     public void closeTfod(){
+
         if (tfod != null) {
             tfod.shutdown();
         }
     }
+
+    private String evaluateRecognitions(List<Recognition> recognitions) {
+
+        String goldPosition = "bad";
+
+        if (recognitions != null) {
+            telemetry.addData("# Object Detected", recognitions.size());
+            if (recognitions.size() == 2) {
+                int goldMineralX = -1;
+                int silverMineral1X = -1;
+                int silverMineral2X = -1;
+                //gets x positions for each mineral detected
+                for (Recognition recognition : recognitions) {
+                    if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                        goldMineralX = (int) recognition.getBottom();
+                    } else if (silverMineral1X == -1) {
+                        silverMineral1X = (int) recognition.getBottom();
+                    } else {
+                        silverMineral2X = (int) recognition.getBottom();
+                    }
+                }
+
+                //determines position of gold mineral
+                if (goldMineralX == -1) {
+                    goldPosition = "Left";
+                } else if (goldMineralX > silverMineral1X) {
+                    goldPosition = "Center";
+                } else if (goldMineralX < silverMineral1X) {
+                    goldPosition = "Right";
+                }
+            }
+
+            telemetry.update();
+        }
+
+        return goldPosition;
+    }
+
+    private String evaluateRecognitionsFOV(List<Recognition> recognitions) {
+
+        String goldPosition = "bad";
+
+        if (recognitions != null) {
+            telemetry.addData("# Object Detected", recognitions.size());
+            if (recognitions.size() == 3) {
+                int goldMineralX = -1;
+                int silverMineral1X = -1;
+                int silverMineral2X = -1;
+
+                //gets x positions for each mineral detected
+                for (Recognition recognition : recognitions) {
+                    if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                        goldMineralX = (int) recognition.getBottom();
+                    } else if (silverMineral1X == -1) {
+                        silverMineral1X = (int) recognition.getBottom();
+                    } else {
+                        silverMineral2X = (int) recognition.getBottom();
+                    }
+                }
+
+                //determines position of gold mineral
+                if (goldMineralX != -1 && silverMineral1X != -1 && silverMineral2X != -1) {
+                    if (goldMineralX < silverMineral1X && goldMineralX < silverMineral2X) {
+                        telemetry.addData("Gold Mineral Position", "Left");
+                        //added:
+                        goldPosition = "Left";
+
+                    } else if (goldMineralX > silverMineral1X && goldMineralX > silverMineral2X) {
+                        telemetry.addData("Gold Mineral Position", "Right");
+                        //added:
+                        goldPosition = "Right";
+                    } else {
+                        telemetry.addData("Gold Mineral Position", "Center");
+                        //added:
+                        goldPosition = "Center";
+                    }
+                }
+            }
+            telemetry.update();
+        }
+
+        return goldPosition;
+    }
+
+    private String evaluateRecognitionsV3(List<Recognition> recognitions) {
+
+        String goldPosition = "bad";
+
+        if (recognitions != null) {
+
+            if (recognitions.size() == 2) {
+
+                int goldMineralX = -1;
+                int silverMineralX = -1;
+
+                int hasGold = 0;
+
+                for (Recognition r: recognitions) {
+
+                    if (!r.getLabel().equals(LABEL_GOLD_MINERAL)) {
+
+                        hasGold++;
+                    }
+                }
+
+                if (hasGold == 1) {
+
+                    for (Recognition r : recognitions) {
+
+                        // bottom is left, right is bottom
+                        if (r.getLabel().equals(LABEL_GOLD_MINERAL)) {
+
+                            goldMineralX = (int) r.getBottom();
+                        } else if (r.getLabel().equals(LABEL_SILVER_MINERAL)) {
+
+                            silverMineralX = (int) r.getBottom();
+                        }
+                    }
+
+                    if (goldMineralX < silverMineralX) {
+
+                        goldPosition = "Left";
+                    } else if (silverMineralX > goldMineralX) {
+
+                        goldPosition = "Right";
+                    }
+                } else if (hasGold == 2) {
+
+                    double confidence1 = recognitions.get(0).getConfidence();
+                    double confidence2 =  recognitions.get(1).getConfidence();
+
+                    if (confidence1 > confidence2) {
+
+                        goldPosition = (recognitions.get(0).getBottom() < recognitions.get(1).getBottom()) ? "Left":"Right";
+                    } else if (confidence1 < confidence2) {
+
+                        goldPosition = (recognitions.get(0).getBottom() > recognitions.get(1).getBottom()) ? "Left":"Right";
+                    }
+                }
+            }
+        }
+
+        return goldPosition;
+    }
+
     public void updateNavTargets() {
 
         // check all the trackable target to see which one (if any) is visible.

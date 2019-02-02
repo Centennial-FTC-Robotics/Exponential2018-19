@@ -42,7 +42,7 @@ public class conceptOPMODE extends ExponentialFunctions {
                a, b, x, y, start, left_bumper, right_bumper, left stick button, right stick button
             */
 
-            telemetry.addData("Gamepad ", gamepad1.toString());
+            telemetry.addData("Gamepad ", pressed.toString());
             telemetry.update();
 
             // actions based on buttons pressed

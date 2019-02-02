@@ -87,6 +87,19 @@ public class Tester extends ExponentialFunctions {
         return velocities;
     }
 
+    public String[] findGoldEvaluationTester() {
+
+        int evaluatorCount =  3;
+        String[] results = new String[evaluatorCount];
+
+        for (int e = 0; e < evaluatorCount; e++) {
+
+            results[e] = autoFindGold(e);
+        }
+
+        return results;
+    }
+
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
