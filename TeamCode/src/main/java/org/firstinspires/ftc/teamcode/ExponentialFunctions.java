@@ -676,6 +676,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         turnRelative(-135, 0.1);
         move((-10 * 12), 0.2f);
     }
+
     public void dumpIntake() {
         //moveIntakeArm();
     }

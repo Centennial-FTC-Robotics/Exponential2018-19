@@ -31,5 +31,7 @@ public class DepotAuto extends ExponentialFunctions {
         move(3, 0.5f);
 
         hitGoldDepot();
+
+
     }
 }

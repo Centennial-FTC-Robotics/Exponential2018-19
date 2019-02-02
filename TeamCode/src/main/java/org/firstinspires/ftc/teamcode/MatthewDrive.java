@@ -73,14 +73,14 @@ public class MatthewDrive extends ExponentialFunctions {
                     moveHingeTo(0);
                 }
 
-                //slow mode
+                //despacito mode
                 if (gamepad1.left_bumper) {
-                    scale = (float) slowScale;
+                    scale = slowScale;
                 }
 
                 //fast mode
                 if (gamepad1.right_bumper) {
-                    scale = (float) fastScale;
+                    scale = fastScale;
                 }
             } else {
                 // intake code

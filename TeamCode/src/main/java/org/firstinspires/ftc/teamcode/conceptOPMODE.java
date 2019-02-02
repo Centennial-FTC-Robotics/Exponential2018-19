@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @TeleOp(name = "concept", group = "TeleOP")
@@ -9,11 +10,16 @@ import java.util.Arrays;
 public class conceptOPMODE extends ExponentialFunctions {
 
     public enum buttons {a, b, x, y, start, back, dpad_up, dpad_down, dpad_left, dpad_right, left_bumper, right_bumper, left_stick_button, right_stick_button};
-    private int[] pressed;
+    private ArrayList<buttons> pressed;
+    private double[] leftAnalog;
+    private double[] rightAnalog;
 
     public void runOpMode() throws InterruptedException {
 
         super.runOpMode();
+
+        pressed = new ArrayList<buttons>();
+
         waitForStart();
 
         while(opModeIsActive()) {
@@ -21,7 +27,16 @@ public class conceptOPMODE extends ExponentialFunctions {
             // collect the pressed buttons
             String gamepadState = gamepad1.toString();
 
+            leftAnalog = new double[] {gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.left_trigger};
+            rightAnalog = new double[] {gamepad1.right_stick_x, gamepad1.right_stick_y, gamepad1.right_trigger};
 
+            for (buttons button: buttons.values()) {
+
+                if (gamepadState.contains(button.toString().toLowerCase()) || gamepadState.contains(button.toString().toLowerCase().replace("_", " "))) {
+
+                    pressed.add(button);
+                }
+            }
 
             /* user, left_x, left_y, right_x, right_y, left_trigger, right_trigger, dpad_up, dpad_down, dpad_left, dpad_up,
                a, b, x, y, start, left_bumper, right_bumper, left stick button, right stick button
@@ -31,41 +46,41 @@ public class conceptOPMODE extends ExponentialFunctions {
             telemetry.update();
 
             // actions based on buttons pressed
-//            for (int button = 0; button < pressed.length; button++) {
-//
-//                buttons currentPressed = buttons.values()[pressed[button]];
-//
-//                switch (currentPressed) {
-//                    case a:
-//                        break;
-//                    case b:
-//                        break;
-//                    case x:
-//                        break;
-//                    case y:
-//                        break;
-//                    case start:
-//                        break;
-//                    case back:
-//                        break;
-//                    case dpad_up:
-//                        break;
-//                    case dpad_down:
-//                        break;
-//                    case dpad_left:
-//                        break;
-//                    case dpad_right:
-//                        break;
-//                    case left_bumper:
-//                        break;
-//                    case right_bumper:
-//                        break;
-//                    case left_stick_button:
-//                        break;
-//                    case right_stick_button:
-//                        break;
-//                }
-//            }
+            for (buttons button: pressed) {
+
+                switch (button) {
+                    case a:
+                        break;
+                    case b:
+                        break;
+                    case x:
+                        break;
+                    case y:
+                        break;
+                    case start:
+                        break;
+                    case back:
+                        break;
+                    case dpad_up:
+                        break;
+                    case dpad_down:
+                        break;
+                    case dpad_left:
+                        break;
+                    case dpad_right:
+                        break;
+                    case left_bumper:
+                        break;
+                    case right_bumper:
+                        break;
+                    case left_stick_button:
+                        break;
+                    case right_stick_button:
+                        break;
+                }
+            }
+
+            pressed.clear();
         }
     }
 
