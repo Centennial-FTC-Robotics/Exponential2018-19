@@ -74,7 +74,6 @@ public class Drive extends ExponentialFunctions {
             }
             else{
                 moveIntakeArm(.5);
-
             }
 
             //Intake

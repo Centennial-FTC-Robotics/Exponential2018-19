@@ -38,6 +38,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
     RevBlinkinLedDriver LEDStrip;
     CRServo lIntakeServo;
     CRServo rIntakeServo;
+    Servo tmServo;
 
 
     Orientation orientation = new Orientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES,0,0,0,0);
@@ -68,6 +69,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
         LEDStrip = hardwareMap.get(RevBlinkinLedDriver.class, "StripAddressable");
         lIntakeServo = hardwareMap.crservo.get("lIntake");
         rIntakeServo = hardwareMap.crservo.get("rIntake");
+        tmServo = hardwareMap.servo.get("tmServo");
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
@@ -96,7 +98,6 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rHingeMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shifterServo.setPosition(stronk);
         intakeServos = new Servo[] {lIntakeArmServo, rIntakeArmServo};
-
         driveMotors = new DcMotorEx[] {lmotor0, lmotor1, rmotor0, rmotor1};
 
     }

@@ -26,9 +26,9 @@ public class HangTest extends ExponentialFunctions {
         dropDown();
 
         turnAroundLeftAbsolute(80, turnSpeed);
-        moveSlidesEncoderAbsolute(lSlideMotor.getCurrentPosition() + 70, 0.2f);
+        moveSlidesTo(lSlideMotor.getCurrentPosition() + 70, 0.2f);
         moveHingeTo(35);
-        moveSlidesEncoderAbsolute(50, 0.2f);
+        moveSlidesTo(50, 0.2f);
         turnAbsolute(0, turnSpeed);
 
         while(true) {

@@ -26,9 +26,9 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 public abstract class ExponentialFunctions extends ExponentialHardware {
 
     // simple conversions
-    private static final float mmPerInch        = 25.4f;
-    private static final float mmFTCFieldWidth  = (12*6) * mmPerInch;   // the width of the FTC field (from the center point to the outer panels)
-    private static final float mmTargetHeight   = (6) * mmPerInch;
+    private static final float mmPerInch = 25.4f;
+    private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;   // the width of the FTC field (from the center point to the outer panels)
+    private static final float mmTargetHeight = (6) * mmPerInch;
 
     //motors
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
@@ -44,6 +44,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public final int wheelDiameterIn = 4;
 
     // slides
+    public int slidesMax = 4600;
+    public int slidesMin = -20; //20;???
     private int encodersMovedStronk;
     private int encodersMovedSpeed;
     private double slideSpoolInnerDiameter = 0.8;
@@ -107,7 +109,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     private void navTargetInit() {
 
-        cameraMonitorViewId =  hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
         parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
         parameters.useExtendedTracking = true;
@@ -138,7 +140,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
-        while (opModeIsActive()&&!imu.isGyroCalibrated());
+        while (opModeIsActive() && !imu.isGyroCalibrated()) ;
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -332,76 +334,54 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
-
-        double limit = 4600; //2650*1.5
         double direction = -1;
-//        lSlideMotor.setPower(-Range.clip(power, -1, 1));
-//        rSlideMotor.setPower(-Range.clip(power, -1, 1));
-
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
-        if (currentPos <= limit && currentPos >= -20) {
+        if (currentPos <= slidesMax && currentPos >= slidesMin) {
             lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
             rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
-        } else if (currentPos > limit) {
-
+        } else if (currentPos > slidesMax) {
             if (power > 0) {
-
                 lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
                 rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
             } else {
-
                 slidesBrake();
-                //moveSlidesAbsolute(1400, 0.2);
             }
-        } else if (currentPos < -20) {
-
+        } else if (currentPos < slidesMin) {
             if (power < 0) {
-
                 lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
                 rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
             } else {
-
                 slidesBrake();
-                // investigate why move slides doesn't work
-                //moveSlidesAbsolute(0, 0.2);
             }
         }
     }
 
-    public void moveSlidesInchRelative(double targetΔ, double speed) {
-
+    /*public void moveSlidesInchRelative(double targetΔ, double speed) {
         moveSlidesInchAbsolute(getSlideExtendInch() + targetΔ, speed);
     }
 
     public void moveSlidesInchAbsolute(double targetInch, double speed) {
-
         int targetPos = (int) (targetInch * (1 / slideInchPerStrInch));
-
         if (shifterServo.getPosition() == stronk) {
-
             targetPos /= inchesPerEncoderStronk;
         } else if (shifterServo.getPosition() == speed) {
-
             targetPos /= inchesPerEncoderSpeed;
         }
 
         if (targetPos > 1400) {
-
             targetPos = 1400;
         }
 
         moveSlidesAbsolute(targetPos, speed);
-    }
+    }*/
 
-    public void moveSlidesRelative(int targetΔ, double speed) {
-
+    /*public void moveSlidesRelative(int targetΔ, double speed) {
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
-
         moveSlidesAbsolute(currentPos + targetΔ, speed);
-    }
+    }*/
 
-    public void moveSlidesAbsolute(int targetPos, double speed) {
+    /*public void moveSlidesAbsolute(int targetPos, double speed) {
         lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -421,12 +401,28 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             encodersMovedSpeed += (currentPos - targetPos);
         }
 
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {
+        }
+        ;
         lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slidesBrake();
-    }
+    }*/
 
+    public void moveSlidesTo(int encoderPos, float speed) {
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        lSlideMotor.setTargetPosition(encoderPos);
+        rSlideMotor.setTargetPosition(encoderPos);
+        lSlideMotor.setPower(speed);
+        rSlideMotor.setPower(speed);
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lSlideMotor.setPower(0);
+        rSlideMotor.setPower(0);
+    }
 
     public void moveHinge(float hingeSpeed) {
         lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -469,14 +465,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         angle = Range.clip(angle, 0, 90);
         int position = (int) (angle * (2240 / 90));
 
-
 /*        if (angle > 25 && getHingeAngle() < angle) {
-
             moveSlidesInchAbsolute(1, 0.1);
         }
-
         if (angle < 25 && getHingeAngle() > angle) {
-
             moveSlidesInchAbsolute(1, 0.1);
         }*/
 
@@ -488,21 +480,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void moveSlidesEncoderAbsolute(int pos, float speed) {
-        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        lSlideMotor.setTargetPosition(pos);
-        rSlideMotor.setTargetPosition(pos);
-        lSlideMotor.setPower(speed);
-        rSlideMotor.setPower(speed);
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
-        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lSlideMotor.setPower(0);
-        rSlideMotor.setPower(0);
-
-    }
     //currently in inches
     public void move(float distance, float speed) {
         //converting from linear distance -> wheel rotations ->
@@ -531,6 +508,29 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetΔ), speed);
     }
+
+    public void turnAbsoluteModified(double targetAngle, double maxSpeed) {
+        double currentAngle = getRotationinDimension('Z');
+        int direction;
+        double turnRate = 0;
+        double P = 1d / 90d;
+        double minSpeed = 0;
+        int tolerance = 1;
+
+        double error = getAngleDist(targetAngle, currentAngle);
+        while (opModeIsActive() && error > tolerance) {
+            currentAngle = getRotationinDimension('Z');
+            direction = getAngleDir(targetAngle, currentAngle);
+            error = getAngleDist(targetAngle, currentAngle);
+            turnRate = Range.clip(P * error, minSpeed, maxSpeed);
+            runDriveMotors((float) -(turnRate * direction), (float) (turnRate * direction));
+            /*telemetry.addData("error: ", error);
+            telemetry.addData("currentAngle: ", getRotationinDimension('Z'));
+            telemetry.update();*/
+        }
+        runDriveMotors(0, 0);
+    }
+
 
     public void turnAbsolute(double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
@@ -583,16 +583,33 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void shiftTo(double mode) {
 
-        //moveSlidesAbsolute(0, 0.1);
+        moveSlidesTo(0, 0.1f);
         shifterServo.setPosition(mode);
     }
 
     public void dropDown() {
         moveHingeTo(0);
         while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
-        moveSlidesEncoderAbsolute(2100, 0.2f);
-        //moveSlidesInchRelative(5, 0.2);
+        moveSlidesTo(2100, 0.2f);
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+    }
+
+    public void intakeGold() {
+        float turnSpeed = 0.5f;
+        String goldPos = autoFindGold();
+        if (goldPos.equals("Left")) {
+            turnRelative(-37, turnSpeed);
+        }
+        else if (goldPos.equals("Right")) {
+            turnRelative(37, turnSpeed);
+        }
+
+        //extend slides out and intake mineral
+        moveSlidesTo(slidesMax - 1000, 0.5f);
+        moveIntakeArm(1);
+        moveHingeTo(90);
+        moveIntake(-1);
+        moveSlidesTo(slidesMax, 0.5f);
     }
 
     public void hitGoldCrater() {
@@ -681,9 +698,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         } else if (goldPos.equals("Right")) {
 
             turnRelative(-27, turnSpeed);
-            move(-37,moveSpeed);
-            turnRelative(54,turnSpeed);
-            move(-37,moveSpeed);
+            move(-37, moveSpeed);
+            turnRelative(54, turnSpeed);
+            move(-37, moveSpeed);
             turnRelative(-27, turnSpeed);
         } else if (goldPos.equals("Center")) {
 
@@ -785,11 +802,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-
-    public void dumpIntake() {
-        //moveIntakeArm();
-    }
-
     public void moveIntakeArm(double newPos) {
         for (int IServo = 0; IServo < intakeServos.length; IServo++) {
             intakeServos[IServo].setPosition(newPos);
@@ -829,7 +841,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void shift() {
 
-        moveSlidesAbsolute(0, 0.1);
+        moveSlidesTo(0, 0.1f);
 
         if (shifterServo.getPosition() == speed) {
             shifterServo.setPosition(stronk);
@@ -838,31 +850,17 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-    public void yeet() {
-
-        moveHingeTo(0);
-        moveIntakeArm(1);
-        moveIntake(-1);
-    }
-
-    public void ejectTeamMarker() {
+   /* public void ejectTeamMarker() {
 
         moveSlidesAbsolute(1400, 0.2);
         moveHingeTo(20);
         for (int i = 0; i < 3; i++) {
-            turnRelative(5, 2*turnSpeed);
-            turnRelative(-5, 2*turnSpeed);
+            turnRelative(5, 2 * turnSpeed);
+            turnRelative(-5, 2 * turnSpeed);
         }
-    }
-
-    private void hang() {
-
-        moveHingeTo(90);
-        // move sloides
-    }
+    }*/
 
     public void slidesBrake() {
-
         lSlideMotor.setPower(0);
         rSlideMotor.setPower(0);
     }
@@ -923,7 +921,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return goldPosition;
     }
 
-    public void closeTfod(){
+    public void closeTfod() {
 
         if (tfod != null) {
             tfod.shutdown();
@@ -1026,7 +1024,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
                 int hasGold = 0;
 
-                for (Recognition r: recognitions) {
+                for (Recognition r : recognitions) {
 
                     if (!r.getLabel().equals(LABEL_GOLD_MINERAL)) {
 
@@ -1058,14 +1056,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
                 } else if (hasGold == 2) {
 
                     double confidence1 = recognitions.get(0).getConfidence();
-                    double confidence2 =  recognitions.get(1).getConfidence();
+                    double confidence2 = recognitions.get(1).getConfidence();
 
                     if (confidence1 > confidence2) {
 
-                        goldPosition = (recognitions.get(0).getBottom() < recognitions.get(1).getBottom()) ? "Left":"Right";
+                        goldPosition = (recognitions.get(0).getBottom() < recognitions.get(1).getBottom()) ? "Left" : "Right";
                     } else if (confidence1 < confidence2) {
 
-                        goldPosition = (recognitions.get(0).getBottom() > recognitions.get(1).getBottom()) ? "Left":"Right";
+                        goldPosition = (recognitions.get(0).getBottom() > recognitions.get(1).getBottom()) ? "Left" : "Right";
                     }
                 }
             }
@@ -1079,13 +1077,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         // check all the trackable target to see which one (if any) is visible.
         targetVisible = false;
         for (VuforiaTrackable trackable : allTrackables) {
-            if (((VuforiaTrackableDefaultListener)trackable.getListener()).isVisible()) {
+            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
                 telemetry.addData("Visible Target", trackable.getName());
                 targetVisible = true;
 
                 // getUpdatedRobotLocation() will return null if no new information is available since
                 // the last time that call was made, or if the trackable is not currently visible.
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)trackable.getListener()).getUpdatedRobotLocation();
+                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
                 if (robotLocationTransform != null) {
                     lastLocation = robotLocationTransform;
                 }
@@ -1107,5 +1105,111 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             telemetry.addData("Visible Target", "none");
         }
         telemetry.update();
+    }
+
+    /*private String[] findMineralPositions(List<Recognition> list) {
+        String[] minerals = new String[3];
+        int goldX = -1;
+        int silver1X = -1;
+        int silver2X = -2;
+        for (Recognition mineral : list) {
+            if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
+                goldX = (int) mineral.getBottom();
+            }
+            else if (silver1X == -1) {
+                silver1X = (int) mineral.getBottom();
+            }
+            else {
+                silver2X = (int) mineral.getBottom();
+            }
+        }
+
+        //only see two silvers, gold is on left
+        if (goldX == -1) {
+            minerals[0] = "GOLD";
+            minerals[1] = "SILVER";
+            minerals[2] = "SILVER";
+        }
+
+        //see one of each
+        if (silver2X == -1) {
+            if (goldX < silver1X) {
+                minerals[0] = "SILVER";
+                minerals[1] = "GOLD";
+                minerals[2] = "SILVER";
+            } else {
+                minerals[0] = "SILVER";
+                minerals[1] = "SILVER";
+                minerals[2] = "GOLD";
+            }
+        }
+        return minerals;
+    }
+
+    private String getGoldPos(String[] mineralPositions) {
+        String goldPos = "";
+        if (mineralPositions[0].equals("GOLD")) {
+            goldPos = "LEFT";
+        }
+        else if (mineralPositions[1].equals("GOLD")) {
+            goldPos = "CENTER";
+        }
+        else if (mineralPositions[2].equals("GOLD")) {
+            goldPos = "RIGHT";
+        }
+        return goldPos;
+    }*/
+
+    public void sample() {
+        String[] minerals = new String[3];
+        String goldPos = "bad";
+
+        int goldX = -1;
+        int silver1X = -1;
+        int silver2X = -1;
+
+        turnRelative(lookAngle, turnSpeed);
+        timer = new ElapsedTime();
+        while (opModeIsActive() && timer.seconds() < 3 && goldPos.equals("bad")) {
+            if (tfod != null) {
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null && updatedRecognitions.size() == 2) {
+                    for (Recognition mineral : updatedRecognitions) {
+                        if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
+                            goldX = (int) mineral.getBottom();
+                        } else if (silver1X == -1) {
+                            silver1X = (int) mineral.getBottom();
+                        } else {
+                            silver2X = (int) mineral.getBottom();
+                        }
+
+                        //only see two silvers, gold is on left
+                        if (goldX == -1) {
+                            minerals[0] = "GOLD";
+                            minerals[1] = "SILVER";
+                            minerals[2] = "SILVER";
+                        }
+
+                        //see one of each
+                        if (silver2X == -1) {
+                            if (goldX < silver1X) {
+                                minerals[0] = "SILVER";
+                                minerals[1] = "GOLD";
+                                minerals[2] = "SILVER";
+                            } else {
+                                minerals[0] = "SILVER";
+                                minerals[1] = "SILVER";
+                                minerals[2] = "GOLD";
+                            }
+                        }
+
+                    }
+                    String posString = minerals[0] + " " + minerals[1] + " " + minerals[2];
+                    telemetry.addData("Positions", posString);
+                    telemetry.addData("Gold Position", goldPos);
+                    telemetry.update();
+                }
+            }
+        }
     }
 }
