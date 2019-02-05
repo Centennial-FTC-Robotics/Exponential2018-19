@@ -553,24 +553,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
     }
 
-    public void intakeGold() {
-        float turnSpeed = 0.5f;
-        String goldPos = autoFindGold();
-        if (goldPos.equals("Left")) {
-            turnRelative(-37);
-        }
-        else if (goldPos.equals("Right")) {
-            turnRelative(37);
-        }
-
-        //extend slides out and intake mineral
-        moveSlidesTo(slidesMax - 1000, 0.5f);
-        moveIntakeArm(1);
-        moveHingeTo(90);
-        moveIntake(-1);
-        moveSlidesTo(slidesMax, 0.5f);
-    }
-
     public void hitGold() {
 
         String goldPos = "bad";
@@ -875,6 +857,23 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
 
         return goldPos;
+    }
+
+    public void intakeGold() {
+        String goldPos = findGold();
+        if (goldPos.equals("LEFT")) {
+            turnRelative(-37);
+        }
+        else if (goldPos.equals("RIGHT")) {
+            turnRelative(37);
+        }
+
+        //extend slides out and intake mineral
+        moveSlidesTo(slidesMax - 1000, 0.5f);
+        moveIntakeArm(1);
+        moveHingeTo(90);
+        moveIntake(-1);
+        moveSlidesTo(slidesMax, 0.5f);
     }
 
 //    public void updateNavTargets() {
