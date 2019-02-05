@@ -553,24 +553,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
     }
 
-    public void intakeGold() {
-        float turnSpeed = 0.5f;
-        String goldPos = autoFindGold();
-        if (goldPos.equals("Left")) {
-            turnRelative(-37);
-        }
-        else if (goldPos.equals("Right")) {
-            turnRelative(37);
-        }
-
-        //extend slides out and intake mineral
-        moveSlidesTo(slidesMax - 1000, 0.5f);
-        moveIntakeArm(1);
-        moveHingeTo(90);
-        moveIntake(-1);
-        moveSlidesTo(slidesMax, 0.5f);
-    }
-
     public void hitGold() {
 
         String goldPos = "bad";
@@ -826,6 +808,72 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
 
         return goldPosition;
+    }
+
+    public String identifySingleMineral() {
+        String color = "SILVER";
+        while (opModeIsActive() && timer.seconds() < 2) {
+            if (tfod != null) {
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null && updatedRecognitions.size() > 0) {
+                    Recognition mineral = null;
+                    double highestConfidence = -1;
+                    for (Recognition r : updatedRecognitions) {
+                        if (r.getConfidence() > highestConfidence) {
+                            mineral = r;
+                        }
+                    }
+                    if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
+                        color = "GOLD";
+                    }
+                    else {
+                        color = "SILVER";
+                    }
+                }
+            }
+        }
+        return color;
+    }
+
+    public String findGold() {
+        String right;
+        String center;
+        String goldPos = "LEFT";
+
+        //move();
+        turnRelative(37);
+        right = identifySingleMineral();
+        turnRelative(-37);
+        center = identifySingleMineral();
+
+        if (right.equals("SILVER") && center.equals("SILVER")) {
+            goldPos = "LEFT";
+        }
+        else if (right.equals("GOLD")) {
+            goldPos = "CENTER";
+        }
+        else {
+            goldPos = "RIGHT";
+        }
+
+        return goldPos;
+    }
+
+    public void intakeGold() {
+        String goldPos = findGold();
+        if (goldPos.equals("LEFT")) {
+            turnRelative(-37);
+        }
+        else if (goldPos.equals("RIGHT")) {
+            turnRelative(37);
+        }
+
+        //extend slides out and intake mineral
+        moveSlidesTo(slidesMax - 1000, 0.5f);
+        moveIntakeArm(1);
+        moveHingeTo(90);
+        moveIntake(-1);
+        moveSlidesTo(slidesMax, 0.5f);
     }
 
 //    public void updateNavTargets() {
