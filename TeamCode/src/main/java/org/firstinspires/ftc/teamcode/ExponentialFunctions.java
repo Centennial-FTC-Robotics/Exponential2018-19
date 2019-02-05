@@ -430,11 +430,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         Vector j = new Vector(new double[] {0, 1});
         telemetry.addData("Angle:", v.angleBetween(j));
         telemetry.update();
-        turnRelative(v.angleBetween(j));
+        turnRelative(Math.toDegrees(v.angleBetween(j)));
         waitForMotors();
         move((float) (v.getMagnitude()), speed);
         waitForMotors();
-        turnRelative(-v.angleBetween(j));
+        turnRelative(-Math.toDegrees(v.angleBetween(j)));
         waitForMotors();
     }
 
