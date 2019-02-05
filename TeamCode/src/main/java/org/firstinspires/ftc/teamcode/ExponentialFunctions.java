@@ -828,6 +828,55 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return goldPosition;
     }
 
+    public String identifySingleMineral() {
+        String color = "SILVER";
+        while (opModeIsActive() && timer.seconds() < 2) {
+            if (tfod != null) {
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null && updatedRecognitions.size() > 0) {
+                    Recognition mineral = null;
+                    double highestConfidence = -1;
+                    for (Recognition r : updatedRecognitions) {
+                        if (r.getConfidence() > highestConfidence) {
+                            mineral = r;
+                        }
+                    }
+                    if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
+                        color = "GOLD";
+                    }
+                    else {
+                        color = "SILVER";
+                    }
+                }
+            }
+        }
+        return color;
+    }
+
+    public String findGold() {
+        String right;
+        String center;
+        String goldPos = "LEFT";
+
+        //move();
+        turnRelative(37);
+        right = identifySingleMineral();
+        turnRelative(-37);
+        center = identifySingleMineral();
+
+        if (right.equals("SILVER") && center.equals("SILVER")) {
+            goldPos = "LEFT";
+        }
+        else if (right.equals("GOLD")) {
+            goldPos = "CENTER";
+        }
+        else {
+            goldPos = "RIGHT";
+        }
+
+        return goldPos;
+    }
+
 //    public void updateNavTargets() {
 //
 //        // check all the trackable target to see which one (if any) is visible.
