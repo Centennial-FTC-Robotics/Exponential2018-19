@@ -18,7 +18,7 @@ public class Tester extends ExponentialFunctions {
 
             telemetry.addData("current relative angle: ", angles[angle]);
             telemetry.update();
-            turnRelative(angles[angle], 0.2);
+            turnRelative(angles[angle]);
             while (!gamepad1.a && opModeIsActive()) {};
         }
     }
@@ -102,7 +102,9 @@ public class Tester extends ExponentialFunctions {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        initializeIMU();
         waitForStart();
+
         //move(12);
         //turnRelative(90, .2)
 //        while (opModeIsActive()) {
@@ -110,18 +112,18 @@ public class Tester extends ExponentialFunctions {
 //            telemetry.update();
 //        }
 
-        //relativeTurnDriver();
+        relativeTurnDriver();
         //linearMoveTest();
 
         //servoPosTesting(shifterServo);
-        double[][] motorVelocities = motorVelTesting(10);
-
-        for (int v = 0; v < motorVelocities.length; v++) {
-            telemetry.addData("Velocities", Arrays.toString(motorVelocities[v]));
-        }
-
-        telemetry.update();
-        while (!gamepad1.a) {};
+//        double[][] motorVelocities = motorVelTesting(10);
+//
+//        for (int v = 0; v < motorVelocities.length; v++) {
+//            telemetry.addData("Velocities", Arrays.toString(motorVelocities[v]));
+//        }
+//
+//        telemetry.update();
+//        while (!gamepad1.a) {};
         //blinker();
     }
 }

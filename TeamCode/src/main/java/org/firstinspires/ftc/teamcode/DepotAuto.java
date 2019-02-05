@@ -38,9 +38,9 @@ public class DepotAuto extends ExponentialFunctions {
         moveHingeTo(0);
         moveSlidesTo(slidesMin, tempSlidesSpeed);
 
-        turnRelative(45, tempTurnSpeed);
+        turnRelative(45);
         move(-60, tempMoveSpeed);
-        turnRelative(90, tempTurnSpeed);
+        turnRelative(90);
         move(-48, tempMoveSpeed);
         tmServo.setPosition(0);
         move(84, tempMoveSpeed);

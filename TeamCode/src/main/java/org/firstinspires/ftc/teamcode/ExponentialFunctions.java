@@ -357,6 +357,62 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
+    public void moveSlidesUnlimited(float power) {
+        double direction = -1;
+        lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+        rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
+    }
+
+    public void moveSlidesTo(int encoderPos, float speed) {
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        lSlideMotor.setTargetPosition(encoderPos);
+        rSlideMotor.setTargetPosition(encoderPos);
+        lSlideMotor.setPower(speed);
+        rSlideMotor.setPower(speed);
+        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lSlideMotor.setPower(0);
+        rSlideMotor.setPower(0);
+    }
+
+    public void moveHinge(float hingeSpeed) {
+        lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //if at 90 degrees, only move if decreasing angle
+        int hingePos = getCurrentHingePos();
+
+        if (hingePos >= 2200) {
+            if (hingeSpeed < 0) {
+                lHingeMotor.setPower(hingeSpeed);
+                rHingeMotor.setPower(hingeSpeed);
+                hingeTargetPos = hingePos;
+            } else {
+                lHingeMotor.setPower(0);
+                rHingeMotor.setPower(0);
+            }
+        }
+        //if at 0 degrees, only move if increasing angle
+        else if (hingePos <= 0) {
+            if (hingeSpeed > 0) {
+                lHingeMotor.setPower(hingeSpeed);
+                rHingeMotor.setPower(hingeSpeed);
+                hingeTargetPos = hingePos;
+            } else {
+                lHingeMotor.setPower(0);
+                rHingeMotor.setPower(0);
+            }
+        }
+        //if in between 0 and 90 degrees, move however
+        else {
+            lHingeMotor.setPower(hingeSpeed);
+            rHingeMotor.setPower(hingeSpeed);
+            hingeTargetPos = hingePos;
+        }
+    }
+
     /*public void moveSlidesInchRelative(double targetΔ, double speed) {
         moveSlidesInchAbsolute(getSlideExtendInch() + targetΔ, speed);
     }
@@ -409,56 +465,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         slidesBrake();
     }*/
 
-    public void moveSlidesTo(int encoderPos, float speed) {
-        lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        lSlideMotor.setTargetPosition(encoderPos);
-        rSlideMotor.setTargetPosition(encoderPos);
-        lSlideMotor.setPower(speed);
-        rSlideMotor.setPower(speed);
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
-        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lSlideMotor.setPower(0);
-        rSlideMotor.setPower(0);
-    }
-
-    public void moveHinge(float hingeSpeed) {
-        lHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rHingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //if at 90 degrees, only move if decreasing angle
-        int hingePos = getCurrentHingePos();
-
-        if (hingePos >= 2200) {
-            if (hingeSpeed < 0) {
-                lHingeMotor.setPower(hingeSpeed);
-                rHingeMotor.setPower(hingeSpeed);
-                hingeTargetPos = hingePos;
-            } else {
-                lHingeMotor.setPower(0);
-                rHingeMotor.setPower(0);
-            }
-        }
-        //if at 0 degrees, only move if increasing angle
-        else if (hingePos <= 0) {
-            if (hingeSpeed > 0) {
-                lHingeMotor.setPower(hingeSpeed);
-                rHingeMotor.setPower(hingeSpeed);
-                hingeTargetPos = hingePos;
-            } else {
-                lHingeMotor.setPower(0);
-                rHingeMotor.setPower(0);
-            }
-        }
-        //if in between 0 and 90 degrees, move however
-        else {
-            lHingeMotor.setPower(hingeSpeed);
-            rHingeMotor.setPower(hingeSpeed);
-            hingeTargetPos = hingePos;
-        }
-    }
-
     public void moveHingeTo(float angle) {
         lHingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rHingeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -504,17 +510,18 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-    public void turnRelative(double targetΔ, double speed) {
+    public void turnRelative(double targetΔ) {
 
-        turnAbsolute(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetΔ), speed);
+        turnAbsoluteModified(AngleUnit.normalizeDegrees(getRotationinDimension('Z') + targetΔ));
     }
 
-    public void turnAbsoluteModified(double targetAngle, double maxSpeed) {
+    public void turnAbsoluteModified(double targetAngle) {
         double currentAngle = getRotationinDimension('Z');
         int direction;
         double turnRate = 0;
-        double P = 1d / 90d;
+        double P = 1d / 120d;
         double minSpeed = 0;
+        double maxSpeed = 0.2d;
         int tolerance = 1;
 
         double error = getAngleDist(targetAngle, currentAngle);
@@ -583,7 +590,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void shiftTo(double mode) {
 
-        moveSlidesTo(0, 0.1f);
+        //moveSlidesTo(0, 0.1f);
         shifterServo.setPosition(mode);
     }
 
@@ -598,10 +605,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         float turnSpeed = 0.5f;
         String goldPos = autoFindGold();
         if (goldPos.equals("Left")) {
-            turnRelative(-37, turnSpeed);
+            turnRelative(-37);
         }
         else if (goldPos.equals("Right")) {
-            turnRelative(37, turnSpeed);
+            turnRelative(37);
         }
 
         //extend slides out and intake mineral
@@ -617,7 +624,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String goldPos = "bad";
 
         //turn right to look at 2 minerals
-        turnRelative(-lookAngle, turnSpeed);
+        turnRelative(-lookAngle);
 
         //figure out gold position
         timer = new ElapsedTime();
@@ -633,7 +640,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         closeTfod();
 
         //turn back to starting position
-        turnRelative(lookAngle - 5, turnSpeed);
+        turnRelative(lookAngle - 5);
 
         //default to left if can't detect anything rip
         if (goldPos.equals("bad")) {
@@ -643,16 +650,16 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         //turn and move to hit
         if (goldPos.equals("Left")) {
 
-            turnRelative(turnAngle, turnSpeed);
+            turnRelative(turnAngle);
             move(-37, moveSpeed);
-            turnRelative(-turnAngle, turnSpeed);
+            turnRelative(-turnAngle);
             move(-14, moveSpeed);
 
         } else if (goldPos.equals("Right")) {
 
-            turnRelative(-turnAngle, turnSpeed);
+            turnRelative(-turnAngle);
             move(-37, moveSpeed);
-            /*turnRelative(turnAngle, turnSpeed);
+            /*turnRelative(turnAngle);
             move(-8, moveSpeed);*/
         } else if (goldPos.equals("Center")) {
 
@@ -665,7 +672,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String goldPos = "bad";
 
         //turn right to look at 2 minerals
-        turnRelative(-lookAngle, turnSpeed);
+        turnRelative(-lookAngle);
 
         //figure out gold position
         timer = new ElapsedTime();
@@ -681,7 +688,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         closeTfod();
 
         //turn back to starting position
-        turnRelative(lookAngle, turnSpeed);
+        turnRelative(lookAngle);
 
         //default to left if can't detect anything rip
         if (goldPos.equals("bad")) {
@@ -690,18 +697,18 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         if (goldPos.equals("Left")) {
 
-            turnRelative(27, turnSpeed);
+            turnRelative(27);
             move(-37, moveSpeed);
-            turnRelative(-54, turnSpeed);
+            turnRelative(-54);
             move(-37, moveSpeed);
-            turnRelative(27, turnSpeed);
+            turnRelative(27);
         } else if (goldPos.equals("Right")) {
 
-            turnRelative(-27, turnSpeed);
+            turnRelative(-27);
             move(-37, moveSpeed);
-            turnRelative(54, turnSpeed);
+            turnRelative(54);
             move(-37, moveSpeed);
-            turnRelative(-27, turnSpeed);
+            turnRelative(-27);
         } else if (goldPos.equals("Center")) {
 
             move(-40, moveSpeed);
@@ -713,7 +720,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String goldPos = "bad";
 
         //turn right to look at 2 minerals
-        turnRelative(-lookAngle, turnSpeed);
+        turnRelative(-lookAngle);
 
         //figure out gold position
         timer = new ElapsedTime();
@@ -730,7 +737,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         closeTfod();
 
         //turn back to starting position
-        turnRelative(lookAngle, turnSpeed);
+        turnRelative(lookAngle);
 
         //default to left if can't detect anything rip
         if (goldPos.equals("bad")) {
@@ -754,7 +761,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String goldPos = "bad";
 
         //turn right to look at 2 minerals
-        turnRelative(-lookAngle, turnSpeed);
+        turnRelative(-lookAngle);
 
         //figure out gold position
         timer = new ElapsedTime();
@@ -766,7 +773,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
             if (evaluator == 3) {
 
-                turnRelative(lookAngle * 2 * direction, turnSpeed);
+                turnRelative(lookAngle * 2 * direction);
                 waitForMotors();
                 direction *= -1;
             }
@@ -780,10 +787,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         if (evaluator == 3) {
 
-            turnRelative(lookAngle * direction * -1, turnSpeed);
+            turnRelative(lookAngle * direction * -1);
         } else {
 
-            turnRelative(lookAngle, turnSpeed);
+            turnRelative(lookAngle);
         }
 
         if (goldPos.equals("bad")) {
@@ -850,16 +857,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-   /* public void ejectTeamMarker() {
-
-        moveSlidesAbsolute(1400, 0.2);
-        moveHingeTo(20);
-        for (int i = 0; i < 3; i++) {
-            turnRelative(5, 2 * turnSpeed);
-            turnRelative(-5, 2 * turnSpeed);
-        }
-    }*/
-
     public void slidesBrake() {
         lSlideMotor.setPower(0);
         rSlideMotor.setPower(0);
@@ -887,6 +884,20 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         //added:
         return goldPosition;
+    }
+
+    private String getGoldPos(String[] mineralPositions) {
+        String goldPos = "";
+        if (mineralPositions[0].equals("GOLD")) {
+            goldPos = "LEFT";
+        }
+        else if (mineralPositions[1].equals("GOLD")) {
+            goldPos = "CENTER";
+        }
+        else if (mineralPositions[2].equals("GOLD")) {
+            goldPos = "RIGHT";
+        }
+        return goldPos;
     }
 
     public String autoFindGold(int evaluator) {
@@ -1168,7 +1179,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         int silver1X = -1;
         int silver2X = -1;
 
-        turnRelative(lookAngle, turnSpeed);
+        turnRelative(lookAngle);
         timer = new ElapsedTime();
         while (opModeIsActive() && timer.seconds() < 3 && goldPos.equals("bad")) {
             if (tfod != null) {

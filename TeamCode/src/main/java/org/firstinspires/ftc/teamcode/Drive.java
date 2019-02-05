@@ -33,7 +33,7 @@ public class Drive extends ExponentialFunctions {
 
             //move slides with joystick
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
-            moveSlides(slideSpeed);
+            moveSlidesUnlimited(slideSpeed);
 
             if (gamepad2.left_bumper) {
                 //moveHingeTo(0);

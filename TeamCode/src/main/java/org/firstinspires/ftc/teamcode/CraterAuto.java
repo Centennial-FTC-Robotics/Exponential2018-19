@@ -34,20 +34,19 @@ public class CraterAuto extends ExponentialFunctions {
 
         //----------------UNTESTED----------------//
         // move to depot
-        float tempTurnSpeed = 0.4f;
         float tempMoveSpeed = 0.5f;
-        turnRelative(45, tempTurnSpeed);
+        turnRelative(45);
         move(-60, tempMoveSpeed);
-        turnRelative(90, tempTurnSpeed);
+        turnRelative(90);
         move(-72, tempMoveSpeed);
 
         tmServo.setPosition(0);
 
         // move back to lander
         move(72, tempMoveSpeed);
-        turnRelative(-90, tempTurnSpeed);
+        turnRelative(-90);
         move(60, tempMoveSpeed);
-        turnRelative(135, tempTurnSpeed);
+        turnRelative(135);
 
         intakeGold();
         //add more if slides don't reach crater
