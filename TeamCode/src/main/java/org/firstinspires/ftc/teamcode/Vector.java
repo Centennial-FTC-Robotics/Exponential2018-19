@@ -191,6 +191,14 @@ public class Vector {
         return crossProduct;
     }
 
+    public double angleBetween(Vector v2) {
+
+        double dotProduct = this.dot(v2);
+        double magnitudeProducts = magnitude * v2.getMagnitude();
+
+        return Math.acos(dotProduct / magnitudeProducts);
+    }
+
     public void zero() {
 
         components = new double[components.length];

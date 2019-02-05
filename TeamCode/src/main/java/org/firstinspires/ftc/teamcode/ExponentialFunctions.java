@@ -27,8 +27,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     // simple conversions
     private static final float mmPerInch = 25.4f;
-    private static final float mmFTCFieldWidth = (12 * 6) * mmPerInch;   // the width of the FTC field (from the center point to the outer panels)
-    private static final float mmTargetHeight = (6) * mmPerInch;
 
     //motors
     private final DcMotor[] leftDriveMotors = {lmotor0, lmotor1};
@@ -46,12 +44,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     // slides
     public int slidesMax = 4600;
     public int slidesMin = -20; //20;???
-    private int encodersMovedStronk;
-    private int encodersMovedSpeed;
-    private double slideSpoolInnerDiameter = 0.8;
-    public double inchesPerEncoderStronk = (Math.PI * slideSpoolInnerDiameter) / (28 * 10 * 3);
-    public double inchesPerEncoderSpeed = (Math.PI * slideSpoolInnerDiameter) / (28 * 10);
-    public double slideInchPerStrInch = 1.0; // replace w/ actual value
 
     // turn
     public static final int RIGHT = 1;
@@ -68,7 +60,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
     private VuforiaLocalizer vuforia; //Vuforia localization engine
     private TFObjectDetector tfod; //Tensor Flow Object Detection engine
-    private int cameraMonitorViewId;
 
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
@@ -84,8 +75,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
 
-        encodersMovedSpeed = 0;
-        encodersMovedSpeed = 0;
         hingeTargetPos = lHingeMotor.getCurrentPosition();
     }
     /* -------------- Initialization -------------- */
@@ -105,30 +94,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
-    }
-
-    private void navTargetInit() {
-
-        cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        targetsRoverRuckus = this.vuforia.loadTrackablesFromAsset("RoverRuckus");
-        parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        parameters.useExtendedTracking = true;
-        allTrackables = new ArrayList<VuforiaTrackable>();
-        allTrackables.addAll(targetsRoverRuckus);
-        targetsRoverRuckus.activate();
-    }
-
-    public void autoInit() {
-        initVuforia();
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod();
-        } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
-        //wait for game to start
-        telemetry.addData(">", "Press Play to start tracking");
-        telemetry.update();
-        waitForStart();
     }
 
     public void initializeIMU() {
@@ -171,11 +136,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         telemetry.addData(">", "Press Play to start tracking");
         telemetry.update();
     }
-
-    public void initAutoMotors() {
-
-        moveSlides(1);
-    }
     /* -------------- Status Methods -------------- */
 
     public boolean motorsBusy() {
@@ -213,11 +173,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return orientation.secondAngle;
     }
 
-    public OpenGLMatrix getRotation() {
-        updateOrientation();
-        return orientation.getRotationMatrix();
-    }
-
     public double getRotationinDimension(char dimension) {
 
         switch (Character.toUpperCase(dimension)) {
@@ -240,18 +195,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return lHingeMotor.getCurrentPosition() * (2240 / 90);
     }
 
-    public double getSlideExtendInch() {
-
-        double strInches = (encodersMovedSpeed * inchesPerEncoderSpeed) + (encodersMovedStronk * inchesPerEncoderStronk);
-
-        return (strInches * slideInchPerStrInch);
-    }
-
-    public double getSlideMode() {
-
-        return shifterServo.getPosition();
-    }
-
     public void resetMotorEncoder(DcMotor motor) {
 
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -259,12 +202,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     /* -------------- Correction -------------- */
-
-    public void setSlideZero() {
-
-        encodersMovedSpeed = 0;
-        encodersMovedStronk = 0;
-    }
 
     public void setOrientation(Orientation newO) {
 
@@ -486,6 +423,21 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void move(Vector v, float speed) {
+
+        double angle = getRotationinDimension('Z');
+
+        Vector j = new Vector(new double[] {0, 1});
+        telemetry.addData("Angle:", v.angleBetween(j));
+        telemetry.update();
+        turnRelative(v.angleBetween(j));
+        waitForMotors();
+        move((float) (v.getMagnitude()), speed);
+        waitForMotors();
+        turnRelative(-v.angleBetween(j));
+        waitForMotors();
+    }
+
     //currently in inches
     public void move(float distance, float speed) {
         //converting from linear distance -> wheel rotations ->
@@ -619,112 +571,25 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         moveSlidesTo(slidesMax, 0.5f);
     }
 
-    public void hitGoldCrater() {
-
-        String goldPos = "bad";
-
-        //turn right to look at 2 minerals
-        turnRelative(-lookAngle);
-
-        //figure out gold position
-        timer = new ElapsedTime();
-        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
-            telemetry.addData("Timer: ", timer.seconds());
-
-            goldPos = autoFindGold();
-            telemetry.addData("Gold: ", goldPos);
-            telemetry.update();
-
-        }
-
-        closeTfod();
-
-        //turn back to starting position
-        turnRelative(lookAngle - 5);
-
-        //default to left if can't detect anything rip
-        if (goldPos.equals("bad")) {
-            goldPos = "Left";
-        }
-
-        //turn and move to hit
-        if (goldPos.equals("Left")) {
-
-            turnRelative(turnAngle);
-            move(-37, moveSpeed);
-            turnRelative(-turnAngle);
-            move(-14, moveSpeed);
-
-        } else if (goldPos.equals("Right")) {
-
-            turnRelative(-turnAngle);
-            move(-37, moveSpeed);
-            /*turnRelative(turnAngle);
-            move(-8, moveSpeed);*/
-        } else if (goldPos.equals("Center")) {
-
-            move(-42, moveSpeed);
-        }
-    }
-
-    public void hitGoldDepot() {
-
-        String goldPos = "bad";
-
-        //turn right to look at 2 minerals
-        turnRelative(-lookAngle);
-
-        //figure out gold position
-        timer = new ElapsedTime();
-        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
-            telemetry.addData("Timer: ", timer.seconds());
-
-            goldPos = autoFindGold();
-            telemetry.addData("Gold: ", goldPos);
-            telemetry.update();
-
-        }
-
-        closeTfod();
-
-        //turn back to starting position
-        turnRelative(lookAngle);
-
-        //default to left if can't detect anything rip
-        if (goldPos.equals("bad")) {
-            goldPos = "Left";
-        }
-
-        if (goldPos.equals("Left")) {
-
-            turnRelative(27);
-            move(-37, moveSpeed);
-            turnRelative(-54);
-            move(-37, moveSpeed);
-            turnRelative(27);
-        } else if (goldPos.equals("Right")) {
-
-            turnRelative(-27);
-            move(-37, moveSpeed);
-            turnRelative(54);
-            move(-37, moveSpeed);
-            turnRelative(-27);
-        } else if (goldPos.equals("Center")) {
-
-            move(-40, moveSpeed);
-        }
-    }
-
     public void hitGold() {
 
         String goldPos = "bad";
+        Vector[] mineralPositions = new Vector[] {
+                new Vector(new double[] {-Math.sqrt(2), Math.sqrt(8)}),
+                new Vector(new double[] {Math.sqrt(2), Math.sqrt(8)}),
+                new Vector(new double[] {0, Math.sqrt(8)})
+        };
+
+        Vector j = new Vector(new double[] {0, 1});
+
+        double[] angles = new double[] {mineralPositions[0].angleBetween(j), mineralPositions[1].angleBetween(j), mineralPositions[2].angleBetween(j)};
 
         //turn right to look at 2 minerals
         turnRelative(-lookAngle);
 
         //figure out gold position
         timer = new ElapsedTime();
-        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
+        while (opModeIsActive() && timer.seconds() < 3 && goldPos.equals("bad")) {
             telemetry.addData("Timer: ", timer.seconds());
 
             goldPos = autoFindGold();
@@ -732,6 +597,34 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             telemetry.addData("Gold: ", goldPos);
             telemetry.update();
 
+        }
+
+        Vector movement = new Vector(new double[] {0.1, 0.1});
+        movement.scale(12);
+        move(movement, 0.4f);
+
+        if (goldPos.equals("bad")) {
+
+            for (Vector v: mineralPositions) {
+
+                v.sub(movement);
+            }
+
+            for (int a = 0; a < angles.length; a++) {
+
+                angles[a] = mineralPositions[a].angleBetween(j);
+            }
+
+            timer.reset();
+            while (opModeIsActive() && timer.seconds() < 3 && goldPos.equals("bad")) {
+                telemetry.addData("Timer: ", timer.seconds());
+
+                goldPos = autoFindGold();
+
+                telemetry.addData("Gold: ", goldPos);
+                telemetry.update();
+
+            }
         }
 
         closeTfod();
@@ -746,66 +639,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         if (goldPos.equals("Left")) {
 
-
+            turnRelative(angles[0]);
         } else if (goldPos.equals("Right")) {
 
-
+            turnRelative(angles[1]);
         } else if (goldPos.equals("Center")) {
 
-
-        }
-    }
-
-    public void hitGold(int evaluator) {
-
-        String goldPos = "bad";
-
-        //turn right to look at 2 minerals
-        turnRelative(-lookAngle);
-
-        //figure out gold position
-        timer = new ElapsedTime();
-        int direction = 1;
-        while (opModeIsActive() && timer.seconds() < 5 && goldPos.equals("bad")) {
-            telemetry.addData("Timer: ", timer.seconds());
-
-            goldPos = autoFindGold(evaluator);
-
-            if (evaluator == 3) {
-
-                turnRelative(lookAngle * 2 * direction);
-                waitForMotors();
-                direction *= -1;
-            }
-
-            telemetry.addData("Gold: ", goldPos);
-            telemetry.update();
-
-        }
-
-        closeTfod();
-
-        if (evaluator == 3) {
-
-            turnRelative(lookAngle * direction * -1);
-        } else {
-
-            turnRelative(lookAngle);
-        }
-
-        if (goldPos.equals("bad")) {
-            goldPos = "Left";
-        }
-
-        if (goldPos.equals("Left")) {
-
-
-        } else if (goldPos.equals("Right")) {
-
-
-        } else if (goldPos.equals("Center")) {
-
-
+            turnRelative(angles[2]);
         }
     }
 
@@ -828,11 +668,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-    public void blinker() {
-
-        LEDStrip.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
-    }
-
     public void waitTime(int time) {
         try {
 
@@ -844,17 +679,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void updateOrientation() {
         orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-    }
-
-    public void shift() {
-
-        moveSlidesTo(0, 0.1f);
-
-        if (shifterServo.getPosition() == speed) {
-            shifterServo.setPosition(stronk);
-        } else if (shifterServo.getPosition() == stronk) {
-            shifterServo.setPosition(speed);
-        }
     }
 
     public void slidesBrake() {
@@ -886,20 +710,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return goldPosition;
     }
 
-    private String getGoldPos(String[] mineralPositions) {
-        String goldPos = "";
-        if (mineralPositions[0].equals("GOLD")) {
-            goldPos = "LEFT";
-        }
-        else if (mineralPositions[1].equals("GOLD")) {
-            goldPos = "CENTER";
-        }
-        else if (mineralPositions[2].equals("GOLD")) {
-            goldPos = "RIGHT";
-        }
-        return goldPos;
-    }
-
     public String autoFindGold(int evaluator) {
         //outputs gold position from 2 sensed objects
         String goldPosition = "bad";
@@ -919,10 +729,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
                     case 2:
 
                         goldPosition = evaluateRecognitionsFOV(updatedRecognitions);
-                        break;
-                    case 3:
-
-                        goldPosition = evaluateRecognitionsV3(updatedRecognitions);
                         break;
                 }
             }
@@ -1022,205 +828,38 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return goldPosition;
     }
 
-    private String evaluateRecognitionsV3(List<Recognition> recognitions) {
-
-        String goldPosition = "bad";
-
-        if (recognitions != null) {
-
-            if (recognitions.size() == 2) {
-
-                int goldMineralX = -1;
-                int silverMineralX = -1;
-
-                int hasGold = 0;
-
-                for (Recognition r : recognitions) {
-
-                    if (!r.getLabel().equals(LABEL_GOLD_MINERAL)) {
-
-                        hasGold++;
-                    }
-                }
-
-                if (hasGold == 1) {
-
-                    for (Recognition r : recognitions) {
-
-                        // bottom is left, right is bottom
-                        if (r.getLabel().equals(LABEL_GOLD_MINERAL)) {
-
-                            goldMineralX = (int) r.getBottom();
-                        } else if (r.getLabel().equals(LABEL_SILVER_MINERAL)) {
-
-                            silverMineralX = (int) r.getBottom();
-                        }
-                    }
-
-                    if (goldMineralX < silverMineralX) {
-
-                        goldPosition = "Left";
-                    } else if (silverMineralX > goldMineralX) {
-
-                        goldPosition = "Right";
-                    }
-                } else if (hasGold == 2) {
-
-                    double confidence1 = recognitions.get(0).getConfidence();
-                    double confidence2 = recognitions.get(1).getConfidence();
-
-                    if (confidence1 > confidence2) {
-
-                        goldPosition = (recognitions.get(0).getBottom() < recognitions.get(1).getBottom()) ? "Left" : "Right";
-                    } else if (confidence1 < confidence2) {
-
-                        goldPosition = (recognitions.get(0).getBottom() > recognitions.get(1).getBottom()) ? "Left" : "Right";
-                    }
-                }
-            }
-        }
-
-        return goldPosition;
-    }
-
-    public void updateNavTargets() {
-
-        // check all the trackable target to see which one (if any) is visible.
-        targetVisible = false;
-        for (VuforiaTrackable trackable : allTrackables) {
-            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-                telemetry.addData("Visible Target", trackable.getName());
-                targetVisible = true;
-
-                // getUpdatedRobotLocation() will return null if no new information is available since
-                // the last time that call was made, or if the trackable is not currently visible.
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
-                if (robotLocationTransform != null) {
-                    lastLocation = robotLocationTransform;
-                }
-                break;
-            }
-        }
-
-        // Provide feedback as to where the robot is located (if we know).
-        if (targetVisible) {
-            // express position (translation) of robot in inches.
-            VectorF translation = lastLocation.getTranslation();
-            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-
-            // express the rotation of the robot in degrees.
-            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-        } else {
-            telemetry.addData("Visible Target", "none");
-        }
-        telemetry.update();
-    }
-
-    /*private String[] findMineralPositions(List<Recognition> list) {
-        String[] minerals = new String[3];
-        int goldX = -1;
-        int silver1X = -1;
-        int silver2X = -2;
-        for (Recognition mineral : list) {
-            if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
-                goldX = (int) mineral.getBottom();
-            }
-            else if (silver1X == -1) {
-                silver1X = (int) mineral.getBottom();
-            }
-            else {
-                silver2X = (int) mineral.getBottom();
-            }
-        }
-
-        //only see two silvers, gold is on left
-        if (goldX == -1) {
-            minerals[0] = "GOLD";
-            minerals[1] = "SILVER";
-            minerals[2] = "SILVER";
-        }
-
-        //see one of each
-        if (silver2X == -1) {
-            if (goldX < silver1X) {
-                minerals[0] = "SILVER";
-                minerals[1] = "GOLD";
-                minerals[2] = "SILVER";
-            } else {
-                minerals[0] = "SILVER";
-                minerals[1] = "SILVER";
-                minerals[2] = "GOLD";
-            }
-        }
-        return minerals;
-    }
-
-    private String getGoldPos(String[] mineralPositions) {
-        String goldPos = "";
-        if (mineralPositions[0].equals("GOLD")) {
-            goldPos = "LEFT";
-        }
-        else if (mineralPositions[1].equals("GOLD")) {
-            goldPos = "CENTER";
-        }
-        else if (mineralPositions[2].equals("GOLD")) {
-            goldPos = "RIGHT";
-        }
-        return goldPos;
-    }*/
-
-    public void sample() {
-        String[] minerals = new String[3];
-        String goldPos = "bad";
-
-        int goldX = -1;
-        int silver1X = -1;
-        int silver2X = -1;
-
-        turnRelative(lookAngle);
-        timer = new ElapsedTime();
-        while (opModeIsActive() && timer.seconds() < 3 && goldPos.equals("bad")) {
-            if (tfod != null) {
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null && updatedRecognitions.size() == 2) {
-                    for (Recognition mineral : updatedRecognitions) {
-                        if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
-                            goldX = (int) mineral.getBottom();
-                        } else if (silver1X == -1) {
-                            silver1X = (int) mineral.getBottom();
-                        } else {
-                            silver2X = (int) mineral.getBottom();
-                        }
-
-                        //only see two silvers, gold is on left
-                        if (goldX == -1) {
-                            minerals[0] = "GOLD";
-                            minerals[1] = "SILVER";
-                            minerals[2] = "SILVER";
-                        }
-
-                        //see one of each
-                        if (silver2X == -1) {
-                            if (goldX < silver1X) {
-                                minerals[0] = "SILVER";
-                                minerals[1] = "GOLD";
-                                minerals[2] = "SILVER";
-                            } else {
-                                minerals[0] = "SILVER";
-                                minerals[1] = "SILVER";
-                                minerals[2] = "GOLD";
-                            }
-                        }
-
-                    }
-                    String posString = minerals[0] + " " + minerals[1] + " " + minerals[2];
-                    telemetry.addData("Positions", posString);
-                    telemetry.addData("Gold Position", goldPos);
-                    telemetry.update();
-                }
-            }
-        }
-    }
+//    public void updateNavTargets() {
+//
+//        // check all the trackable target to see which one (if any) is visible.
+//        targetVisible = false;
+//        for (VuforiaTrackable trackable : allTrackables) {
+//            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
+//                telemetry.addData("Visible Target", trackable.getName());
+//                targetVisible = true;
+//
+//                // getUpdatedRobotLocation() will return null if no new information is available since
+//                // the last time that call was made, or if the trackable is not currently visible.
+//                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
+//                if (robotLocationTransform != null) {
+//                    lastLocation = robotLocationTransform;
+//                }
+//                break;
+//            }
+//        }
+//
+//        // Provide feedback as to where the robot is located (if we know).
+//        if (targetVisible) {
+//            // express position (translation) of robot in inches.
+//            VectorF translation = lastLocation.getTranslation();
+//            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+//                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
+//
+//            // express the rotation of the robot in degrees.
+//            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
+//            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
+//        } else {
+//            telemetry.addData("Visible Target", "none");
+//        }
+//        telemetry.update();
+//    }
 }

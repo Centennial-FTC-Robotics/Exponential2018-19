@@ -41,6 +41,29 @@ public class Tester extends ExponentialFunctions {
         }
     }
 
+    public void vectorMoveTest() {
+
+        double[][] movements = new double[][] {
+                {2, 2},
+                {-2, 2},
+                {-2, -2},
+                {2, -2}
+        };
+
+        Vector[] movementVectors = new Vector[movements.length];
+
+        for (int m = 0; m < movements.length; m++) {
+
+            movementVectors[m] = new Vector(movements[m]);
+        }
+
+        for (Vector v: movementVectors) {
+
+            move(v, 0.2f);
+            waitForMotors();
+        }
+    }
+
     public void servoPosTesting(Servo testServo) {
 
 
@@ -112,8 +135,9 @@ public class Tester extends ExponentialFunctions {
 //            telemetry.update();
 //        }
 
-        relativeTurnDriver();
+        //relativeTurnDriver();
         //linearMoveTest();
+        vectorMoveTest();
 
         //servoPosTesting(shifterServo);
 //        double[][] motorVelocities = motorVelTesting(10);
