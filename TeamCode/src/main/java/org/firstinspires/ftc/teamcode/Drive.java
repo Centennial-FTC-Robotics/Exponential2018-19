@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="TeleOp", group="TeleOp")
@@ -16,7 +18,10 @@ public class Drive extends ExponentialFunctions {
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
         waitForStart();
-        while(opModeIsActive()){
+        lmotor0.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        lmotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rmotor0.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        rmotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);        while(opModeIsActive()){
 
             //drive with joysticks
             float moveSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y;
