@@ -28,6 +28,7 @@ public class CraterAuto extends ExponentialFunctions {
 
             telemetry.addData("lSlideMotor encoder: ", lSlideMotor.getCurrentPosition());
             telemetry.addData("rSlideMotor encoder: ", rSlideMotor.getCurrentPosition());
+            telemetry.update();
         }
 
         //retract slides
