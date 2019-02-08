@@ -21,10 +21,14 @@ public class CraterAuto extends ExponentialFunctions {
 
         //come off of lander
         moveHingeTo(10);
-        while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
+        while ((lHingeMotor.isBusy() || rHingeMotor.isBusy()) && opModeIsActive()) {}
         moveIntakeArm(0.5f);
         moveSlidesTo(4600, 0.8f);
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        while ((lSlideMotor.isBusy() || rSlideMotor.isBusy()) && opModeIsActive()) {
+
+            telemetry.addData("lSlideMotor encoder: ", lSlideMotor.getCurrentPosition());
+            telemetry.addData("rSlideMotor encoder: ", rSlideMotor.getCurrentPosition());
+        }
 
         //retract slides
         move(-5, 0.5f);

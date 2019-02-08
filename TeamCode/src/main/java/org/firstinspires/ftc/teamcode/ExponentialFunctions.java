@@ -42,7 +42,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public final int wheelDiameterIn = 4;
 
     // slides
-    public int slidesMax = 4600;
+    public int slidesMax = 5000;
     public int slidesMin = -20; //20;???
 
     // turn
@@ -426,15 +426,19 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public void move(Vector v, float speed) {
 
         double angle = getRotationinDimension('Z');
+        Vector orientationVector = new Vector(new double[] {Math.cos(angle), Math.sin(angle)});
 
-        Vector j = new Vector(new double[] {0, 1});
-        telemetry.addData("Angle:", v.angleBetween(j));
-        telemetry.update();
-        turnRelative(Math.toDegrees(v.angleBetween(j)));
+        Vector relativeV = (new Vector(v));
+
+        double moveAngle = orientationVector.angleBetween(v);
+
+        turnRelative(moveAngle);
         waitForMotors();
+
         move((float) (v.getMagnitude()), speed);
         waitForMotors();
-        turnRelative(-Math.toDegrees(v.angleBetween(j)));
+
+        turnRelative(-moveAngle);
         waitForMotors();
     }
 

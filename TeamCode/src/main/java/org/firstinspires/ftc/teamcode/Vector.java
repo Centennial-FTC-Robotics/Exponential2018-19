@@ -196,7 +196,7 @@ public class Vector {
         double dotProduct = this.dot(v2);
         double magnitudeProducts = magnitude * v2.getMagnitude();
 
-        return Math.acos(dotProduct / magnitudeProducts);
+        return Math.toDegrees(Math.acos(dotProduct / magnitudeProducts));
     }
 
     public void zero() {
@@ -226,9 +226,7 @@ public class Vector {
         return vector;
     }
 
-    private static boolean VectorTester() {
-
-        boolean testsPassed = true;
+    private static void VectorTester() {
 
         double[] components = {4, 5, 3, 7, 6, 6.54, 654.82667, 10};
 
@@ -236,10 +234,6 @@ public class Vector {
 
         Vector second = new Vector(first.getAngles(), first.getMagnitude());
         System.out.println(second.toString());
-        if (testsPassed) {
-
-            testsPassed = Arrays.equals(components, second.getComponents());
-        }
 
         Vector third = new Vector(new double[] {0, 0, 5});
         third.add(first);
@@ -261,12 +255,23 @@ public class Vector {
 
         System.out.println(v);
 
-        return testsPassed;
+        Vector v1 = new Vector(new double[] {0, 1});
+        Vector v2 = new Vector(new double[] {2, 2});
+
+        System.out.println(v1.angleBetween(v2));
+
+        v2 = new Vector(new double[] {Math.PI, Math.E});
+
+        System.out.println(v1.angleBetween(v2));
+
+        v2 = new Vector(new double[] {0.9, 0.01});
+
+        System.out.println(v1.angleBetween(v2));
     }
 
     public static void main(String[] args) {
 
-        System.out.println(VectorTester());
+        VectorTester();
     }
 }
 
