@@ -225,10 +225,27 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         double angleDifference = currentAngle - targetAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
+
         if (Math.abs(angleDifference) > 180) {
             angleDir *= -1;
         }
+
         return angleDir;
+    }
+
+    public double standardPosAngle(Vector v) {
+
+        Vector i = new Vector(new double[] {1, 0});
+        Vector j = new Vector(new double[] {0, 1});
+
+        double iAngle = v.angleBetween(i);
+
+        if (v.angleBetween(j) > 90) {
+
+            iAngle = 360 - iAngle;
+        }
+
+        return iAngle;
     }
 
     public int convertInchToEncoder(float dist) {
@@ -425,12 +442,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void move(Vector v, float speed) {
 
-        double angle = getRotationinDimension('Z');
-        Vector orientationVector = new Vector(new double[] {Math.cos(angle), Math.sin(angle)});
+        // current orientation
+        double currentAngle = getRotationinDimension('Z');
+        Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
 
-        Vector relativeV = (new Vector(v));
+        // absolute angle of the target vector in standard position
+        double targetAngle = standardPosAngle(v);
 
-        double moveAngle = orientationVector.angleBetween(v);
+        // angle and angle direction
+        double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
 
         turnRelative(moveAngle);
         waitForMotors();

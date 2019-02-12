@@ -137,6 +137,8 @@ public class Tester extends ExponentialFunctions {
 
         //relativeTurnDriver();
         //linearMoveTest();
+
+        // hopefully this will work now that I've corrected for the loss of direction when calculating angles between vectors
         vectorMoveTest();
 
         //servoPosTesting(shifterServo);
@@ -149,5 +151,29 @@ public class Tester extends ExponentialFunctions {
 //        telemetry.update();
 //        while (!gamepad1.a) {};
         //blinker();
+    }
+
+    public static boolean VectorAbsAngleTester() {
+
+        boolean testsPassed = true;
+
+        for (int theta = 0; theta < 360; theta++) {
+
+            Vector testV = new Vector(new double[] {Math.cos(Math.toRadians(theta)), Math.sin(Math.toRadians(theta))});
+
+            // commented out bc only set standardPosAngle() to be static to test it, not gonna have a syntax error laying around now
+//            if (Math.round(ExponentialFunctions.standardPosAngle(testV)) != theta) {
+//
+//                System.out.println("Input Angle: " + theta + " Output: " + Math.round(ExponentialFunctions.standardPosAngle(testV)));
+//                testsPassed = false;
+//            }
+        }
+
+        return testsPassed;
+    }
+
+    public static void main(String[] args) {
+
+        System.out.println(VectorAbsAngleTester()); // Works!
     }
 }
