@@ -13,6 +13,7 @@ public class CraterAuto extends ExponentialFunctions {
         super.runOpMode();
         initializeIMU();
         initVision();
+        tmServo.setPosition(tmServoStart);
         while(!isStarted()){
             moveHingeTo(35);
             moveSlidesTo(5, 0.5f);
@@ -32,26 +33,30 @@ public class CraterAuto extends ExponentialFunctions {
         }
 
         //retract slides
-        move(-5, 0.5f);
-        moveSlidesTo(50, 0.8f);
-        move(3, 0.3f);
+        move(-5, 0.4f);
+        moveSlidesTo(50, 1f);
+        move(3, 0.4f);
 
 
         //----------------UNTESTED----------------//
         // move to depot
-        float tempMoveSpeed = 0.5f;
+        float tempMoveSpeed = 0.4f;
         turnRelative(45);
-        move(-60, tempMoveSpeed);
+        move(-42, tempMoveSpeed);
+        turnAbsoluteModified(45);
         turnRelative(90);
-        move(-72, tempMoveSpeed);
+        move(-66, tempMoveSpeed);
+        turnAbsoluteModified(135);
 
         tmServo.setPosition(0);
 
         // move back to lander
-        move(72, tempMoveSpeed);
+        move(68, tempMoveSpeed);
+        turnAbsoluteModified(135);
         turnRelative(-90);
-        move(60, tempMoveSpeed);
-        turnRelative(135);
+        move(36, tempMoveSpeed);
+        turnAbsoluteModified(45);
+        turnRelative(-45);
 
         intakeGold();
         //add more if slides don't reach crater

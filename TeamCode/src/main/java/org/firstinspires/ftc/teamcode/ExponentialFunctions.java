@@ -55,6 +55,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     int turnAngle = 30;
     double turnSpeed = 0.4f;
     float moveSpeed = 0.5f;
+    float tmServoStart = 0.5f;
 
     //tensor flow and vuforia stuff
     private static final String VUFORIA_KEY = "AQmuIUP/////AAAAGR6dNDzwEU07h7tcmZJ6YVoz5iaF8njoWsXQT5HnCiI/oFwiFmt4HHTLtLcEhHCU5ynokJgYSvbI32dfC2rOvqmw81MMzknAwxKxMitf8moiK62jdqxNGADODm/SUvu5a5XrAnzc7seCtD2/d5bAIv1ZuseHcK+oInFHZTi+3BvhbUyYNvnVb0tQEAv8oimzjiQW18dSUcEcB/d6QNGDvaDHpxuRCJXt8U3ShJfBWWQEex0Vp6rrb011z8KxU+dRMvGjaIy+P2p5GbWXGJn/yJS9oxuwDn3zU6kcQoAwI7mUgAw5zBGxxM+P35DoDqiOja6ST6HzDszHxClBm2dvTRP7C4DEj0gPkhX3LtBgdolt";
@@ -234,6 +235,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public double standardPosAngle(Vector v) {
+
+        v.collapse(2);
 
         Vector i = new Vector(new double[] {1, 0});
         Vector j = new Vector(new double[] {0, 1});
@@ -452,6 +455,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         // angle and angle direction
         double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
 
+        telemetry.addData("moveAngle: ", moveAngle);
+        telemetry.update();
+
         turnRelative(moveAngle);
         waitForMotors();
 
@@ -459,6 +465,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         waitForMotors();
 
         turnRelative(-moveAngle);
+        telemetry.addData("currentAngle: ", orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle));
+        telemetry.update();
         waitForMotors();
     }
 
@@ -480,6 +488,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             driveMotors[i].setPower(speed);
         }
         waitForMotors();
+
         runDriveMotors(0, 0);
         for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -566,7 +575,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void shiftTo(double mode) {
 
-        //moveSlidesTo(0, 0.1f);
         shifterServo.setPosition(mode);
     }
 

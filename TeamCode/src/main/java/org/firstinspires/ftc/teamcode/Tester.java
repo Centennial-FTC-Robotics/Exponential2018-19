@@ -55,12 +55,24 @@ public class Tester extends ExponentialFunctions {
         for (int m = 0; m < movements.length; m++) {
 
             movementVectors[m] = new Vector(movements[m]);
+            movementVectors[m].scale(3);
         }
 
         for (Vector v: movementVectors) {
 
+            // telemetry variables
+            double currentAngle = getRotationinDimension('Z');
+            Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
+            double targetAngle = standardPosAngle(v);
+            double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
+            telemetry.addData("currentAngle", currentAngle);
+            telemetry.addData("targetAngle: ", targetAngle);
+            telemetry.addData("movement Angle: ", moveAngle);
+            telemetry.update();
+
             move(v, 0.2f);
             waitForMotors();
+            while(!gamepad1.a) {}
         }
     }
 
