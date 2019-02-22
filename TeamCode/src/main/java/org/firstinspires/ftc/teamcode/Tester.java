@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -184,8 +185,52 @@ public class Tester extends ExponentialFunctions {
         return testsPassed;
     }
 
+    public static boolean vectorAngleTester() {
+
+        boolean testsPassed = true;
+
+        Vector i = new Vector(new double[] {1, 0});
+
+        for (int d = -180; d < 180; d++) {
+
+            Vector v = new Vector(new double[] {Math.cos(Math.toRadians(d)), Math.sin(Math.toRadians(d))});
+
+            if ((i.angleBetween(v) * getAngleDir(d, 0)) != d) {
+
+                testsPassed = false;
+            }
+        }
+
+        return testsPassed;
+    }
+
+    public void PIDTester(DcMotorEx motor, double[][] coefficients) {
+
+        boolean testsPassed = true;
+
+        for (int PID = 0; PID < coefficients.length && coefficients[PID].length == 4; PID++) {
+
+            setPID(motor, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
+            
+            motor.setPower(0.4);
+            motor.setTargetPosition(ExponentialFunctions.convertInchToEncoder(12));
+        }
+    }
+
     public static void main(String[] args) {
 
+        Tester t = new Tester();
+
         System.out.println(VectorAbsAngleTester()); // Works!
+
+        System.out.println(VectorAbsAngleTester()); // not tested
+
+        double[][] PIDCoefficients = new double[][] {
+                {0, 0, 0, 0},
+                {1, 1, 1, 1},
+                {0.5, 0.5, 0.5, 0.5}
+        };
+
+        //t.PIDTester(, PIDCoefficients);
     }
 }

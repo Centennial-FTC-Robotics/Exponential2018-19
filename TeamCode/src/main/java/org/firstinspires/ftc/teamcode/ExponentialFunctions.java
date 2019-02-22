@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDCoefficients;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.*;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -36,10 +39,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     private int hingeTargetPos;
 
     // motor movement
-    public final int driveTicksPerRev = 560;
-    public final int driveSprocket = 24;
-    public final int wheelSprocket = 22;
-    public final int wheelDiameterIn = 4;
+    public static final int driveTicksPerRev = 560;
+    public static final int driveSprocket = 24;
+    public static final int wheelSprocket = 22;
+    public static final int wheelDiameterIn = 4;
+    public static final double default_P = 0;
+    public static final double default_I = 0;
+    public static final double default_D = 0;
+    public static final double default_F = 0;
 
     // slides
     public int slidesMax = 5000;
@@ -222,7 +229,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return angleDifference;
     }
 
-    public int getAngleDir(double targetAngle, double currentAngle) {
+    public static int getAngleDir(double targetAngle, double currentAngle) {
 
         double angleDifference = currentAngle - targetAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
@@ -234,7 +241,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return angleDir;
     }
 
-    public double standardPosAngle(Vector v) {
+    public static double standardPosAngle(Vector v) {
 
         v.collapse(2);
 
@@ -251,7 +258,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return iAngle;
     }
 
-    public int convertInchToEncoder(float dist) {
+    public static int convertInchToEncoder(float dist) {
 
         float wheelRotations = (float) (dist / (wheelDiameterIn * Math.PI));
         float motorRotations = (float) ((22.0 / 24.0) * (wheelRotations));
@@ -261,17 +268,37 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return position;
     }
 
-    public double convertEncoderToInch(int encoders) {
+    public static double convertEncoderToInch(int encoders) {
 
         float motorRotations = encoders / 560;
         double wheelRotations = motorRotations * (24.0 / 22.0);
-        double distance = wheelRotations * (wheelDiameterIn * Math.PI);
+        double distance = wheelRotations * (ExponentialFunctions.wheelDiameterIn * Math.PI);
 
         return distance;
     }
     /* -------------- Movement -------------- */
 
     //movement based on speeds
+
+    public static boolean setPID(DcMotorEx motor, PIDFCoefficients coeff) {
+
+        return setPID(motor, coeff.p, coeff.i, coeff.d, coeff.f);
+    }
+
+    public static boolean setPID(DcMotorEx motor, double P, double I, double D, double F) {
+
+        // get the PID coefficients for the RUN_USING_ENCODER  modes.
+        PIDFCoefficients pidOrig = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // change coefficients using methods included with DcMotorEx class.
+        PIDFCoefficients pidNew = new PIDFCoefficients(P, I, D, F);
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
+
+        // re-read coefficients and verify change.
+        PIDFCoefficients pidModified = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        return ((pidModified.p == P) && (pidModified.i == I) && (pidModified.d == D) && (pidModified.f == F));
+    }
 
     public void runRightMotors(float speed) {
         rmotor0.setPower(Range.clip(speed, -1, 1));
@@ -682,7 +709,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-    public void waitTime(int time) {
+    public static void waitTime(int time) {
         try {
 
             Thread.sleep(time);
