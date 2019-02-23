@@ -152,8 +152,11 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         // hopefully this will work now that I've corrected for the loss of direction when calculating angles between vectors
-        vectorMoveTest();
-
+        //vectorMoveTest();
+        double[][] testCoeff= {{8.5d,0d,0d,5.5d}};
+       // {6d,.2d,1d,0d},{6d,.2d,2d,0d}, {6d,.2d,3d,0d}, {6d,.2d,4d,0d}, {6d,.2d,5d,0d}
+        //move(24f, .4f);
+        PIDTester(testCoeff);
         //servoPosTesting(shifterServo);
 //        double[][] motorVelocities = motorVelTesting(10);
 //
@@ -204,16 +207,32 @@ public class Tester extends ExponentialFunctions {
         return testsPassed;
     }
 
-    public void PIDTester(DcMotorEx motor, double[][] coefficients) {
+    public void PIDTester(double[][] coefficients) {
 
         boolean testsPassed = true;
+        //move(24f,.62f);
+        //while (!gamepad1.a && opModeIsActive()) {};
 
         for (int PID = 0; PID < coefficients.length && coefficients[PID].length == 4; PID++) {
+            while (!gamepad1.a && opModeIsActive()) {};
+            setPID(lmotor0, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
+            setPID(lmotor1, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
+            setPID(rmotor0, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
+            setPID(rmotor1, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
+            lmotor0.setTargetPositionTolerance(20);
+            lmotor1.setTargetPositionTolerance(20);
+            rmotor0.setTargetPositionTolerance(20);
+            rmotor1.setTargetPositionTolerance(20);
 
-            setPID(motor, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
-            
-            motor.setPower(0.4);
-            motor.setTargetPosition(ExponentialFunctions.convertInchToEncoder(12));
+
+
+            telemetry.addData("test num: ", PID);
+            telemetry.addData("target: ", lmotor0.getTargetPosition());
+            telemetry.addData("lmotor0: ", lmotor0.getTargetPositionTolerance());
+
+            telemetry.update();
+            move(30f,.6f);
+
         }
     }
 

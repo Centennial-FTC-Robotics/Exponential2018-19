@@ -40,7 +40,7 @@ public class CraterAuto extends ExponentialFunctions {
 
         //----------------UNTESTED----------------//
         // move to depot
-        float tempMoveSpeed = 0.4f;
+        float tempMoveSpeed = 0.6f;
         turnRelative(45);
         move(-42, tempMoveSpeed);
         turnAbsoluteModified(45);

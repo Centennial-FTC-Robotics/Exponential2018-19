@@ -33,7 +33,7 @@ public class DepotAuto extends ExponentialFunctions {
         intakeGold();
 
         float tempTurnSpeed = 0.4f;
-        float tempMoveSpeed = 0.5f;
+        float tempMoveSpeed = 0.6f;
         float tempSlidesSpeed = 0.5f;
         moveHingeTo(0);
         moveSlidesTo(slidesMin, tempSlidesSpeed);

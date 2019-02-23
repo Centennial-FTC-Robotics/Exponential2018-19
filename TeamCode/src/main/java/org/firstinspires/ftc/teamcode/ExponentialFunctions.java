@@ -82,7 +82,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-
+        setPID(lmotor0, 8.5, 0, 0, .5);
+        setPID(lmotor1, .5, 0, 0, .5);
+        setPID(rmotor0, .5, 0, 0, .5);
+        setPID(rmotor1, .5, 0, 0, .5);
+        lmotor0.setTargetPositionTolerance(20);
+        lmotor1.setTargetPositionTolerance(20);
+        rmotor0.setTargetPositionTolerance(20);
+        rmotor1.setTargetPositionTolerance(20);
         hingeTargetPos = lHingeMotor.getCurrentPosition();
     }
     /* -------------- Initialization -------------- */
@@ -114,12 +121,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            telemetry.addData("oof", "oof");
-            telemetry.update();
-        }
         updateOrientation();
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
@@ -706,6 +707,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void waitForMotors() {
         while (opModeIsActive() && motorsBusy()) {
+            telemetry.addData("pos 1", lmotor0.getCurrentPosition());
+            telemetry.addData("pos 2", lmotor1.getCurrentPosition());
+            telemetry.addData("pos 3", rmotor0.getCurrentPosition());
+            telemetry.addData("pos 4", rmotor1.getCurrentPosition());
+            telemetry.update();
+
+
         }
     }
 
