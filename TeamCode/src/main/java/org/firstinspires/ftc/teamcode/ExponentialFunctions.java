@@ -707,12 +707,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void waitForMotors() {
         while (opModeIsActive() && motorsBusy()) {
-            telemetry.addData("pos 1", lmotor0.getCurrentPosition());
+            /*telemetry.addData("pos 1", lmotor0.getCurrentPosition());
             telemetry.addData("pos 2", lmotor1.getCurrentPosition());
             telemetry.addData("pos 3", rmotor0.getCurrentPosition());
             telemetry.addData("pos 4", rmotor1.getCurrentPosition());
-            telemetry.update();
-
+            telemetry.update();*/
 
         }
     }
