@@ -2,9 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.*;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -39,14 +36,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     private int hingeTargetPos;
 
     // motor movement
-    public static final int driveTicksPerRev = 560;
-    public static final int driveSprocket = 24;
-    public static final int wheelSprocket = 22;
-    public static final int wheelDiameterIn = 4;
-    public static final double default_P = 0;
-    public static final double default_I = 0;
-    public static final double default_D = 0;
-    public static final double default_F = 0;
+    public final int driveTicksPerRev = 560;
+    public final int driveSprocket = 24;
+    public final int wheelSprocket = 22;
+    public final int wheelDiameterIn = 4;
+    public static final double default_P = 1;
+    public static final double default_I = 1;
+    public static final double default_D = 1;
+    public static final double default_F = 1;
+
 
     // slides
     public int slidesMax = 5000;
@@ -82,14 +80,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     @Override
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
-        setPID(lmotor0, 8.5, 0, 0, .5);
-        setPID(lmotor1, .5, 0, 0, .5);
-        setPID(rmotor0, .5, 0, 0, .5);
-        setPID(rmotor1, .5, 0, 0, .5);
-        lmotor0.setTargetPositionTolerance(20);
-        lmotor1.setTargetPositionTolerance(20);
-        rmotor0.setTargetPositionTolerance(20);
-        rmotor1.setTargetPositionTolerance(20);
+
         hingeTargetPos = lHingeMotor.getCurrentPosition();
     }
     /* -------------- Initialization -------------- */
@@ -121,6 +112,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            telemetry.addData("oof", "oof");
+            telemetry.update();
+        }
         updateOrientation();
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
@@ -230,7 +227,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return angleDifference;
     }
 
-    public static int getAngleDir(double targetAngle, double currentAngle) {
+    public int getAngleDir(double targetAngle, double currentAngle) {
 
         double angleDifference = currentAngle - targetAngle;
         int angleDir = (int) (angleDifference / Math.abs(angleDifference));
@@ -242,7 +239,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return angleDir;
     }
 
-    public static double standardPosAngle(Vector v) {
+    public double standardPosAngle(Vector v) {
 
         v.collapse(2);
 
@@ -259,7 +256,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return iAngle;
     }
 
-    public static int convertInchToEncoder(float dist) {
+    public int convertInchToEncoder(float dist) {
 
         float wheelRotations = (float) (dist / (wheelDiameterIn * Math.PI));
         float motorRotations = (float) ((22.0 / 24.0) * (wheelRotations));
@@ -269,37 +266,17 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return position;
     }
 
-    public static double convertEncoderToInch(int encoders) {
+    public double convertEncoderToInch(int encoders) {
 
         float motorRotations = encoders / 560;
         double wheelRotations = motorRotations * (24.0 / 22.0);
-        double distance = wheelRotations * (ExponentialFunctions.wheelDiameterIn * Math.PI);
+        double distance = wheelRotations * (wheelDiameterIn * Math.PI);
 
         return distance;
     }
     /* -------------- Movement -------------- */
 
     //movement based on speeds
-
-    public static boolean setPID(DcMotorEx motor, PIDFCoefficients coeff) {
-
-        return setPID(motor, coeff.p, coeff.i, coeff.d, coeff.f);
-    }
-
-    public static boolean setPID(DcMotorEx motor, double P, double I, double D, double F) {
-
-        // get the PID coefficients for the RUN_USING_ENCODER  modes.
-        PIDFCoefficients pidOrig = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        // change coefficients using methods included with DcMotorEx class.
-        PIDFCoefficients pidNew = new PIDFCoefficients(P, I, D, F);
-        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidNew);
-
-        // re-read coefficients and verify change.
-        PIDFCoefficients pidModified = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        return ((pidModified.p == P) && (pidModified.i == I) && (pidModified.d == D) && (pidModified.f == F));
-    }
 
     public void runRightMotors(float speed) {
         rmotor0.setPower(Range.clip(speed, -1, 1));
@@ -401,7 +378,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     /*public void moveSlidesInchRelative(double targetΔ, double speed) {
         moveSlidesInchAbsolute(getSlideExtendInch() + targetΔ, speed);
     }
-
     public void moveSlidesInchAbsolute(double targetInch, double speed) {
         int targetPos = (int) (targetInch * (1 / slideInchPerStrInch));
         if (shifterServo.getPosition() == stronk) {
@@ -409,11 +385,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         } else if (shifterServo.getPosition() == speed) {
             targetPos /= inchesPerEncoderSpeed;
         }
-
         if (targetPos > 1400) {
             targetPos = 1400;
         }
-
         moveSlidesAbsolute(targetPos, speed);
     }*/
 
@@ -425,23 +399,17 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     /*public void moveSlidesAbsolute(int targetPos, double speed) {
         lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
-
         lSlideMotor.setTargetPosition(targetPos);
         rSlideMotor.setTargetPosition(targetPos);
         lSlideMotor.setPower(Range.clip(speed, -1, 1));
         rSlideMotor.setPower(Range.clip(speed, -1, 1));
-
         // recording encoders moved
         if (shifterServo.getPosition() == stronk) {
-
             encodersMovedStronk += (currentPos - targetPos);
         } else if (shifterServo.getPosition() == speed) {
-
             encodersMovedSpeed += (currentPos - targetPos);
         }
-
         while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {
         }
         ;
@@ -475,6 +443,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         // current orientation
         double currentAngle = getRotationinDimension('Z');
+        currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
+        currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
+
         Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
 
         // absolute angle of the target vector in standard position
@@ -483,8 +454,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         // angle and angle direction
         double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
 
-        telemetry.addData("moveAngle: ", moveAngle);
-        telemetry.update();
 
         turnRelative(moveAngle);
         waitForMotors();
@@ -493,8 +462,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         waitForMotors();
 
         turnRelative(-moveAngle);
-        telemetry.addData("currentAngle: ", orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle));
-        telemetry.update();
         waitForMotors();
     }
 
@@ -532,10 +499,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         double currentAngle = getRotationinDimension('Z');
         int direction;
         double turnRate = 0;
-        double P = 1d / 140d;
+        double P = 1d / 125d;
         double minSpeed = 0;
         double maxSpeed = 0.2d;
-        double tolerance = .5;
+        double tolerance = 0.5;
 
         double error = getAngleDist(targetAngle, currentAngle);
         while (opModeIsActive() && error > tolerance) {
@@ -551,6 +518,44 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         runDriveMotors(0, 0);
     }
 
+    public void turnAbsoluteModifiedModified(double targetAngle) {
+
+        double currentAngle = getRotationinDimension('Z');
+        currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
+        currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
+        double direction = getAngleDir(targetAngle, currentAngle);
+        ArrayList<Double> velocity = new ArrayList<Double>();
+        ElapsedTime interval = new ElapsedTime();
+
+        double error = getAngleDist(targetAngle, currentAngle);
+        while (opModeIsActive() && error > 4 && getAngleDir(targetAngle, currentAngle) == direction) {
+
+            velocity.add((lmotor0.getVelocity() + rmotor0.getVelocity() + lmotor1.getVelocity() + rmotor1.getVelocity()) / 4);
+
+            double time_interval = interval.time();
+
+            double P = 0;
+            double D = 0;
+            double I = 0;
+
+            if (velocity.size() > 1) {
+
+                // derivative
+                D = default_D * (velocity.get(velocity.size() - 1) - velocity.get(velocity.size() - 2)) / time_interval;
+
+                // integral
+                I = default_I * (Math.sqrt(Math.pow((velocity.get(velocity.size() - 1) - velocity.get(velocity.size() - 2)), 2) + Math.pow(time_interval, 2)) * time_interval) / 2.0;
+
+                P = default_P * velocity.get(velocity.size() - 1);
+            }
+
+            double change = D + I + P;
+
+            interval.reset();
+            // move the motors
+
+        }
+    }
 
     public void turnAbsolute(double targetAngle, double speed) {
         double currentAngle = getRotationinDimension('Z');
@@ -707,16 +712,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void waitForMotors() {
         while (opModeIsActive() && motorsBusy()) {
-            /*telemetry.addData("pos 1", lmotor0.getCurrentPosition());
-            telemetry.addData("pos 2", lmotor1.getCurrentPosition());
-            telemetry.addData("pos 3", rmotor0.getCurrentPosition());
-            telemetry.addData("pos 4", rmotor1.getCurrentPosition());
-            telemetry.update();*/
-
         }
     }
 
-    public static void waitTime(int time) {
+    public void waitTime(int time) {
         try {
 
             Thread.sleep(time);
@@ -878,18 +877,25 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public String identifySingleMineral() {
         String color = "SILVER";
+        timer = new ElapsedTime();
         while (opModeIsActive() && timer.seconds() < 2) {
             if (tfod != null) {
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null && updatedRecognitions.size() > 0) {
                     Recognition mineral = null;
                     double highestConfidence = -1;
+
                     for (Recognition r : updatedRecognitions) {
+                        telemetry.addData("confidence:", r.getConfidence());
+                        telemetry.addData("width:", r.getWidth());
+                        telemetry.addData("height:", r.getHeight());
                         if (r.getConfidence() > highestConfidence) {
                             mineral = r;
+                            highestConfidence = r.getConfidence();
                         }
                     }
-                    if (mineral.getLabel().equals("LABEL_GOLD_MINERAL")) {
+                    telemetry.update();
+                    if (mineral.getLabel().equals(LABEL_GOLD_MINERAL)) {
                         color = "GOLD";
                     }
                     else {
@@ -907,39 +913,26 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String goldPos = "LEFT";
 
         //move();
-        turnRelative(37);
+        turnRelative(-30);
         right = identifySingleMineral();
-        turnRelative(-37);
+        turnRelative(35);
         center = identifySingleMineral();
 
+        turnRelative(-5);
         if (right.equals("SILVER") && center.equals("SILVER")) {
             goldPos = "LEFT";
         }
-        else if (right.equals("GOLD")) {
+        else if (right.equals("GOLD") && center.equals("SILVER")) {
+            goldPos = "RIGHT";
+        }
+        else if (right.equals("SILVER") && center.equals("GOLD")){
             goldPos = "CENTER";
         }
         else {
-            goldPos = "RIGHT";
+            goldPos = "LEFT";
         }
 
         return goldPos;
-    }
-
-    public void intakeGold() {
-        String goldPos = findGold();
-        if (goldPos.equals("LEFT")) {
-            turnRelative(-37);
-        }
-        else if (goldPos.equals("RIGHT")) {
-            turnRelative(37);
-        }
-
-        //extend slides out and intake mineral
-        moveSlidesTo(slidesMax - 1000, 0.5f);
-        moveIntakeArm(1);
-        moveHingeTo(90);
-        moveIntake(-1);
-        moveSlidesTo(slidesMax, 0.5f);
     }
 
 //    public void updateNavTargets() {

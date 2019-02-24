@@ -11,6 +11,18 @@ import java.util.Arrays;
 
 public class Tester extends ExponentialFunctions {
 
+    public static int turnDir(double targetAngle, double currentAngle) {
+
+        double angleDifference = currentAngle - targetAngle;
+        int angleDir = (int) (angleDifference / Math.abs(angleDifference));
+
+        if (Math.abs(angleDifference) > 180) {
+            angleDir *= -1;
+        }
+
+        return angleDir;
+    }
+
     public void relativeTurnDriver() {
 
         int[] angles = {90, -100, 50, 4, 16, -76, 36, 180};
@@ -63,9 +75,12 @@ public class Tester extends ExponentialFunctions {
 
             // telemetry variables
             double currentAngle = getRotationinDimension('Z');
+            currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
+            currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
             Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
             double targetAngle = standardPosAngle(v);
             double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
+
             telemetry.addData("currentAngle", currentAngle);
             telemetry.addData("targetAngle: ", targetAngle);
             telemetry.addData("movement Angle: ", moveAngle);
@@ -152,11 +167,11 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         // hopefully this will work now that I've corrected for the loss of direction when calculating angles between vectors
-        //vectorMoveTest();
-        double[][] testCoeff= {{8.5d,0d,0d,5.5d}};
+        vectorMoveTest();
+        //double[][] testCoeff= {{8.5d,0d,0d,5.5d}};
        // {6d,.2d,1d,0d},{6d,.2d,2d,0d}, {6d,.2d,3d,0d}, {6d,.2d,4d,0d}, {6d,.2d,5d,0d}
         //move(24f, .4f);
-        PIDTester(testCoeff);
+        //PIDTester(testCoeff);
         //servoPosTesting(shifterServo);
 //        double[][] motorVelocities = motorVelTesting(10);
 //
@@ -192,22 +207,30 @@ public class Tester extends ExponentialFunctions {
 
         boolean testsPassed = true;
 
-        Vector i = new Vector(new double[] {1, 0});
+        for (int initAngle = 0; initAngle < 360; initAngle++) {
 
-        for (int d = -180; d < 180; d++) {
+            Vector i = new Vector(new double[] {Math.cos(Math.toRadians(initAngle)), Math.sin(Math.toRadians(initAngle))});
 
-            Vector v = new Vector(new double[] {Math.cos(Math.toRadians(d)), Math.sin(Math.toRadians(d))});
+            for (int disp = -180; disp < 180; disp++) {
 
-            if ((i.angleBetween(v) * getAngleDir(d, 0)) != d) {
+                double newAngle = (initAngle + disp);
+                newAngle = (newAngle < 0) ? newAngle + 360 : newAngle;
+                newAngle = (newAngle > 360) ? newAngle - 360: newAngle;
 
-                testsPassed = false;
+                Vector v = new Vector(new double[] {Math.cos(Math.toRadians(newAngle)), Math.sin(Math.toRadians(newAngle))});
+
+                if ((i.angleBetween(v) * turnDir(newAngle, initAngle)) != disp) {
+
+
+                    testsPassed = false;
+                }
             }
         }
 
         return testsPassed;
     }
 
-    public void PIDTester(double[][] coefficients) {
+    /*public void PIDTester(double[][] coefficients) {
 
         boolean testsPassed = true;
         //move(24f,.62f);
@@ -234,16 +257,17 @@ public class Tester extends ExponentialFunctions {
             move(30f,.6f);
 
         }
-    }
+    }*/
 
     public static void main(String[] args) {
 
         Tester t = new Tester();
 
-        System.out.println(VectorAbsAngleTester()); // Works!
+        //System.out.println(VectorAbsAngleTester()); // Works!
 
-        System.out.println(VectorAbsAngleTester()); // not tested
+        //System.out.println(VectorAbsAngleTester()); // not tested
 
+        t.vectorMoveTest();
         double[][] PIDCoefficients = new double[][] {
                 {0, 0, 0, 0},
                 {1, 1, 1, 1},
