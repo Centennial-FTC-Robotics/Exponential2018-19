@@ -446,7 +446,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
         currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
 
-        Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
+        Vector orientationVector = new Vector(new double[] {Math.cos(Math.toRadians(currentAngle)), Math.sin(Math.toRadians(currentAngle))});
 
         // absolute angle of the target vector in standard position
         double targetAngle = standardPosAngle(v);

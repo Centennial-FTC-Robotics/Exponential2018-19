@@ -146,6 +146,17 @@ public class Vector {
         reCalcAngles();
     }
 
+    public void scale(int component, double scalar) {
+
+        if (component < components.length) {
+
+            components[component] *= scalar;
+        }
+
+        reCalcMagnitude();
+        reCalcAngles();
+    }
+
     public void collapse(int dimension) {
 
         if (dimension < this.dimension()) {
@@ -196,7 +207,8 @@ public class Vector {
         double dotProduct = this.dot(v2);
         double magnitudeProducts = magnitude * v2.getMagnitude();
 
-        return Math.toDegrees(Math.acos(dotProduct / magnitudeProducts));
+        double angle = Math.toDegrees(Math.acos(dotProduct / magnitudeProducts));
+        return Math.round(angle * 1000.0) / 1000.0;
     }
 
     public void zero() {
@@ -210,6 +222,52 @@ public class Vector {
         i.scale(-1);
 
         return i;
+    }
+
+    public static double standardPosAngle(Vector v) {
+
+        v.collapse(2);
+
+        Vector i = new Vector(new double[] {1, 0});
+        Vector j = new Vector(new double[] {0, 1});
+
+        double iAngle = v.angleBetween(i);
+
+        if (v.angleBetween(j) > 90) {
+
+            iAngle = 360 - iAngle;
+        }
+
+        return iAngle;
+    }
+
+    /**
+     * This function rotates the vector in the x-y plane
+     * @param degrees
+     */
+    public void rotate(double degrees) {
+        // make this store the rest of the components and also be able to rotate in more dimensions
+        this.collapse(2);
+
+        double currentAngle = Vector.standardPosAngle(this);
+
+//        double[] newComponents = new double[components.length];
+//
+//        for (int c = 0; c < newComponents.length; c++) {
+//
+//            newComponents[c] =
+//        }
+    }
+
+    public void flipDimension(int dimension) {
+
+        if (dimension < components.length) {
+
+            components[dimension] *= -1;
+        }
+
+        reCalcMagnitude();
+        reCalcAngles();
     }
 
     public String toString() {
