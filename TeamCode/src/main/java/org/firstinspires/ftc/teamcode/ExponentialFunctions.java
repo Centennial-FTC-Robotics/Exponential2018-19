@@ -441,10 +441,17 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void move(Vector v, float speed) {
 
-        // current orientation
         double currentAngle = getRotationinDimension('Z');
         currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
         currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
+        // current orientation
+
+        currentAngle = 0;
+
+        move(v, speed, currentAngle);
+    }
+
+    public void move(Vector v, float speed, double currentAngle) {
 
         Vector orientationVector = new Vector(new double[] {Math.cos(Math.toRadians(currentAngle)), Math.sin(Math.toRadians(currentAngle))});
 
@@ -455,14 +462,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
 
 
-        turnRelative(moveAngle);
+        turnAbsoluteModified(moveAngle);
         waitForMotors();
 
         move((float) (v.getMagnitude()), speed);
         waitForMotors();
-
-        turnRelative(-moveAngle);
-        waitForMotors();
+//
+//        turnAbsoluteModified(currentAngle);
+//        waitForMotors();
     }
 
     //currently in inches

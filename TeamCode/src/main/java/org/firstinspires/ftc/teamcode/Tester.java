@@ -57,10 +57,14 @@ public class Tester extends ExponentialFunctions {
     public void vectorMoveTest() {
 
         double[][] movements = new double[][] {
-                {2, 2},
-                {-2, 2},
-                {-2, -2},
-                {2, -2}
+                {1, 0},
+                {0, 1},
+                {-1, 0},
+                {0, -1},
+                {1, 1},
+                {-1, -1},
+                {-1, 1},
+                {1, -1}
         };
 
         Vector[] movementVectors = new Vector[movements.length];
@@ -68,7 +72,7 @@ public class Tester extends ExponentialFunctions {
         for (int m = 0; m < movements.length; m++) {
 
             movementVectors[m] = new Vector(movements[m]);
-            movementVectors[m].scale(3);
+            movementVectors[m].scale(12);
         }
 
         for (Vector v: movementVectors) {
