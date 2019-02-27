@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="DepotAuto", group="TeleOp")
+@Autonomous(name="DepotAuto", group="TeleOp")
+
 
 public class DepotAuto extends ExponentialFunctions {
-
+    private float autoMoveSpeed = 0.4f;
     @Override
     public void runOpMode() throws InterruptedException {
         // initialize sensors and position
@@ -32,45 +34,40 @@ public class DepotAuto extends ExponentialFunctions {
 
         initializeIMU();
 
-        //----------------UNTESTED----------------//
-        move(-10, 0.4f);
-        float moveSpeed = 0.3f;
+        move(-10, autoMoveSpeed);
         String goldPos = findGold();
         move(-2, 0.4f);
 
         if (goldPos.equals("LEFT")) {
             turnRelative(45);
-            move(-28, moveSpeed);
+            move(-28, autoMoveSpeed);
             turnRelative(90);
-            move(-40, moveSpeed);
+            move(-40, autoMoveSpeed);
 
         }
         else if (goldPos.equals("RIGHT")) {
             turnRelative(-45);
-            move(-24, moveSpeed);
-            move(22, moveSpeed);
+            move(-24, autoMoveSpeed);
+            move(22, autoMoveSpeed);
             turnRelative(45);
 
             turnRelative(90);
-            move(-48, moveSpeed);
+            move(-48, autoMoveSpeed);
             turnRelative(45);
-            move(-3, moveSpeed);
-            moveHingeTo(45);
+            move(-3, autoMoveSpeed);
         }
         else {
-            move(-17, moveSpeed);
-            move(15, moveSpeed);
+            move(-17, autoMoveSpeed);
+            move(15, autoMoveSpeed);
 
             turnRelative(90);
-            move(-48, moveSpeed);
+            move(-48, autoMoveSpeed);
             turnRelative(45);
-            move(-3, moveSpeed);
-            moveHingeTo(45);
+            move(-3, autoMoveSpeed);
         }
-        //move (-3, 0.4f);
 
-
-
+        moveHingeTo(45);
+        moveSlidesTo(slidesMax - 1000, 0.8f);
         /*Vector movement;
         Vector turn = new Vector(new double[] {-3 * Math.sqrt(2), Math.sqrt(2)});
 

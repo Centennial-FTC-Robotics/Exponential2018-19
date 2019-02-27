@@ -54,6 +54,24 @@ public class Tester extends ExponentialFunctions {
         }
     }
 
+    public void moveModifiedTest() {
+
+        int[] distances = {24, -24, 12, -12, 6, -6, 3, -3};
+
+        for (int distance = 0; distance < distances.length && opModeIsActive(); distance++) {
+
+            telemetry.addData("current distance: ", distances[distance]);
+            telemetry.addData("targetPosition", convertInchToEncoder(distances[distance]));
+            telemetry.addData("lmotor0: ", lmotor0.getCurrentPosition());
+            telemetry.addData("lmotor1: ", lmotor1.getCurrentPosition());
+            telemetry.addData("rmotor0: ", rmotor0.getCurrentPosition());
+            telemetry.addData("rmotor1: ", rmotor1.getCurrentPosition());
+            telemetry.update();
+            moveModified((float) distances[distance], (float) 0.2);
+            while(!gamepad1.a && opModeIsActive());
+        }
+    }
+
     public void vectorMoveTest() {
 
         double[][] movements = new double[][] {

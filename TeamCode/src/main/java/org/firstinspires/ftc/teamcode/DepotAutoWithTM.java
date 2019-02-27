@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="CraterAuto", group="TeleOp")
+@Autonomous(name="DepotAutoWithTM", group="TeleOp")
 
-public class CraterAuto extends ExponentialFunctions {
+public class DepotAutoWithTM extends ExponentialFunctions {
 
-    private float autoMoveSpeed = 0.4f;
+    float autoMoveSpeed = 0.4f;
     @Override
     public void runOpMode() throws InterruptedException {
-
         // initialize sensors and position
         super.runOpMode();
         initVision();
@@ -38,27 +37,37 @@ public class CraterAuto extends ExponentialFunctions {
 
         //sample
         String goldPos = findGold();
+        move(-2, 0.4f);
         if (goldPos.equals("LEFT")) {
             turnRelative(45);
-        }
-        else if (goldPos.equals("RIGHT")) {
+            move(-24, autoMoveSpeed);
+            move(22, autoMoveSpeed);
             turnRelative(-45);
-        }
-        move(-20, autoMoveSpeed);
 
-        //park
-        moveHingeTo(45);
-        moveSlidesTo(slidesMax - 1000, 0.8f);
-        if (goldPos.equals("LEFT")) {
-            turnRelative(-45);
-            move(-6, autoMoveSpeed);
         }
         else if (goldPos.equals("RIGHT")) {
+            turnRelative(-45);
+            move(-24, autoMoveSpeed);
+            move(22, autoMoveSpeed);
             turnRelative(45);
-            move(-6, autoMoveSpeed);
         }
         else {
-            move(-3, autoMoveSpeed);
+            move(-17, autoMoveSpeed);
+            move(15, autoMoveSpeed);
         }
+
+        //team marker
+        turnRelative(90);
+        move(-17, autoMoveSpeed);
+        turnRelative(-45);
+        move(-24, autoMoveSpeed);
+        turnRelative(-90);
+        move(-24, autoMoveSpeed);
+        tmServo.setPosition(0);
+
+        //park
+        move(50, autoMoveSpeed);
+        moveHingeTo(45);
+        moveSlidesTo(slidesMax - 1000, 0.8f);
     }
 }

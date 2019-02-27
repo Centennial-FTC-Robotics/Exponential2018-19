@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="CraterAuto", group="TeleOp")
+@Autonomous(name="CraterAutoWithTM", group="TeleOp")
 
-public class CraterAuto extends ExponentialFunctions {
+public class CraterAutoWithTM extends ExponentialFunctions {
 
     private float autoMoveSpeed = 0.4f;
     @Override
@@ -34,7 +34,18 @@ public class CraterAuto extends ExponentialFunctions {
 
         initializeIMU();
 
-        move(-10, 0.4f);
+        move(-10, autoMoveSpeed);
+
+        //team marker
+        turnRelative(90);
+        move(-51, autoMoveSpeed);
+        turnRelative(45);
+        move(-24, autoMoveSpeed);
+        tmServo.setPosition(0);
+        move(24, autoMoveSpeed);
+        turnRelative(-45);
+        move(51, autoMoveSpeed);
+        turnRelative(-90);
 
         //sample
         String goldPos = findGold();

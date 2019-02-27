@@ -478,6 +478,44 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         //hingeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void moveModified(float targetDistance, double maxSpeed) {
+        for (int i = 0; i < driveMotors.length; i++) {
+            driveMotors[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        waitForMotors();
+        for (int i = 0; i < driveMotors.length; i++) {
+            driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+        int currentPosLeft = (lmotor0.getCurrentPosition() + lmotor1.getCurrentPosition()) / 2;
+        int currentPosRight = (rmotor0.getCurrentPosition() + rmotor1.getCurrentPosition()) / 2;
+        int targetPos = -convertInchToEncoder(targetDistance);
+        double moveRateLeft = 0;
+        double moveRateRight = 0;
+        double P = 1.156d / 274.589d;
+        double minSpeed = 0;
+        double tolerance = 5;
+
+        double errorLeft = targetPos - currentPosLeft;
+        double errorRight = targetPos - currentPosRight;
+
+        while (opModeIsActive() && (!(errorLeft < tolerance && errorLeft > -tolerance) || !(errorRight < tolerance && errorRight > -tolerance))) {
+            currentPosLeft = (lmotor0.getCurrentPosition() + lmotor1.getCurrentPosition()) / 2;
+            currentPosRight = (rmotor0.getCurrentPosition() + rmotor1.getCurrentPosition()) / 2;
+            errorLeft = targetPos - currentPosLeft;
+            errorRight = targetPos - currentPosRight;
+            moveRateLeft = Range.clip(P * errorLeft, -maxSpeed, maxSpeed);
+            moveRateRight = Range.clip(P * errorRight, -maxSpeed, maxSpeed);
+            telemetry.addData("error left: ", errorLeft);
+            telemetry.addData("error right: ", errorRight);
+            telemetry.addData("move left: ", moveRateLeft);
+            telemetry.addData("move right: ", moveRateRight);
+            telemetry.update();
+            runDriveMotors((float) (moveRateLeft), (float) (moveRateRight));
+        }
+        runDriveMotors(0, 0);
+
+    }
+
     public void move(Vector v, float speed) {
 
         double referenceAngle = 0;
