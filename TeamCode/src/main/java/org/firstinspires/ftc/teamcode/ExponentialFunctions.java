@@ -196,6 +196,21 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return 0;
     }
 
+    public double normalizeAngle(double degrees) {
+
+        while (degrees < 0) {
+
+            degrees += 360;
+        }
+
+        while (degrees > 360) {
+
+            degrees -= 360;
+        }
+
+        return degrees;
+    }
+
     public int getHingeAngle() {
 
         return lHingeMotor.getCurrentPosition() * (2240 / 90);
@@ -256,6 +271,22 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         return iAngle;
     }
 
+    public Vector getCurrentVector() {
+
+        double currentAngle = getRotationinDimension('Z');
+        currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
+        currentAngle = (currentAngle > 360) ? currentAngle - 360 : currentAngle;
+
+        return generateAngledUnitVector(currentAngle);
+    }
+
+    public Vector generateAngledUnitVector(double angle) {
+
+        Vector orientation = new Vector(new double[] {Math.cos(Math.toRadians(angle)), Math.sin(Math.toRadians(angle))});
+
+        return orientation;
+    }
+
     public int convertInchToEncoder(float dist) {
 
         float wheelRotations = (float) (dist / (wheelDiameterIn * Math.PI));
@@ -277,6 +308,14 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     /* -------------- Movement -------------- */
 
     //movement based on speeds
+
+    public void runDriveMotorsVel(double leftVel, double rightVel) {
+
+        lmotor0.setVelocity(leftVel);
+        lmotor1.setVelocity(leftVel);
+        rmotor0.setVelocity(rightVel);
+        rmotor1.setVelocity(rightVel);
+    }
 
     public void runRightMotors(float speed) {
         rmotor0.setPower(Range.clip(speed, -1, 1));
@@ -441,25 +480,20 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void move(Vector v, float speed) {
 
-        double currentAngle = getRotationinDimension('Z');
-        currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
-        currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
-        // current orientation
+        double referenceAngle = 0;
 
-        currentAngle = 0;
-
-        move(v, speed, currentAngle);
+        move(v, speed, referenceAngle);
     }
 
-    public void move(Vector v, float speed, double currentAngle) {
+    public void move(Vector v, float speed, double referenceAngle) {
 
-        Vector orientationVector = new Vector(new double[] {Math.cos(Math.toRadians(currentAngle)), Math.sin(Math.toRadians(currentAngle))});
+        Vector orientationVector = new Vector(new double[] {Math.cos(Math.toRadians(referenceAngle)), Math.sin(Math.toRadians(referenceAngle))});
 
         // absolute angle of the target vector in standard position
         double targetAngle = standardPosAngle(v);
 
-        // angle and angle direction
-        double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
+        // absolute position of the angle from reference
+        double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, referenceAngle);
 
 
         turnAbsoluteModified(moveAngle);
@@ -467,9 +501,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         move((float) (v.getMagnitude()), speed);
         waitForMotors();
-//
-//        turnAbsoluteModified(currentAngle);
-//        waitForMotors();
     }
 
     //currently in inches
@@ -494,6 +525,41 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         runDriveMotors(0, 0);
         for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+
+    public void movePID(float distance, float speed) {
+
+        ElapsedTime interval = new ElapsedTime();
+
+        double prevVelError = 0;
+
+        while (opModeIsActive() && prevVelError > 5) {
+
+            double currentVel = (lmotor0.getVelocity() + rmotor0.getVelocity() + lmotor1.getVelocity() + rmotor1.getVelocity()) / 4;
+
+            double velError = speed - Math.abs(currentVel);
+
+            double time_interval = interval.time();
+
+            double P = 0;
+            double D = 0;
+            double I = 0;
+
+            // derivative
+            D = default_D * (velError - prevVelError) / time_interval;
+
+            // integral
+            I = default_I * (((velError + prevVelError)* time_interval) / 2.0);
+
+            P = default_P * velError;
+
+            double change = D + I + P;
+            prevVelError = velError;
+
+            interval.reset();
+            // move the motors
+            runDriveMotorsVel(((lmotor0.getVelocity() + lmotor1.getVelocity()) / 2.0) + change, ((rmotor0.getVelocity() + rmotor1.getVelocity()) / 2.0) + change);
         }
     }
 
@@ -525,19 +591,18 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         runDriveMotors(0, 0);
     }
 
-    public void turnAbsoluteModifiedModified(double targetAngle) {
+    public void turnAbsolutePID(double targetAngle) {
 
-        double currentAngle = getRotationinDimension('Z');
-        currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
-        currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
+        double currentAngle = normalizeAngle(getRotationinDimension('Z'));
         double direction = getAngleDir(targetAngle, currentAngle);
-        ArrayList<Double> velocity = new ArrayList<Double>();
+
         ElapsedTime interval = new ElapsedTime();
 
-        double error = getAngleDist(targetAngle, currentAngle);
-        while (opModeIsActive() && error > 4 && getAngleDir(targetAngle, currentAngle) == direction) {
+        double prevAngleError = 0;
 
-            velocity.add((lmotor0.getVelocity() + rmotor0.getVelocity() + lmotor1.getVelocity() + rmotor1.getVelocity()) / 4);
+        while (opModeIsActive() && getAngleDist(targetAngle, currentAngle) > 4 && getAngleDir(targetAngle, currentAngle) == direction) {
+
+            double angleError = getAngleDist(targetAngle, currentAngle);
 
             double time_interval = interval.time();
 
@@ -545,22 +610,22 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
             double D = 0;
             double I = 0;
 
-            if (velocity.size() > 1) {
+            // derivative
+            D = default_D * (angleError - prevAngleError) / time_interval;
 
-                // derivative
-                D = default_D * (velocity.get(velocity.size() - 1) - velocity.get(velocity.size() - 2)) / time_interval;
+            // integral
+            I = default_I * (((angleError + prevAngleError)* time_interval) / 2.0);
 
-                // integral
-                I = default_I * (Math.sqrt(Math.pow((velocity.get(velocity.size() - 1) - velocity.get(velocity.size() - 2)), 2) + Math.pow(time_interval, 2)) * time_interval) / 2.0;
-
-                P = default_P * velocity.get(velocity.size() - 1);
-            }
-
+            P = default_P * angleError;
+            
             double change = D + I + P;
+            prevAngleError = angleError;
 
             interval.reset();
-            // move the motors
 
+            turnRelative(getCurrentVector().angleBetween(generateAngledUnitVector(normalizeAngle(currentAngle + change))) * getAngleDir(targetAngle, currentAngle + change));
+
+            currentAngle = normalizeAngle(getRotationinDimension('Z'));
         }
     }
 
@@ -713,7 +778,6 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         lIntakeServo.setPower(power);
         rIntakeServo.setPower(power);
-
     }
     /* -------------- Procedure -------------- */
 
