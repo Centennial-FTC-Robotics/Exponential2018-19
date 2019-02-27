@@ -283,13 +283,13 @@ public class Tester extends ExponentialFunctions {
 
     public static void main(String[] args) {
 
-        Tester t = new Tester();
+        //Tester t = new Tester();
 
         //System.out.println(VectorAbsAngleTester()); // Works!
 
-        //System.out.println(VectorAbsAngleTester()); // not tested
+        System.out.println(VectorAbsAngleTester()); // not tested
 
-        t.vectorMoveTest();
+        //t.vectorMoveTest();
         double[][] PIDCoefficients = new double[][] {
                 {0, 0, 0, 0},
                 {1, 1, 1, 1},

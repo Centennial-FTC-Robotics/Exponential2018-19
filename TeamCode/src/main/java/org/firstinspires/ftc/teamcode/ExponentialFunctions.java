@@ -543,6 +543,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     //currently in inches
     public void move(float distance, float speed) {
+
+        move(distance, speed, distance, speed);
+    }
+
+    public void move(float leftDist, float leftSpeed, float rightDist, float rightSpeed) {
+
         //converting from linear distance -> wheel rotations ->
         // motor rotations -> encoder counts, then round
         for (int i = 0; i < driveMotors.length; i++) {
@@ -551,12 +557,18 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         waitForMotors();
 
-        int position = convertInchToEncoder(distance);
+        int lposition = convertInchToEncoder(leftDist);
+        int rposition = convertInchToEncoder(rightDist);
 
-        for (int i = 0; i < driveMotors.length; i++) {
-            driveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            driveMotors[i].setTargetPosition(-position);
-            driveMotors[i].setPower(speed);
+        for (int i = 0; i < rightDriveMotors.length && i < leftDriveMotors.length; i++) {
+
+            leftDriveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftDriveMotors[i].setTargetPosition(-lposition);
+            leftDriveMotors[i].setPower(leftSpeed);
+
+            rightDriveMotors[i].setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightDriveMotors[i].setTargetPosition(-rposition);
+            rightDriveMotors[i].setPower(rightSpeed);
         }
         waitForMotors();
 
@@ -661,7 +673,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
             interval.reset();
 
-            turnRelative(getCurrentVector().angleBetween(generateAngledUnitVector(normalizeAngle(currentAngle + change))) * getAngleDir(targetAngle, currentAngle + change));
+            double change_theta = getCurrentVector().angleBetween(generateAngledUnitVector(normalizeAngle(currentAngle + change)));
+            direction = getAngleDir(targetAngle, currentAngle + change);
+
+            double arcLength = (((2 * Math.PI * 7.8968504 * change_theta) / 360) * direction);
+
+            move((float) -arcLength, 0.2f, (float) arcLength, 0.2f);
 
             currentAngle = normalizeAngle(getRotationinDimension('Z'));
         }
@@ -1043,39 +1060,4 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         return goldPos;
     }
-
-//    public void updateNavTargets() {
-//
-//        // check all the trackable target to see which one (if any) is visible.
-//        targetVisible = false;
-//        for (VuforiaTrackable trackable : allTrackables) {
-//            if (((VuforiaTrackableDefaultListener) trackable.getListener()).isVisible()) {
-//                telemetry.addData("Visible Target", trackable.getName());
-//                targetVisible = true;
-//
-//                // getUpdatedRobotLocation() will return null if no new information is available since
-//                // the last time that call was made, or if the trackable is not currently visible.
-//                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) trackable.getListener()).getUpdatedRobotLocation();
-//                if (robotLocationTransform != null) {
-//                    lastLocation = robotLocationTransform;
-//                }
-//                break;
-//            }
-//        }
-//
-//        // Provide feedback as to where the robot is located (if we know).
-//        if (targetVisible) {
-//            // express position (translation) of robot in inches.
-//            VectorF translation = lastLocation.getTranslation();
-//            telemetry.addData("Pos (in)", "{X, Y, Z} = %.1f, %.1f, %.1f",
-//                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch, translation.get(2) / mmPerInch);
-//
-//            // express the rotation of the robot in degrees.
-//            Orientation rotation = Orientation.getOrientation(lastLocation, EXTRINSIC, XYZ, DEGREES);
-//            telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", rotation.firstAngle, rotation.secondAngle, rotation.thirdAngle);
-//        } else {
-//            telemetry.addData("Visible Target", "none");
-//        }
-//        telemetry.update();
-//    }
 }
