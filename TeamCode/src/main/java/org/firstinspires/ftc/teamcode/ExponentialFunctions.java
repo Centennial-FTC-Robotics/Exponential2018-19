@@ -504,7 +504,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         int targetPos = -convertInchToEncoder(targetDistance);
         double moveRateLeft = 0;
         double moveRateRight = 0;
-        double P = 0.002d;
+        double P = 0.001d;
         double minSpeed = 0;
         double tolerance = 5;
 

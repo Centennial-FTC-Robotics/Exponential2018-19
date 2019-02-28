@@ -67,7 +67,7 @@ public class Tester extends ExponentialFunctions {
             telemetry.addData("rmotor0: ", rmotor0.getCurrentPosition());
             telemetry.addData("rmotor1: ", rmotor1.getCurrentPosition());
             telemetry.update();
-            moveModified((float) distances[distance], (float) 0.2);
+            moveModified((float) distances[distance], (float) 0.4);
             while(!gamepad1.a && opModeIsActive());
         }
     }
