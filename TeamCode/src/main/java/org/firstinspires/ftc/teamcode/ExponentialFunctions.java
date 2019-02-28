@@ -479,19 +479,32 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveModified(float targetDistance, double maxSpeed) {
-        for (int i = 0; i < driveMotors.length; i++) {
+        /*for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
+        }*/
+
+        lmotor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lmotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rmotor0.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rmotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         waitForMotors();
-        for (int i = 0; i < driveMotors.length; i++) {
+
+        /*for (int i = 0; i < driveMotors.length; i++) {
             driveMotors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
+        }*/
+
+        lmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rmotor0.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rmotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         int currentPosLeft = (lmotor0.getCurrentPosition() + lmotor1.getCurrentPosition()) / 2;
         int currentPosRight = (rmotor0.getCurrentPosition() + rmotor1.getCurrentPosition()) / 2;
         int targetPos = -convertInchToEncoder(targetDistance);
         double moveRateLeft = 0;
         double moveRateRight = 0;
-        double P = 1.156d / 274.589d;
+        double P = 0.002d;
         double minSpeed = 0;
         double tolerance = 5;
 

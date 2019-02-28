@@ -177,6 +177,7 @@ public class Tester extends ExponentialFunctions {
         super.runOpMode();
         initializeIMU();
         waitForStart();
+        moveModifiedTest();
 
         //move(12);
         //turnRelative(90, .2)
@@ -189,7 +190,7 @@ public class Tester extends ExponentialFunctions {
         //linearMoveTest();
 
         // hopefully this will work now that I've corrected for the loss of direction when calculating angles between vectors
-        vectorMoveTest();
+        //vectorMoveTest();
         //double[][] testCoeff= {{8.5d,0d,0d,5.5d}};
        // {6d,.2d,1d,0d},{6d,.2d,2d,0d}, {6d,.2d,3d,0d}, {6d,.2d,4d,0d}, {6d,.2d,5d,0d}
         //move(24f, .4f);
