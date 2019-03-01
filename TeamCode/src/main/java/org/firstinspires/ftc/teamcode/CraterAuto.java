@@ -34,7 +34,7 @@ public class CraterAuto extends ExponentialFunctions {
 
         initializeIMU();
 
-        move(-10, 0.4f);
+        moveModified(-10, 0.4f);
 
         //sample
         String goldPos = findGold();
@@ -44,21 +44,21 @@ public class CraterAuto extends ExponentialFunctions {
         else if (goldPos.equals("RIGHT")) {
             turnRelative(-45);
         }
-        move(-20, autoMoveSpeed);
+        moveModified(-20, autoMoveSpeed);
 
         //park
         moveHingeTo(45);
         moveSlidesTo(slidesMax - 1000, 0.8f);
         if (goldPos.equals("LEFT")) {
             turnRelative(-45);
-            move(-6, autoMoveSpeed);
+            moveModified(-6, autoMoveSpeed);
         }
         else if (goldPos.equals("RIGHT")) {
             turnRelative(45);
-            move(-6, autoMoveSpeed);
+            moveModified(-6, autoMoveSpeed);
         }
         else {
-            move(-3, autoMoveSpeed);
+            moveModified(-3, autoMoveSpeed);
         }
     }
 }

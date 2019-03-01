@@ -34,17 +34,17 @@ public class CraterAutoWithTM extends ExponentialFunctions {
 
         initializeIMU();
 
-        move(-10, autoMoveSpeed);
+        moveModified(-10, autoMoveSpeed);
 
         //team marker
         turnRelative(90);
-        move(-51, autoMoveSpeed);
+        moveModified(-51, autoMoveSpeed);
         turnRelative(45);
-        move(-24, autoMoveSpeed);
+        moveModified(-24, autoMoveSpeed);
         tmServo.setPosition(0);
-        move(24, autoMoveSpeed);
+        moveModified(24, autoMoveSpeed);
         turnRelative(-45);
-        move(51, autoMoveSpeed);
+        moveModified(51, autoMoveSpeed);
         turnRelative(-90);
 
         //sample
@@ -55,21 +55,21 @@ public class CraterAutoWithTM extends ExponentialFunctions {
         else if (goldPos.equals("RIGHT")) {
             turnRelative(-45);
         }
-        move(-20, autoMoveSpeed);
+        moveModified(-20, autoMoveSpeed);
 
         //park
         moveHingeTo(45);
         moveSlidesTo(slidesMax - 1000, 0.8f);
         if (goldPos.equals("LEFT")) {
             turnRelative(-45);
-            move(-6, autoMoveSpeed);
+            moveModified(-6, autoMoveSpeed);
         }
         else if (goldPos.equals("RIGHT")) {
             turnRelative(45);
-            move(-6, autoMoveSpeed);
+            moveModified(-6, autoMoveSpeed);
         }
         else {
-            move(-3, autoMoveSpeed);
+            moveModified(-3, autoMoveSpeed);
         }
     }
 }

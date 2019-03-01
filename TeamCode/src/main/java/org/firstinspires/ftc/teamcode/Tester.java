@@ -11,18 +11,6 @@ import java.util.Arrays;
 
 public class Tester extends ExponentialFunctions {
 
-    public static int turnDir(double targetAngle, double currentAngle) {
-
-        double angleDifference = currentAngle - targetAngle;
-        int angleDir = (int) (angleDifference / Math.abs(angleDifference));
-
-        if (Math.abs(angleDifference) > 180) {
-            angleDir *= -1;
-        }
-
-        return angleDir;
-    }
-
     public void relativeTurnDriver() {
 
         int[] angles = {90, -100, 50, 4, 16, -76, 36, 180};
@@ -55,8 +43,8 @@ public class Tester extends ExponentialFunctions {
     }
 
     public void moveModifiedTest() {
-
-        int[] distances = {24, -24, 12, -12, 6, -6, 3, -3};
+        int[] distances = {36, -36, 36, -36, 36, -36, 36, -36, 36, -36};
+        //int[] distances = {48, -48, 24, -24, 12, -12, 6, -6, 3, -3};
 
         for (int distance = 0; distance < distances.length && opModeIsActive(); distance++) {
 
@@ -67,51 +55,21 @@ public class Tester extends ExponentialFunctions {
             telemetry.addData("rmotor0: ", rmotor0.getCurrentPosition());
             telemetry.addData("rmotor1: ", rmotor1.getCurrentPosition());
             telemetry.update();
-            moveModified((float) distances[distance], (float) 0.4);
+            moveModified((float) distances[distance], (float) 0.5);
             while(!gamepad1.a && opModeIsActive());
         }
     }
 
-    public void vectorMoveTest() {
-
-        double[][] movements = new double[][] {
-                {1, 0},
-                {0, 1},
-                {-1, 0},
-                {0, -1},
-                {1, 1},
-                {-1, -1},
-                {-1, 1},
-                {1, -1}
-        };
-
-        Vector[] movementVectors = new Vector[movements.length];
-
-        for (int m = 0; m < movements.length; m++) {
-
-            movementVectors[m] = new Vector(movements[m]);
-            movementVectors[m].scale(12);
+    public void sampleTest() {
+        initVision();
+        String goldPos = findGold();
+        if (goldPos.equals("LEFT")) {
+            turnRelative(45);
         }
-
-        for (Vector v: movementVectors) {
-
-            // telemetry variables
-            double currentAngle = getRotationinDimension('Z');
-            currentAngle = (currentAngle < 0) ? currentAngle + 360 : currentAngle;
-            currentAngle = (currentAngle > 360) ? currentAngle - 360: currentAngle;
-            Vector orientationVector = new Vector(new double[] {Math.cos(currentAngle), Math.sin(currentAngle)});
-            double targetAngle = standardPosAngle(v);
-            double moveAngle = orientationVector.angleBetween(v) * getAngleDir(targetAngle, currentAngle);
-
-            telemetry.addData("currentAngle", currentAngle);
-            telemetry.addData("targetAngle: ", targetAngle);
-            telemetry.addData("movement Angle: ", moveAngle);
-            telemetry.update();
-
-            move(v, 0.2f);
-            waitForMotors();
-            while(!gamepad1.a) {}
+        else if (goldPos.equals("RIGHT")) {
+            turnRelative(-45);
         }
+        moveModified(-20, 0.4f);
     }
 
     public void servoPosTesting(Servo testServo) {
@@ -124,40 +82,6 @@ public class Tester extends ExponentialFunctions {
             telemetry.update();
 
         }
-    }
-
-    public double[][] motorVelTesting(int intervalCount) {
-
-        double[][] velocities = new double[intervalCount][2];
-
-        // initial reset
-        moveHingeTo(0);
-        while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
-
-        for (int i = 1; i <= intervalCount; i++) {
-
-            // initial position
-            int x0 = lHingeMotor.getCurrentPosition();
-
-            // actual movement and measurement
-            moveHinge((float) (i / ((double) intervalCount)));
-            moveIntakeArm(1);
-
-            waitTime(1000);
-
-            int x1 = lHingeMotor.getCurrentPosition();
-
-            // store velocity
-
-            velocities[i - 1] = new double[] {(i / ((double) intervalCount)), (x1 - x0)};
-
-            // reset
-            moveHinge(0);
-            moveHingeTo(0);
-            while (lHingeMotor.isBusy() && rHingeMotor.isBusy() && opModeIsActive()) {};
-        }
-
-        return velocities;
     }
 
     public String[] findGoldEvaluationTester() {
@@ -177,8 +101,8 @@ public class Tester extends ExponentialFunctions {
         super.runOpMode();
         initializeIMU();
         waitForStart();
-        moveModifiedTest();
-
+        //moveModifiedTest();
+        sampleTest();
         //move(12);
         //turnRelative(90, .2)
 //        while (opModeIsActive()) {
@@ -189,8 +113,6 @@ public class Tester extends ExponentialFunctions {
         //relativeTurnDriver();
         //linearMoveTest();
 
-        // hopefully this will work now that I've corrected for the loss of direction when calculating angles between vectors
-        //vectorMoveTest();
         //double[][] testCoeff= {{8.5d,0d,0d,5.5d}};
        // {6d,.2d,1d,0d},{6d,.2d,2d,0d}, {6d,.2d,3d,0d}, {6d,.2d,4d,0d}, {6d,.2d,5d,0d}
         //move(24f, .4f);
@@ -207,51 +129,6 @@ public class Tester extends ExponentialFunctions {
         //blinker();
     }
 
-    public static boolean VectorAbsAngleTester() {
-
-        boolean testsPassed = true;
-
-        for (int theta = 0; theta < 360; theta++) {
-
-            Vector testV = new Vector(new double[] {Math.cos(Math.toRadians(theta)), Math.sin(Math.toRadians(theta))});
-
-            // commented out bc only set standardPosAngle() to be static to test it, not gonna have a syntax error laying around now
-//            if (Math.round(ExponentialFunctions.standardPosAngle(testV)) != theta) {
-//
-//                System.out.println("Input Angle: " + theta + " Output: " + Math.round(ExponentialFunctions.standardPosAngle(testV)));
-//                testsPassed = false;
-//            }
-        }
-
-        return testsPassed;
-    }
-
-    public static boolean vectorAngleTester() {
-
-        boolean testsPassed = true;
-
-        for (int initAngle = 0; initAngle < 360; initAngle++) {
-
-            Vector i = new Vector(new double[] {Math.cos(Math.toRadians(initAngle)), Math.sin(Math.toRadians(initAngle))});
-
-            for (int disp = -180; disp < 180; disp++) {
-
-                double newAngle = (initAngle + disp);
-                newAngle = (newAngle < 0) ? newAngle + 360 : newAngle;
-                newAngle = (newAngle > 360) ? newAngle - 360: newAngle;
-
-                Vector v = new Vector(new double[] {Math.cos(Math.toRadians(newAngle)), Math.sin(Math.toRadians(newAngle))});
-
-                if ((i.angleBetween(v) * turnDir(newAngle, initAngle)) != disp) {
-
-
-                    testsPassed = false;
-                }
-            }
-        }
-
-        return testsPassed;
-    }
 
     /*public void PIDTester(double[][] coefficients) {
 
@@ -284,19 +161,5 @@ public class Tester extends ExponentialFunctions {
 
     public static void main(String[] args) {
 
-        //Tester t = new Tester();
-
-        //System.out.println(VectorAbsAngleTester()); // Works!
-
-        System.out.println(VectorAbsAngleTester()); // not tested
-
-        //t.vectorMoveTest();
-        double[][] PIDCoefficients = new double[][] {
-                {0, 0, 0, 0},
-                {1, 1, 1, 1},
-                {0.5, 0.5, 0.5, 0.5}
-        };
-
-        //t.PIDTester(, PIDCoefficients);
     }
 }

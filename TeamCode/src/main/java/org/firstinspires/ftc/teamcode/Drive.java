@@ -12,7 +12,7 @@ public class Drive extends ExponentialFunctions {
 
     public static float scale = 1;
     public static float fastScale = 1;
-    public static float slowScale = (float) 0.2;
+    public static float slowScale = (float) 0.5;
     public double currentIntakePower = 0;
 
     public void runOpMode() throws InterruptedException {

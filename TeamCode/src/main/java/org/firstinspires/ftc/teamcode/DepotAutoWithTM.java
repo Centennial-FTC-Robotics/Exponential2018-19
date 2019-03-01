@@ -33,40 +33,40 @@ public class DepotAutoWithTM extends ExponentialFunctions {
 
         initializeIMU();
 
-        move(-10, 0.4f);
+        moveModified(-10, 0.4f);
 
         //sample
         String goldPos = findGold();
-        move(-2, 0.4f);
+        moveModified(-2, 0.4f);
         if (goldPos.equals("LEFT")) {
             turnRelative(45);
-            move(-24, autoMoveSpeed);
-            move(22, autoMoveSpeed);
+            moveModified(-24, autoMoveSpeed);
+            moveModified(22, autoMoveSpeed);
             turnRelative(-45);
 
         }
         else if (goldPos.equals("RIGHT")) {
             turnRelative(-45);
-            move(-24, autoMoveSpeed);
-            move(22, autoMoveSpeed);
+            moveModified(-24, autoMoveSpeed);
+            moveModified(22, autoMoveSpeed);
             turnRelative(45);
         }
         else {
-            move(-17, autoMoveSpeed);
-            move(15, autoMoveSpeed);
+            moveModified(-17, autoMoveSpeed);
+            moveModified(15, autoMoveSpeed);
         }
 
         //team marker
         turnRelative(90);
-        move(-17, autoMoveSpeed);
+        moveModified(-17, autoMoveSpeed);
         turnRelative(-45);
-        move(-24, autoMoveSpeed);
+        moveModified(-24, autoMoveSpeed);
         turnRelative(-90);
-        move(-24, autoMoveSpeed);
+        moveModified(-24, autoMoveSpeed);
         tmServo.setPosition(0);
 
         //park
-        move(50, autoMoveSpeed);
+        moveModified(50, autoMoveSpeed);
         moveHingeTo(45);
         moveSlidesTo(slidesMax - 1000, 0.8f);
     }
