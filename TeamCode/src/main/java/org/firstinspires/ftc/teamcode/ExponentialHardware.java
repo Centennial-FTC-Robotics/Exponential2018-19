@@ -53,6 +53,9 @@ public abstract class ExponentialHardware extends LinearOpMode {
 
     DcMotorEx[] driveMotors;
     Servo[] intakeServos;
+
+    DcMotorEx[] leftDriveMotors;
+    DcMotorEx[] rightDriveMotors;
     @Override
     public void runOpMode() throws InterruptedException {
         lmotor0 = (DcMotorEx) hardwareMap.get(DcMotor.class, "lmotor0");
@@ -99,7 +102,7 @@ public abstract class ExponentialHardware extends LinearOpMode {
         shifterServo.setPosition(stronk);
         intakeServos = new Servo[] {lIntakeArmServo, rIntakeArmServo};
         driveMotors = new DcMotorEx[] {lmotor0, lmotor1, rmotor0, rmotor1};
-
-
+        leftDriveMotors = new DcMotorEx[] {lmotor0, lmotor1};
+        rightDriveMotors = new DcMotorEx[] {rmotor0, rmotor1};
     }
 }
