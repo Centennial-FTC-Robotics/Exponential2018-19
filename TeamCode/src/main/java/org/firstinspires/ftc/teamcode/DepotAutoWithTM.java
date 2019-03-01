@@ -39,14 +39,14 @@ public class DepotAutoWithTM extends ExponentialFunctions {
         String goldPos = findGold();
         moveModified(-2, 0.4f);
         if (goldPos.equals("LEFT")) {
-            turnRelative(45);
+            turnRelative(40);
             moveModified(-24, autoMoveSpeed);
             moveModified(22, autoMoveSpeed);
             turnRelative(-45);
 
         }
         else if (goldPos.equals("RIGHT")) {
-            turnRelative(-45);
+            turnRelative(-50);
             moveModified(-24, autoMoveSpeed);
             moveModified(22, autoMoveSpeed);
             turnRelative(45);

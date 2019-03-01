@@ -542,9 +542,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         double currentAngle = getRotationinDimension('Z');
         int direction;
         double turnRate = 0;
-        double P = 1d / 125d;
-        double minSpeed = 0;
-        double maxSpeed = 0.2d;
+        double P = 1d / 250d;
+        double minSpeed = 0.02;
+        double maxSpeed = 0.5d;
         double tolerance = 0.5;
 
         double error = getAngleDist(targetAngle, currentAngle);

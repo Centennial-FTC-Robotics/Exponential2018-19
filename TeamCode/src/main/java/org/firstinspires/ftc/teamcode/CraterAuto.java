@@ -39,10 +39,10 @@ public class CraterAuto extends ExponentialFunctions {
         //sample
         String goldPos = findGold();
         if (goldPos.equals("LEFT")) {
-            turnRelative(45);
+            turnRelative(40);
         }
         else if (goldPos.equals("RIGHT")) {
-            turnRelative(-45);
+            turnRelative(-50);
         }
         moveModified(-20, autoMoveSpeed);
 
@@ -50,11 +50,11 @@ public class CraterAuto extends ExponentialFunctions {
         moveHingeTo(45);
         moveSlidesTo(slidesMax - 1000, 0.8f);
         if (goldPos.equals("LEFT")) {
-            turnRelative(-45);
+            turnRelative(-40);
             moveModified(-6, autoMoveSpeed);
         }
         else if (goldPos.equals("RIGHT")) {
-            turnRelative(45);
+            turnRelative(50);
             moveModified(-6, autoMoveSpeed);
         }
         else {
