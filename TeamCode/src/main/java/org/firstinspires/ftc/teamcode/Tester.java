@@ -20,7 +20,7 @@ public class Tester extends ExponentialFunctions {
             telemetry.addData("current relative angle: ", angles[angle]);
             telemetry.update();
             turnRelative(angles[angle]);
-            while (!gamepad1.a && opModeIsActive()) {};
+            while(opModeIsActive() && !gamepad1.a);
         }
     }
 
@@ -38,7 +38,7 @@ public class Tester extends ExponentialFunctions {
             telemetry.addData("rmotor1: ", rmotor1.getCurrentPosition());
             telemetry.update();
             move((float) distances[distance], (float) 0.2);
-            while(!gamepad1.a && opModeIsActive());
+            while(opModeIsActive() && !gamepad1.a);
         }
     }
 
@@ -56,7 +56,7 @@ public class Tester extends ExponentialFunctions {
             telemetry.addData("rmotor1: ", rmotor1.getCurrentPosition());
             telemetry.update();
             moveModified((float) distances[distance], (float) 0.5);
-            while(!gamepad1.a && opModeIsActive());
+            while(opModeIsActive() && !gamepad1.a);
         }
     }
 
@@ -138,7 +138,7 @@ public class Tester extends ExponentialFunctions {
         //while (!gamepad1.a && opModeIsActive()) {};
 
         for (int PID = 0; PID < coefficients.length && coefficients[PID].length == 4; PID++) {
-            while (!gamepad1.a && opModeIsActive()) {};
+            while(opModeIsActive() && !gamepad1.a);
             setPID(lmotor0, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
             setPID(lmotor1, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);
             setPID(rmotor0, coefficients[PID][0], coefficients[PID][1], coefficients[PID][2], coefficients[PID][3]);

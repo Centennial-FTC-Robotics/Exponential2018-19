@@ -112,12 +112,15 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         imu.initialize(parameters);
         while (opModeIsActive() && !imu.isGyroCalibrated()) ;
-        try {
+        /*try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             telemetry.addData("oof", "oof");
             telemetry.update();
-        }
+        }*/
+        resetOrientation();
+    }
+    public void resetOrientation(){
         updateOrientation();
         initialHeading = orientation.firstAngle;
         initialRoll = orientation.secondAngle;
@@ -198,12 +201,12 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public double normalizeAngle(double degrees) {
 
-        while (degrees < 0) {
+        while (opModeIsActive() && degrees < 0) {
 
             degrees += 360;
         }
 
-        while (degrees > 360) {
+        while (opModeIsActive() && degrees > 360) {
 
             degrees -= 360;
         }
@@ -302,6 +305,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     }
 
     public void moveSlides(float power) {
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         double direction = -1;
         int currentPos = (lSlideMotor.getCurrentPosition() + rSlideMotor.getCurrentPosition()) / 2;
 
@@ -327,6 +333,8 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void moveSlidesUnlimited(float power) {
         double direction = -1;
+        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lSlideMotor.setPower(direction * Range.clip(power, -1, 1));
         rSlideMotor.setPower(direction * Range.clip(power, -1, 1));
     }
@@ -334,14 +342,11 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
     public void moveSlidesTo(int encoderPos, float speed) {
         lSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rSlideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         lSlideMotor.setTargetPosition(encoderPos);
         rSlideMotor.setTargetPosition(encoderPos);
         lSlideMotor.setPower(speed);
         rSlideMotor.setPower(speed);
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
-        lSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while (opModeIsActive() && (lSlideMotor.isBusy() || rSlideMotor.isBusy())) {};
         lSlideMotor.setPower(0);
         rSlideMotor.setPower(0);
     }
@@ -381,7 +386,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         }
     }
 
-    /*public void moveSlidesInchRelative(double targetΔ, double speed) {
+    /*public void InchRelative(double targetΔ, double speed) {
         moveSlidesInchAbsolute(getSlideExtendInch() + targetΔ, speed);
     }
     public void moveSlidesInchAbsolute(double targetInch, double speed) {
@@ -617,9 +622,9 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
     public void dropDown() {
         moveHingeTo(0);
-        while (lHingeMotor.isBusy() || rHingeMotor.isBusy()) {};
+        while (opModeIsActive() && (lHingeMotor.isBusy() || rHingeMotor.isBusy())) {};
         moveSlidesTo(2100, 0.2f);
-        while (lSlideMotor.isBusy() || rSlideMotor.isBusy()) {};
+        while (opModeIsActive() && (lSlideMotor.isBusy() || rSlideMotor.isBusy())) {};
     }
 
     public void hitGold() {
@@ -689,6 +694,13 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
 
         lIntakeServo.setPower(power);
         rIntakeServo.setPower(power);
+    }
+
+    public void dropMarker() {
+        moveHingeTo(70);
+        moveIntake(1);
+        waitTime(1000);
+        moveIntake(0);
     }
     /* -------------- Procedure -------------- */
 
@@ -909,13 +921,10 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         String center;
         String goldPos;
 
-        //move();
-        turnRelative(-30);
-        right = identifySingleMineral();
-        turnRelative(35);
         center = identifySingleMineral();
+        turnRelative(-35);
+        right = identifySingleMineral();
 
-        turnRelative(-5);
         if (right.equals("SILVER") && center.equals("SILVER")) {
             goldPos = "LEFT";
         }
@@ -932,7 +941,7 @@ public abstract class ExponentialFunctions extends ExponentialHardware {
         else {
             goldPos = "LEFT";
         }
-
+        turnRelative(30);
         return goldPos;
     }
 }

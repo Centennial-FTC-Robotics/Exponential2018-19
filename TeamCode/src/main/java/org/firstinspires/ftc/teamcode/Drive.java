@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -17,11 +18,13 @@ public class Drive extends ExponentialFunctions {
 
     public void runOpMode() throws InterruptedException {
         super.runOpMode();
+        shifterServo.setPosition(speed);
         waitForStart();
         lmotor0.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         lmotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rmotor0.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rmotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);        while(opModeIsActive()){
+        rmotor1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        while(opModeIsActive()){
 
             //drive with joysticks
             float moveSpeed = Math.abs(gamepad1.left_stick_y)*gamepad1.left_stick_y;
@@ -40,14 +43,8 @@ public class Drive extends ExponentialFunctions {
             float slideSpeed = Range.clip(gamepad2.left_stick_y, -1, 1);
             moveSlidesUnlimited(slideSpeed);
 
-            if (gamepad2.left_bumper) {
-                //moveHingeTo(0);
-            } else {
-                //move hinge with joystick
-                //int hingePos = lHingeMotor.getCurrentPosition();
-                float hingeSpeed = Range.clip(gamepad2.right_stick_y, -1, 1);
-                moveHinge(hingeSpeed);
-            }
+            float hingeSpeed = Range.clip(gamepad2.right_stick_y, -0.5f, 0.5f);
+            moveHinge(hingeSpeed);
 
             // Speed Scaling
             //slow mode
@@ -62,7 +59,6 @@ public class Drive extends ExponentialFunctions {
 
             //shifting mechanism
             if (gamepad2.x) {
-
                 shiftTo(stronk);
             }
 
@@ -78,7 +74,7 @@ public class Drive extends ExponentialFunctions {
                 moveIntakeArm(0);
             }
             else{
-                moveIntakeArm(.5);
+                moveIntakeArm(.45);
             }
 
             //Intake

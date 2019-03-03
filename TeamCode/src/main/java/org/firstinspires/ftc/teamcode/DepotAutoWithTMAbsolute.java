@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="DepotAutoWithTM", group="TeleOp")
+@Autonomous(name="DepotAutoWithTMAbsolute", group="TeleOp")
 
-public class DepotAutoWithTM extends ExponentialFunctions {
+public class DepotAutoWithTMAbsolute extends ExponentialFunctions {
 
     float autoMoveSpeed = 0.4f;
     @Override
@@ -22,10 +22,10 @@ public class DepotAutoWithTM extends ExponentialFunctions {
 
         //come off of lander
         moveHingeTo(10);
-        while ((lHingeMotor.isBusy() || rHingeMotor.isBusy()) && opModeIsActive()) {}
+        while (opModeIsActive() && (lHingeMotor.isBusy() || rHingeMotor.isBusy())) {}
         moveIntakeArm(0.5f);
         moveSlidesTo(4600, 0.8f);
-        while ((lSlideMotor.isBusy() || rSlideMotor.isBusy()) && opModeIsActive()) {
+        while (opModeIsActive() && (lHingeMotor.isBusy() || rHingeMotor.isBusy())) {
 
             /*telemetry.addData("lSlideMotor encoder: ", lSlideMotor.getCurrentPosition());
             telemetry.addData("rSlideMotor encoder: ", rSlideMotor.getCurrentPosition());
@@ -38,25 +38,23 @@ public class DepotAutoWithTM extends ExponentialFunctions {
 
         //sample
         String goldPos = findGold();
+
+        //hit and move back
         if (goldPos.equals("LEFT")) {
-            turnRelative(40);
+            turnAbsoluteModified(40);
             moveModified(-22, autoMoveSpeed);
             moveModified(15, autoMoveSpeed);
-            turnRelative(50);
-
         }
         else if (goldPos.equals("RIGHT")) {
-            turnRelative(-40);
+            turnAbsoluteModified(-40);
             moveModified(-22, autoMoveSpeed);
-            moveModified(18, autoMoveSpeed);
-            turnRelative(130);
+            moveModified(16, autoMoveSpeed);
         }
         else {
             moveModified(-19, autoMoveSpeed);
             moveModified(15, autoMoveSpeed);
-            turnRelative(90);
         }
-
+        turnAbsoluteModified(90);
         //team marker
 
         //diagonal move
@@ -67,7 +65,7 @@ public class DepotAutoWithTM extends ExponentialFunctions {
             moveModified(-15, autoMoveSpeed);
         }
 
-        turnRelative(-45);
+        turnAbsoluteModified(45);
 
         //move towards wall
         if (goldPos.equals("LEFT")) {
@@ -80,22 +78,14 @@ public class DepotAutoWithTM extends ExponentialFunctions {
             moveModified(-21, autoMoveSpeed);
         }
 
-        //turn towards depot
-        if (goldPos.equals("LEFT")) {
-            turnRelative(-89);
-        }
-        else if (goldPos.equals("CENTER")) {
-            //turnRelative();
-        }
-        else if (goldPos.equals("RIGHT")) {
-            turnRelative(-87);
-        }
+        turnAbsoluteModified(-45);
 
         //move to depot
         moveModified(-28, autoMoveSpeed);
-        tmServo.setPosition(0);
+
+        dropMarker();
 
         //move to crater
-        moveModified(59, autoMoveSpeed);
+        moveModified(61, autoMoveSpeed);
     }
 }

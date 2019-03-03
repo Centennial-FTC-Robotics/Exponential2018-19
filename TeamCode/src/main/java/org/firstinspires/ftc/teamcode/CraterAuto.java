@@ -58,6 +58,7 @@ public class CraterAuto extends ExponentialFunctions {
             moveModified(-6, autoMoveSpeed);
         }
         else {
+            turnRelative(-5);
             moveModified(-3, autoMoveSpeed);
         }
     }

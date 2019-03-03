@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="SingleDriverTeleOp", group="TeleOp")
+@TeleOp(name="MatthewDrive", group="TeleOp")
 //0 is front, 1 is back
 //l means left, r means right
 public class MatthewDrive extends ExponentialFunctions {

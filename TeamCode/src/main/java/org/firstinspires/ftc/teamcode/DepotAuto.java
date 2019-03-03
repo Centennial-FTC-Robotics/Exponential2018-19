@@ -57,6 +57,7 @@ public class DepotAuto extends ExponentialFunctions {
             moveModified(-3, autoMoveSpeed);
         }
         else {
+            turnRelative(-5);
             moveModified(-17, autoMoveSpeed);
             moveModified(15, autoMoveSpeed);
 

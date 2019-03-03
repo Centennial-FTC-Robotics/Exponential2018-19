@@ -66,6 +66,9 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rHingeMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rHinge");
         lSlideMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "lSlide");
         rSlideMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "rSlide");
+        lSlideMotor.setTargetPositionTolerance(30);
+        rSlideMotor.setTargetPositionTolerance(30);
+
         shifterServo = hardwareMap.servo.get("shifterServo");
         lIntakeArmServo = hardwareMap.servo.get("lInArm");
         rIntakeArmServo = hardwareMap.servo.get("rInArm");
@@ -81,8 +84,8 @@ public abstract class ExponentialHardware extends LinearOpMode {
         rHingeMotor.setDirection(DcMotorEx.Direction.REVERSE);
         rIntakeArmServo.setDirection(Servo.Direction.REVERSE);
         rIntakeServo.setDirection(CRServo.Direction.REVERSE);
-        lSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
-        rSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        //lSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        //rSlideMotor.setDirection(DcMotorEx.Direction.REVERSE);
 
         lmotor0.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         lmotor1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
